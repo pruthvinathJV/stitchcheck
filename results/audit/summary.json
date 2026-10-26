@@ -1,0 +1,32 @@
+{
+  "images": 14565,
+  "unique_images": 14418,
+  "fabrics": 11,
+  "source_classes": 11,
+  "locked_images": 8508,
+  "locked_unique": 8388,
+  "sizes": [
+    {
+      "width": 224,
+      "height": 224,
+      "mode": "RGB",
+      "n": 14565
+    }
+  ],
+  "exact_duplicates": {
+    "groups": 121,
+    "images": 268,
+    "removable": 147,
+    "cross_fabric_groups": 0,
+    "cross_class_groups": 0
+  },
+  "dhash_collisions": {
+    "groups": 711,
+    "images": 2762,
+    "removable": 2051,
+    "cross_fabric_groups": 250,
+    "cross_class_groups": 316
+  },
+  "cc_by_unique": 10702,
+  "min_locked_cell": 100
+}

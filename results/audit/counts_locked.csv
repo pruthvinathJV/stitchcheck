@@ -1,0 +1,13 @@
+fabric,thread,good,skipped_stitch,broken_stitch,crooked_seam,puckering,stain_damage,All
+Chiffon,Poly,217,102,103,101,102,108,733
+Cotton,Poly,220,144,112,118,104,108,806
+Denim,Poly,200,106,107,117,102,100,732
+Jacquard,Poly,200,110,103,105,113,106,737
+Linen,Poly,220,103,117,130,112,103,785
+Nylon,Core,221,120,120,120,110,112,803
+Oxford,Core,263,125,119,116,145,103,871
+Polyester,Poly,250,108,102,107,121,102,790
+Polyester (coated),Core,215,109,108,108,113,111,764
+Satin,Core,227,108,108,108,106,106,763
+Velveteen,Poly,203,104,102,100,112,103,724
+All,,2436,1239,1201,1230,1240,1162,8508
