@@ -1,7 +1,7 @@
 """Ingest the tailor's phone photos into a labelled manifest.
 
-Capture protocol given to the tailor: 3 shirting cottons x 7 types. Per fabric: 4 good pairs + 2 pairs per
-defect type; 4 photos per pair at chalk marks 15 cm apart. Photos arrive on WhatsApp as Documents, each group
+Capture protocol given to the tailor: 3 shirting cottons x 7 types. Per fabric: 4 good pairs, 3 pairs each of
+skipped and broken, 2 pairs of every other defect type (17 pairs); 4 photos per pair at chalk marks 15 cm apart. Photos arrive on WhatsApp as Documents, each group
 preceded by a text tag "<fabric>-<type>", e.g. "B-3". Within a tag, photos are in pair order:
 photo i -> pair i // 4 + 1, chalk mark i % 4 + 1.
 
@@ -28,7 +28,10 @@ from PIL import Image, ImageOps
 FABRICS = {"A": "white", "B": "dark", "C": "checks"}
 TYPES = {1: "good", 2: "skipped_stitch", 3: "broken_stitch", 4: "crooked_seam",
          5: "puckering", 6: "stain_damage", 7: "open_seam"}  # 7 is the unseen-defect probe
-PAIRS_PER_TYPE = {1: 4}  # every other type has 2 pairs
+PAIRS_PER_TYPE = {1: 4, 2: 3, 3: 3}  # good 4, skipped and broken 3, every other type 2
+# Skipped stitch and puckering run along the whole seam, so a given chalk mark may not show them.
+# The other defects are made at every chalk mark.
+WHOLE_SEAM_TYPES = {2, 5}
 PHOTOS_PER_PAIR = 4
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".heic", ".webp"}
 
@@ -137,6 +140,7 @@ def label_photos(photos):
             rows.append(dict(
                 photo_id=f"{fabric}{type_id}-p{pair}-m{mark}", tag=tag, fabric=fabric, fabric_desc=FABRICS[fabric],
                 type_id=type_id, label=TYPES[type_id], unseen=int(type_id == 7),
+                check_visible=int(type_id in WHOLE_SEAM_TYPES),
                 pair_id=f"{fabric}{type_id}-p{pair}", chalk_mark=mark, order_in_tag=i + 1,
                 count_ok=int(len(items) == expected), source_file=p.source.name, sent_at=p.sent_at, md5=digest))
     missing = [f"{f}-{t}" for f in FABRICS for t in TYPES if f"{f}-{t}" not in by_tag]

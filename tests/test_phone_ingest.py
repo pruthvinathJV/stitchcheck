@@ -37,13 +37,14 @@ def test_ios_export_maps_tag_order_to_labels(tmp_path):
     src.mkdir()
     n = _ios_export(src)
     df, warnings = ingest.ingest(src, out)
-    assert n == 192 and len(df) == 192 and warnings == []
+    assert n == 216 and len(df) == 216 and warnings == []
     assert df.groupby("label").size().to_dict() == {
-        "good": 48, "skipped_stitch": 24, "broken_stitch": 24, "crooked_seam": 24,
+        "good": 48, "skipped_stitch": 36, "broken_stitch": 36, "crooked_seam": 24,
         "puckering": 24, "stain_damage": 24, "open_seam": 24}
     b3 = df[df["tag"] == "B-3"].sort_values("order_in_tag")
     assert list(b3["photo_id"])[:5] == ["B3-p1-m1", "B3-p1-m2", "B3-p1-m3", "B3-p1-m4", "B3-p2-m1"]
     assert set(df[df["type_id"] == 7]["unseen"]) == {1}
+    assert set(df[df["check_visible"] == 1]["label"]) == {"skipped_stitch", "puckering"}
     first = Image.open(out / "images" / "A1-p1-m1.jpg")
     assert first.size == (20, 40)               # EXIF rotation applied
     assert 0x8825 not in first.getexif()        # GPS stripped
