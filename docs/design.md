@@ -20,6 +20,15 @@
 
 **Headline: recall on major defects.** Major = skipped_stitch, broken_stitch, stain_damage, and open_seam (phone set only), following standard garment AQL practice: these fail an audit wherever they appear. Crooked_seam and puckering count as defects in all other metrics but are not in the headline.
 
+A major defect counts as caught if the system flags it as any defect class, as unknown_defect, or sends it to the checker. Exact-class recall is reported in the per-class table.
+
+Because deferral counts as caught, two guards are reported next to the headline:
+
+- **Auto-caught recall on majors:** the same recall, with "ask the checker" counted as a miss.
+- **Checker workload:** the share of good seams that are flagged or deferred, which is the false-alarm cost in checker taps.
+
+A system that defers everything shows a high headline, low auto-caught recall and a very high workload, so it cannot hide. Definitions are in `src/stitchcheck/eval/metrics.py`.
+
 Also reported:
 
 - per-class precision, recall and F1, and macro-F1
@@ -27,7 +36,7 @@ Also reported:
 - unseen-defect "called good" rate
 - Muse Spark unknown_defect flag rate
 - latency per photo
-- cost per 100 garments
+- cost per 100 garments, assuming 5 close-ups per shirt (collar, two side seams, hem, pocket); the assumption is stated next to the number
 
 ## Systems compared
 

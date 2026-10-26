@@ -25,8 +25,3 @@ def cluster_bootstrap(df, metric, group="pair_id", n_boot=2000, alpha=0.05, seed
     return dict(value=float(metric(df)), lo=float(lo), hi=float(hi), n_rows=len(df), n_groups=len(keys),
                 n_boot_valid=len(draws))
 
-
-def recall(df, positive, y_true="label", y_pred="pred"):
-    """Share of rows whose true label is in `positive` that were predicted as any label in `positive`."""
-    pos = df[df[y_true].isin(positive)]
-    return float(pos[y_pred].isin(positive).mean()) if len(pos) else float("nan")
