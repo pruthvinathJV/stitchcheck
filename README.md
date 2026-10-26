@@ -74,7 +74,7 @@ cp .env.example .env                        # add MODEL_API_KEY
 .venv/bin/python -m pytest -q
 ```
 
-On macOS with Python 3.13 or later, if `import stitchcheck` fails after an editable install, the `.pth` file may have the hidden flag: `chflags nohidden .venv/lib/python3.*/site-packages/*.pth`.
+On macOS, if the repo lives under ~/Desktop or ~/Documents, files there can get the hidden flag and Python 3.13+ then skips the editable install's `.pth` file. Create the venv elsewhere and symlink it: `python3 -m venv ~/.venvs/stitchcheck && ln -s ~/.venvs/stitchcheck .venv`.
 
 ## Licence
 
