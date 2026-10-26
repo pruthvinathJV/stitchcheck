@@ -1,0 +1,28 @@
+# Environment and secrets
+.venv/
+.env
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.DS_Store
+
+# Datasets, photos, audio: never committed (StitchingNet is CC BY-NC; phone photos are private)
+data/raw/
+data/phone/
+data/audio/
+data/cache/
+results/**/*.jpg
+results/**/*.png
+
+# Large binaries
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.zip
+*.mp4
+*.mov
+*.wav
+*.m4a
+*.opus
