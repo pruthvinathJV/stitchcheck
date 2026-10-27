@@ -19,7 +19,7 @@ from pathlib import Path
 
 import modal
 
-GPU = "L4"
+GPU = "A10G"
 SEG_URL = "https://ndownloader.figshare.com/files/67145957"  # StitchingNet-Seg.zip, doi:10.6084/m9.figshare.31222708
 FILES = {"data/splits/stitchingnet_v2.csv": "/files/stitchingnet_v2.csv",
          "data/manifests/stitchingnet_seg.csv": "/files/stitchingnet_seg.csv",
