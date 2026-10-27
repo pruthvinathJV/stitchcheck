@@ -1,0 +1,41 @@
+{
+  "run": "clean_convnext_tiny_11fab_final-seed1",
+  "variant": "clean",
+  "arch": "convnext_tiny",
+  "val_fabrics": [],
+  "train_fabrics": [
+    "Chiffon",
+    "Cotton",
+    "Denim",
+    "Jacquard",
+    "Linen",
+    "Nylon",
+    "Oxford",
+    "Polyester",
+    "Polyester (coated)",
+    "Satin",
+    "Velveteen"
+  ],
+  "n_train": 7148,
+  "n_val": 0,
+  "final_epoch": 9,
+  "config": {
+    "variant": "clean",
+    "arch": "convnext_tiny",
+    "holdout": null,
+    "all_fabrics": true,
+    "epochs": 12,
+    "stop_after": 9,
+    "batch": 64,
+    "lr": 0.0002,
+    "backbone_lr_mult": 1.0,
+    "aug": "strong",
+    "label_smoothing": 0.1,
+    "freeze_bn": true,
+    "tag": "final-seed1",
+    "seed": 1,
+    "workers": 8,
+    "resume": false,
+    "stall_minutes": 10
+  }
+}
