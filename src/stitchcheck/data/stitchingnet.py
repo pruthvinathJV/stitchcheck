@@ -1,8 +1,9 @@
 """StitchingNet and StitchingNet-Seg: folder scanning, class map, licence tagging.
 
 Both releases use the same layout: <root>/<L>. <Fabric>-<Thread>/<N>. <Class>/<file>.jpg
-StitchingNet is CC BY-NC 4.0. StitchingNet-Seg (a filtered subset of the same images) is CC BY 4.0,
-so an image whose bytes also appear in Seg can be used under CC BY.
+StitchingNet is CC BY-NC 4.0. StitchingNet-Seg (a filtered subset of the same images) is CC BY 4.0.
+Every image used for training or evaluation is read from the Seg download (SEG_DIR) through load_split(),
+which asserts that every row is CC BY. The NC release (STITCHINGNET_DIR) is read only by the licence audit.
 """
 import hashlib
 import re
@@ -15,15 +16,17 @@ from PIL import Image
 STITCHINGNET_DIR = Path("data/raw/kagglehub/datasets/hyungjung/stitchingnet-dataset/versions/6")
 SEG_DIR = Path("data/raw/stitchingnet_seg/extracted/dataset")
 
-# Locked 6-class map. Source classes not listed here are "unseen" defects:
+SPLIT_FILE = Path("data/splits/stitchingnet_v2.csv")
+CC_BY = "CC-BY-4.0"
+
+# Locked 5-class map (all in the CC BY release). Other Seg defect classes are "unseen" defects:
 # never used for classifier training, only as a probe for Spark's unknown_defect flag.
-LABELS = ["good", "skipped_stitch", "broken_stitch", "crooked_seam", "puckering", "stain_damage"]
+LABELS = ["good", "skipped_stitch", "broken_stitch", "crooked_seam", "stain_damage"]
 SOURCE_TO_LABEL = {
     "Normal": "good",
     "Skipped stitch": "skipped_stitch",
     "Broken stitch": "broken_stitch",
     "Crooked seam": "crooked_seam",
-    "Puckering": "puckering",
     "Stain and damage": "stain_damage",
 }
 
@@ -70,3 +73,15 @@ def tag_licence(df, seg_root):
     df = df.copy()
     df["licence"] = np.where(df["md5"].isin(seg_md5), "CC-BY-4.0", "CC-BY-NC-4.0")
     return df
+
+
+def load_split(path=SPLIT_FILE):
+    """The split file, after checking that every image is CC BY and present in the Seg download."""
+    df = pd.read_csv(path).fillna({"label": ""})
+    bad = df[df["licence"] != CC_BY]
+    assert bad.empty, f"{len(bad)} non-CC BY rows in {path}, e.g. {bad['path'].iloc[0]}"
+    return df
+
+
+def image_path(rel):
+    return SEG_DIR / rel

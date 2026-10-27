@@ -1,9 +1,11 @@
-"""Download StitchingNet (Kaggle) and StitchingNet-Seg (figshare) into data/raw/.
+"""Download StitchingNet-Seg (figshare, CC BY 4.0) into data/raw/: the only image source for training and eval.
 
-python -m stitchcheck.data.download
+python -m stitchcheck.data.download [--nc-audit]
 
-Images are never committed; this script recreates them locally.
+--nc-audit also fetches the CC BY-NC StitchingNet release from Kaggle. Only the licence audit
+(stitchcheck.data.audit) reads it. Images are never committed; this script recreates them locally.
 """
+import argparse
 import os
 import zipfile
 from pathlib import Path
@@ -40,5 +42,8 @@ def download_seg():
 
 
 if __name__ == "__main__":
-    download_stitchingnet()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--nc-audit", action="store_true")
+    if ap.parse_args().nc_audit:
+        download_stitchingnet()
     download_seg()

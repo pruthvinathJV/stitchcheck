@@ -1,8 +1,9 @@
-"""Data audit for StitchingNet: counts, sizes, duplicates, licence coverage, sample grids.
+"""Licence audit of the CC BY-NC StitchingNet release against StitchingNet-Seg: counts, sizes, duplicates,
+licence coverage, sample grids. A one-off check (Oct 25); nothing downstream reads its outputs.
 
 python -m stitchcheck.data.audit [--root DIR] [--seg-root DIR] [--out results/audit]
 
-Writes data/manifests/stitchingnet.csv (committed; no pixels) and tables + grids under --out.
+Writes a manifest of the NC release to data/cache/ (gitignored) and tables + grids under --out.
 Grids are derived from CC BY-NC images and are gitignored.
 """
 import argparse
@@ -18,7 +19,7 @@ from PIL import Image
 
 from stitchcheck.data.stitchingnet import LABELS, SEG_DIR, STITCHINGNET_DIR, scan, tag_licence
 
-MANIFEST = Path("data/manifests/stitchingnet.csv")
+MANIFEST = Path("data/cache/stitchingnet_nc_audit.csv")
 
 
 def duplicate_stats(df, key):

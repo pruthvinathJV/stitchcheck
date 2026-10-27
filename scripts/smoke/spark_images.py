@@ -14,7 +14,7 @@ from pathlib import Path
 import pandas as pd
 from PIL import Image
 
-from stitchcheck.data.stitchingnet import LABELS, STITCHINGNET_DIR
+from stitchcheck.data.stitchingnet import LABELS, image_path, load_split
 from stitchcheck.meta_api import SPARK_MODEL, image_data_url, spark_client
 
 PROMPT = ("Each image is a close-up of a sewn seam. For each image, in order, answer with one label from: "
@@ -44,9 +44,9 @@ def main():
     ap.add_argument("--counts", type=int, nargs="+", default=[1, 5, 20])
     ap.add_argument("--big", action="store_true")
     args = ap.parse_args()
-    splits = pd.read_csv("data/splits/stitchingnet_v1.csv")
+    splits = load_split()
     pool = splits[(splits["spark_subset"] == 1) & (splits["split"] == "test")].sample(max(args.counts), random_state=0)
-    paths = [STITCHINGNET_DIR / p for p in pool["path"]]
+    paths = [image_path(p) for p in pool["path"]]
     client = spark_client()
     runs = []
     for n in args.counts:

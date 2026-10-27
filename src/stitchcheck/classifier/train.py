@@ -1,8 +1,8 @@
 """Fine-tune an ImageNet CNN on StitchingNet (leave-2-fabrics-out split, 8 training fabrics).
 
-python -m stitchcheck.classifier.train --variant clean|full [--arch efficientnet_b0] [--holdout FABRIC]
+python -m stitchcheck.classifier.train --variant clean [--arch efficientnet_b0] [--holdout FABRIC]
 
-clean: 5 classes, CC BY 4.0 images only (the shipped default). full: 6 classes, adds CC BY-NC puckering.
+clean: 5 classes, CC BY 4.0 images from StitchingNet-Seg only (the split loader asserts it).
 Validates on Linen (split == "val"). With --holdout, validates on one training fabric instead and trains on
 the other 7 (per-fabric difficulty without touching the test fabrics). Test splits are never loaded.
 Best epoch by validation macro-F1. Weights -> models/<run>/best.pt (gitignored); metrics -> results/classifier/<run>/.
@@ -26,14 +26,10 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import models, transforms
 
-from stitchcheck.data.stitchingnet import STITCHINGNET_DIR
+from stitchcheck.data.stitchingnet import LABELS, image_path, load_split
 from stitchcheck.eval.metrics import per_class_report
 
-CLASSES = {
-    "clean": ["good", "skipped_stitch", "broken_stitch", "crooked_seam", "stain_damage"],
-    "full": ["good", "skipped_stitch", "broken_stitch", "crooked_seam", "puckering", "stain_damage"],
-}
-SPLIT_FILE = Path("data/splits/stitchingnet_v1.csv")
+CLASSES = {"clean": LABELS}  # the only variant; the name is kept in run names
 MEAN, STD = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
 STALLED_EXIT_CODE = 75
 
@@ -97,7 +93,7 @@ def eval_transform():
 
 class Images(Dataset):
     def __init__(self, df, classes, transform):
-        self.paths = [STITCHINGNET_DIR / p for p in df["path"]]
+        self.paths = [image_path(p) for p in df["path"]]
         self.y = [classes.index(l) if l in classes else -1 for l in df["label"]]
         self.transform = transform
 
@@ -109,9 +105,8 @@ class Images(Dataset):
 
 
 def select(variant, holdout=None):
-    """Return (train_df, val_df, extra_df). extra_df: validation images of classes the model doesn't have
-    (puckering for clean), to see what the model calls them."""
-    df = pd.read_csv(SPLIT_FILE)
+    """Return (train_df, val_df)."""
+    df = load_split()
     df = df[df["split"].isin(["train", "val"])]  # test and unseen_test are never read here
     if holdout:
         df = df[df["split"] == "train"]
@@ -120,11 +115,7 @@ def select(variant, holdout=None):
     else:
         is_val = df["split"] == "val"
     classes = CLASSES[variant]
-    train, val = df[~is_val & df["label"].isin(classes)], df[is_val & df["label"].isin(classes)]
-    extra = df[is_val & df["label"].isin(set(CLASSES["full"]) - set(classes))]
-    if variant == "clean":
-        assert (train["licence"] == "CC-BY-4.0").all(), "clean model must train on CC BY images only"
-    return train, val, extra
+    return df[~is_val & df["label"].isin(classes)], df[is_val & df["label"].isin(classes)]
 
 
 @torch.no_grad()
@@ -164,7 +155,7 @@ def main():
     res_dir, model_dir = Path("results/classifier") / run, Path("models") / run
     res_dir.mkdir(parents=True, exist_ok=True); model_dir.mkdir(parents=True, exist_ok=True)
 
-    train, val, extra = select(args.variant, args.holdout)
+    train, val = select(args.variant, args.holdout)
     loader = lambda df, tf, shuffle: DataLoader(Images(df, classes, tf), batch_size=args.batch, shuffle=shuffle,
                                                 num_workers=args.workers)
     train_dl = loader(train, train_transform(args.aug), True)
@@ -223,15 +214,9 @@ def main():
                n_train=len(train), n_val=len(val), best_epoch=best[1], config=vars(args),
                per_class=report.to_dict("records"),
                confusion=pd.crosstab(preds["label"], preds["pred"]).to_dict())
-    if len(extra):  # e.g. what the clean model calls puckering
-        xp = predict(model, loader(extra, eval_transform(), False), device, watchdog)
-        out["unseen_class_predictions"] = (extra.assign(pred=[classes[i] for i in xp.argmax(1)])
-                                           .groupby("label")["pred"].value_counts().unstack(fill_value=0).to_dict("index"))
     pd.DataFrame(history).to_csv(res_dir / "history.csv", index=False)
     (res_dir / "metrics.json").write_text(json.dumps(out, indent=2, default=str))
     print(report.to_string(index=False))
-    if "unseen_class_predictions" in out:
-        print("predictions on classes the model lacks:", out["unseen_class_predictions"])
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
 
-from stitchcheck.data.stitchingnet import STITCHINGNET_DIR
+from stitchcheck.data.stitchingnet import image_path, load_split
 from stitchcheck.meta_api import SAM_MODEL, sam_segment
 
 OUT = Path("results/smoke")
@@ -38,8 +38,8 @@ def main():
     images = [f for p in args.images for f in (sorted(p.iterdir()) if p.is_dir() else [p])
               if f.suffix.lower() in {".jpg", ".jpeg", ".png", ".heic"}]
     if not images:
-        test = pd.read_csv("data/splits/stitchingnet_v1.csv").query("split == 'test' and label == 'good'")
-        images = [STITCHINGNET_DIR / p for p in test.sample(3, random_state=0)["path"]]
+        test = load_split().query("split == 'test' and label == 'good'")
+        images = [image_path(p) for p in test.sample(3, random_state=0)["path"]]
     (OUT / "sam").mkdir(parents=True, exist_ok=True)
     rows = []
     for img_path in images:

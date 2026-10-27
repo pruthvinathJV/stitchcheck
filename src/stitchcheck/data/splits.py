@@ -1,12 +1,12 @@
-"""Leave-2-fabrics-out split for StitchingNet.
+"""Leave-2-fabrics-out split for StitchingNet-Seg (CC BY 4.0 images only).
 
-python -m stitchcheck.data.splits   (needs data/manifests/stitchingnet.csv from stitchcheck.data.audit)
+python -m stitchcheck.data.splits   (needs data/manifests/stitchingnet_seg.csv from stitchcheck.data.manifest)
 
-Writes data/splits/stitchingnet_v1.csv with one row per image:
+Writes data/splits/stitchingnet_v2.csv with one row per image:
   split         train | val | test | unseen_test | unused | dropped_dup
-                  test        = 6 locked classes on the held-out fabrics
-                  unseen_test = the 5 other defect classes on the held-out fabrics (never trained on)
-                  unused      = the 5 other defect classes on train/val fabrics
+                  test        = 5 locked classes on the held-out fabrics
+                  unseen_test = the 3 other Seg defect classes on the held-out fabrics (never trained on)
+                  unused      = the 3 other Seg defect classes on train/val fabrics
   spark_subset  1 for the fixed sample the Spark arms run on: class-balanced from `test`
                 plus a small balanced sample from `unseen_test`
 """
@@ -15,14 +15,16 @@ from pathlib import Path
 
 import pandas as pd
 
+from stitchcheck.data.stitchingnet import CC_BY, SPLIT_FILE
+
 TEST_FABRICS = ("Cotton", "Oxford")   # one Poly-thread, one Core-thread fabric; both shirting
 VAL_FABRICS = ("Linen",)              # model selection on an unseen fabric, never a random image split
-SPARK_PER_CELL = 42                   # per (label, test fabric): 6 x 2 x 42 = 504
-SPARK_UNSEEN_PER_CELL = 10            # per (unseen class, test fabric): 5 x 2 x 10 = 100
+SPARK_PER_CELL = 42                   # per (label, test fabric): 5 x 2 x 42 = 420
+SPARK_UNSEEN_PER_CELL = 10            # per (unseen class, test fabric): 3 x 2 x 10 = 60
 SEED = 0
 
-MANIFEST = Path("data/manifests/stitchingnet.csv")
-OUT = Path("data/splits/stitchingnet_v1.csv")
+MANIFEST = Path("data/manifests/stitchingnet_seg.csv")
+OUT = SPLIT_FILE
 
 
 def assign_split(row):
@@ -41,6 +43,7 @@ def balanced_sample(df, by, n, seed):
 
 
 def build(manifest):
+    assert (manifest["licence"] == CC_BY).all(), "the split is built from CC BY images only"
     df = manifest.fillna({"label": ""}).sort_values("path").reset_index(drop=True)
     df["duplicate"] = df.duplicated("md5", keep="first")
     df["split"] = [assign_split(r) for r in df.itertuples()]
