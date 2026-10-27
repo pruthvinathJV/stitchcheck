@@ -45,8 +45,11 @@ def test_tools_expose_facts_from_the_database(session):
     assert t.get_dhu("session")["facts"] == {"dhu.session.dhu": "50.0", "dhu.session.defective_pct": "50.0",
                                              "dhu.session.garments": "4", "dhu.session.defects": "2"}
     assert t.get_dhu("machine")["facts"]["dhu.machine.12.defects"] == "2"
-    assert t.get_top_issues(1)["facts"] == {"top.1.operator": "OP07", "top.1.part": "collar", "top.1.defect": "skipped stitch",
-                                            "top.1.count": "2", "top.1.machine": "12"}
+    assert t.get_top_issues(1)["facts"] == {"top.1.machine": "12", "top.1.part": "collar", "top.1.defect": "skipped stitch",
+                                            "top.1.count": "2"}
+    assert "error" in t.get_dhu("operator")  # no per-person numbers in reports
+    assert t.get_checklist("skipped stitch")["checks"] == t.get_checklist("skipped_stitch")["checks"] != []
+    assert t.get_examples("skipped stitch", 2)["facts"] == t.get_examples("skipped_stitch", 2)["facts"] != {}
     assert t.get_audit_status()["facts"] == {"audit.status": "no audit run"}
     assert t.get_checklist("skipped_stitch")["checks"]
     assert t.get_ai_vs_checker()["facts"]["ai.agreed"] == "3"  # the good seam was agreed too

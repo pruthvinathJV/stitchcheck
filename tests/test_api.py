@@ -71,6 +71,8 @@ def test_photo_review_decision_dhu_and_trace(client):
     client.post(f"/garments/{g['id']}/complete")
     dash = client.get(f"/sessions/{s['id']}/dashboard").json()
     assert dash["dhu"] == 100.0 and dash["defective_pct"] == 100.0 and dash["by"]["machine"]["M01"]["defects"] == 1
+    assert "operator" not in dash["by"] and dash["supervisor_only"]["by_operator"]["OP01"]["defects"] == 1
+    assert dash["top_issues"] == [["M01", "collar", "skipped_stitch", 1]]
 
 
 def test_change_and_not_a_defect(client):

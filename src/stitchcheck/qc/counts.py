@@ -72,6 +72,13 @@ def worst_combinations(inspections, completed, n=3):
     return [(*k, c) for k, c in counts.most_common(n)]
 
 
+def process_issues(inspections, completed, n=3):
+    """Top machine-part-defect combinations by confirmed count: [(machine, part, defect, count)]. Process first:
+    the issue is the machine and the operation, not the person."""
+    c = Counter((i["machine_id"], i["final_part"], i["final_label"]) for i in confirmed_defects(inspections, completed))
+    return [(*k, v) for k, v in c.most_common(n)]
+
+
 def trend_alerts(inspections, garment_order, threshold=3, window=10):
     """Machines with the same confirmed defect on at least `threshold` of the last `window` completed garments in
     which that machine's work was inspected. garment_order: completed garment ids, oldest first.

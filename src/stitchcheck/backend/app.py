@@ -268,8 +268,10 @@ def create_app(deps: Deps):
         return {
             "completed_garments": len(done), "inspections": len(insp), "pending_decisions": pending,
             "dhu": round(counts.dhu(insp, done), 2), "defective_pct": round(counts.defective_pct(insp, done), 2),
-            "by": {by: counts.dhu_by(insp, done, by) for by in counts.BREAKDOWNS},
-            "top_issues": counts.worst_combinations(insp, done, n=3),
+            # Process first: machines, operations and defects lead; per-operator numbers are a supervisor-only view
+            "by": {by: counts.dhu_by(insp, done, by) for by in ("machine", "part", "defect")},
+            "top_issues": counts.process_issues(insp, done, n=3),
+            "supervisor_only": {"by_operator": counts.dhu_by(insp, done, "operator")},
             "alerts": con.execute("SELECT * FROM alert WHERE session_id = ? ORDER BY id DESC", (sid,)).fetchall(),
             "ai_vs_checker": {
                 "agreed": sum(1 for i in insp if i["decision"] == "agree"),

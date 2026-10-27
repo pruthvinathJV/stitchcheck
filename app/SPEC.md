@@ -4,6 +4,8 @@ The phone app for the checker and the supervisor. It talks only to the backend A
 
 ## Ground rules
 
+- **Process first.** Defects are about the process, not the person. Lead with machines and operations; never rank workers or use words like "worst operator". Alerts and actions are checks for the mechanic or the line (needle, tension, feed, handling).
+
 - **AI drafts, checker decides.** Nothing counts as a defect until the checker taps Agree or Change.
 - **Two-step result.** A photo first returns the crop and the classifier's label; Muse Spark's verdict follows a few seconds later. Show a "reviewing" state in between and never block the camera.
 - **Labels in Telugu with English below.** The buyer report stays in English. Telugu strings are written and checked by Pruthvi; this spec lists the English text and keys.
@@ -70,8 +72,9 @@ Hold the mic button to record (WAV, M4A or WebM). Release to send:
 `GET /sessions/{id}/dashboard` (refresh every 10 s while open, and after every decision):
 - `completed_garments`, `inspections`, `pending_decisions`
 - `dhu` and `defective_pct`: the two big numbers. DHU = defects per hundred garments; defective % = garments with at least one defect.
-- `by.operator`, `by.machine`, `by.part`, `by.defect`: `{key: {defects, dhu}}`, worst first. Show as bar lists.
-- `top_issues`: `[[operator, part, defect, count]]`.
+- `by.machine`, `by.part`, `by.defect`: `{key: {defects, dhu}}`, most defects first. Show as bar lists; machines and operations lead the screen.
+- `top_issues`: `[[machine, part, defect, count]]`.
+- `supervisor_only.by_operator`: per-operator counts, shown only on a separate supervisor view (behind a tap, never on the main dashboard), for training, never as a ranking.
 - `alerts`: trend alerts `{machine_id, defect, garment_ids, created_at, body_md}` ("3 skipped stitches on machine 7 in the last 10 garments"). `body_md` (the AI-drafted note with checks) may be empty for now.
 - `ai_vs_checker`: `{agreed, changed, not_a_defect, sent_to_checker}`.
 

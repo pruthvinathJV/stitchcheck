@@ -39,20 +39,23 @@ SYSTEM = (
     "lists 'facts': paths and their values. Wherever the report needs a number, ID or count, write the placeholder "
     "{{path}} with a path from those facts. Never type a digit or an ID yourself; the server fills placeholders in. "
     "Allowed without placeholders: ISO 2859-1, AQL 2.5, AQL 4.0.\n"
+    "Defects are about the process, not the person: never name, rank or address any worker, and never write 'worst'. "
+    "Talk about machines and operations.\n"
     "Write markdown with three sections:\n"
     "## Buyer summary (English): garments inspected, DHU, defective %, audit result if any, top defects with counts, "
     "photo evidence references.\n"
-    "## Supervisor actions (Telugu, then English): for the worst operators and machines, the defect pattern and the "
-    "checks from get_checklist, phrased as checks to make, never as blame.\n"
+    "## Supervisor actions (Telugu, then English): for the machines and operations with the most defects, the defect "
+    "pattern and the checks from get_checklist (needle, tension, feed, handling), as checks for the mechanic or the "
+    "line, never as blame.\n"
     "## Data notes (English): AI-proposed vs checker-confirmed counts, from get_ai_vs_checker.\n"
     "Reply with only the markdown when done."
 )
 
 TOOLS = [
-    {"type": "function", "function": {"name": "get_dhu", "description": "DHU and defect counts for the session, or split by operator, machine, part or defect.",
-     "parameters": {"type": "object", "properties": {"scope": {"type": "string", "enum": ["session", "operator", "machine", "part", "defect"]}},
+    {"type": "function", "function": {"name": "get_dhu", "description": "DHU and defect counts for the session, or split by machine, part or defect.",
+     "parameters": {"type": "object", "properties": {"scope": {"type": "string", "enum": ["session", "machine", "part", "defect"]}},
                     "required": ["scope"]}}},
-    {"type": "function", "function": {"name": "get_top_issues", "description": "Worst operator, part and defect combinations with counts.",
+    {"type": "function", "function": {"name": "get_top_issues", "description": "Machine, operation and defect combinations with the most defects, with counts.",
      "parameters": {"type": "object", "properties": {"n": {"type": "integer"}}, "required": ["n"]}}},
     {"type": "function", "function": {"name": "get_audit_status", "description": "AQL audit plan and status, if an audit was run.",
      "parameters": {"type": "object", "properties": {}}}},
@@ -70,6 +73,11 @@ def _fmt(v):
     return f"{v:.1f}" if isinstance(v, float) else str(v).replace("_", " ")
 
 
+def _label(defect):
+    """Tool arguments may use the readable name the facts show ("skipped stitch"); tables use the label."""
+    return str(defect).strip().lower().replace(" ", "_")
+
+
 class Tools:
     """Read-only tools over one session. Every call adds its values to self.facts."""
 
@@ -83,6 +91,8 @@ class Tools:
         return {"facts": {k: _fmt(v) for k, v in values.items()}}
 
     def get_dhu(self, scope="session"):
+        if scope not in ("session", "machine", "part", "defect"):
+            return {"error": "scopes: session, machine, part, defect"}  # no per-person numbers in reports
         if scope == "session":
             confirmed = counts.confirmed_defects(self.insp, self.done)
             return self._add({"dhu.session.dhu": counts.dhu(self.insp, self.done),
@@ -97,10 +107,8 @@ class Tools:
 
     def get_top_issues(self, n=3):
         values = {}
-        for i, (op, part, defect, c) in enumerate(counts.worst_combinations(self.insp, self.done, n), 1):
-            values |= {f"top.{i}.operator": op, f"top.{i}.part": part, f"top.{i}.defect": defect, f"top.{i}.count": c}
-            mc = next((x["machine_id"] for x in self.insp if x["operator_id"] == op and x["final_part"] == part), None)
-            values[f"top.{i}.machine"] = mc
+        for i, (mc, part, defect, c) in enumerate(counts.process_issues(self.insp, self.done, n), 1):
+            values |= {f"top.{i}.machine": mc, f"top.{i}.part": part, f"top.{i}.defect": defect, f"top.{i}.count": c}
         return self._add(values)
 
     def get_audit_status(self):
@@ -112,6 +120,7 @@ class Tools:
                           "audit.major.ac": row["plan"]["major"]["ac"], "audit.major.re": row["plan"]["major"]["re"]})
 
     def get_examples(self, defect, n=3):
+        defect = _label(defect)
         ids = [i["id"] for i in counts.confirmed_defects(self.insp, self.done) if i["final_label"] == defect][:n]
         return self._add({f"examples.{defect}.{k}": f"photo {i}" for k, i in enumerate(ids, 1)})
 
@@ -124,6 +133,7 @@ class Tools:
                           "ai.pending": n(lambda i: i["decision"] == "pending")})
 
     def get_checklist(self, defect):
+        defect = _label(defect)
         return {"defect": defect, "checks": CHECKLIST.get(defect, []), "status": CHECKLIST_STATUS}
 
     def call(self, name, args):

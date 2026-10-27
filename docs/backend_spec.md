@@ -4,6 +4,8 @@ The backend turns the evaluated models into the product used on the line and in 
 
 ## 0. Principles
 
+0. **Process first.** Defects are about the process, not the person. Dashboards and reports lead with machines and operations; per-operator counts are a supervisor-only view; the report agent has no per-person tool and never names, ranks or blames anyone; every action is a check on the machine or the method.
+
 1. **AI drafts, checker decides.** Nothing is logged as a defect until the checker confirms it. Voice corrections are shown as a parsed entry and confirmed with a tap.
 2. **Muse Spark is the inspector's brain.** Every photo verdict and every report is a Muse Spark call with tool use. The classifier, SAM, DHU and AQL are tools Spark calls or reads.
 3. **Verifiable agent.** Reports never contain a number or ID that Spark typed itself: Spark writes placeholders that point at tool results, and the server fills them in. A validator rejects any bare number or ID outside a placeholder. Every agent call is stored with its tool calls and outputs (`agent_run`).
