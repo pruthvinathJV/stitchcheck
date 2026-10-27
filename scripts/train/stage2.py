@@ -5,7 +5,8 @@ python scripts/train/stage2.py winner   writes results/classifier/stage2_selecti
                                         prints trainer args for the winning setting
 
 Stage 1 ranks each setting by its seed-0 Linen macro-F1. The winner has the best mean over seeds 0 and 1;
-ties go to the smaller model. Only Linen validation runs on 8 fabrics are read.
+ties go to the smaller model. Only Linen validation runs on 8 fabrics with frozen BatchNorm are read
+(the base setting since the Oct 27 seed check; see docs/design.md).
 """
 import json
 import sys
@@ -14,7 +15,7 @@ from pathlib import Path
 import pandas as pd
 
 RESULTS = Path("results/classifier")
-SETTING = ["arch", "aug", "lr", "backbone_lr_mult"]
+SETTING = ["arch", "aug", "lr", "backbone_lr_mult", "freeze_bn"]
 PARAMS_M = {"efficientnet_b0": 5.3, "mobilenet_v3_large": 5.5, "convnext_tiny": 28.6}  # millions, for ties
 
 
@@ -23,11 +24,12 @@ def linen_runs():
     for f in sorted(RESULTS.glob("clean_*_8fab*/metrics.json")):
         m = json.loads(f.read_text())
         c = m["config"]
-        if c.get("holdout") or m["val_fabrics"] != ["Linen"]:
+        if c.get("holdout") or m["val_fabrics"] != ["Linen"] or not c.get("freeze_bn"):
             continue
         macro = next(r["f1"] for r in m["per_class"] if r["cls"] == "macro")
         rows.append(dict(run=m["run"], tag=c.get("tag", ""), seed=c["seed"], arch=c["arch"], aug=c.get("aug", "basic"),
-                         lr=c["lr"], backbone_lr_mult=c.get("backbone_lr_mult", 1.0), macro_f1=macro))
+                         lr=c["lr"], backbone_lr_mult=c.get("backbone_lr_mult", 1.0), freeze_bn=True,
+                         macro_f1=macro))
     return pd.DataFrame(rows)
 
 
@@ -36,7 +38,7 @@ def top3(df):
 
 
 def args_for(row, seed=None, tag=None):
-    out = f"--arch {row.arch} --aug {row.aug} --lr {row.lr} --backbone-lr-mult {row.backbone_lr_mult}"
+    out = f"--arch {row.arch} --aug {row.aug} --lr {row.lr} --backbone-lr-mult {row.backbone_lr_mult} --freeze-bn"
     return out + (f" --seed {seed} --tag {tag}" if seed is not None else "")
 
 

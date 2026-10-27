@@ -69,6 +69,19 @@ Training settings are chosen without the test fabrics, in two stages:
 
 *Amended Oct 27, after Stage 1 had partly run and before any test-set run.* The original Stage 2 retrained the top 3 on three held-out training fabrics. Two runs of the baseline with different seeds scored 0.53 and 0.78 on Linen, so seed noise is larger than most differences between settings, and a second seed per setting was judged a better use of the remaining compute.
 
+*Amended Oct 27, after the seed check and before any test-set run.* The 0.53 vs 0.78 gap was not a learning-rate or warm-up problem: ImageNet weights were loaded, training loss matched across seeds at every epoch, and the gap was there from epoch 2, not just at the last epoch. Re-estimating BatchNorm statistics on Linen images (no labels) brought both seeds to about 0.80, so the cause is BatchNorm statistics fitted to the training fabrics. Re-estimating them on the target fabric is not used, because it adapts the model to the evaluation images. Instead BatchNorm is kept at its ImageNet statistics during fine-tuning (`--freeze-bn`). Seed check on Modal, 3 seeds each, best-epoch Linen macro-F1:
+
+| BatchNorm | seed 0 | seed 1 | seed 2 | mean | max - min |
+|---|---|---|---|---|---|
+| updated during training | 0.719 | 0.667 | 0.744 | 0.710 | 0.077 |
+| frozen | 0.862 | 0.870 | 0.832 | 0.855 | 0.038 |
+
+Frozen BatchNorm is the base setting for Stage 1 and Stage 2 (`scripts/cloud/jobs_stage1.txt`); only frozen-BatchNorm runs are ranked. ConvNeXt-Tiny has no BatchNorm, so the flag does not change it.
+
+**Hardware.** Every reported classifier run trains from scratch in one process on one Modal NVIDIA A10G (`scripts/cloud/train_modal.py`), with images downloaded from figshare and checked against the manifest by md5. Earlier runs on a laptop GPU were used only for the diagnosis above and are not reported.
+
+**Final models are 3-seed ensembles** (mean of softmax). The 8-fabric benchmark model is the winning setting with seeds 0, 1 and 2; its report gives each seed's Linen macro-F1 and the ensemble's. The demo model is the winning setting on all 11 fabrics with seeds 0, 1 and 2. Safety check: each demo seed must agree with the benchmark ensemble on at least 90% of Linen predictions (`scripts/train/ensemble.py`). Linen is in the demo model's training data, so this is not a score, only a check that no seed went bad.
+
 **Demo model.** The winning setting is trained on all 11 fabrics (CC BY only, 7,148 images) with no validation fabric; its weights are those after the last epoch. It serves the app and the phone test set. StitchingNet test-fabric numbers come from the 8-fabric model with the same setting, scored once.
 
 **Chosen setting:** recorded here when Stage 2 finishes, before any test-set run (`results/classifier/selection.json`).

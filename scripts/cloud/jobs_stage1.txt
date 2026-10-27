@@ -1,0 +1,8 @@
+# Stage 1 of the classifier search, frozen BatchNorm as the base (seed check, Oct 27). Seed 0, Linen validation.
+# The baseline is bnfrozen-seed0 from jobs_seed_check.txt. ConvNeXt-Tiny uses LayerNorm, so --freeze-bn changes nothing there.
+--variant clean --seed 0 --freeze-bn --tag bnf-s1-strong --aug strong --workers 8
+--variant clean --seed 0 --freeze-bn --tag bnf-s2-trivial --aug trivial --workers 8
+--variant clean --seed 0 --freeze-bn --tag bnf-s3-strong-lr2e-4 --aug strong --lr 2e-4 --workers 8
+--variant clean --seed 0 --freeze-bn --tag bnf-s4-strong-bb0.1 --aug strong --backbone-lr-mult 0.1 --workers 8
+--variant clean --seed 0 --freeze-bn --tag bnf-s5-strong --arch mobilenet_v3_large --aug strong --workers 8
+--variant clean --seed 0 --freeze-bn --tag bnf-s6-strong-lr2e-4 --arch convnext_tiny --aug strong --lr 2e-4 --workers 8
