@@ -1,27 +1,27 @@
 {
   "model": "muse-voice-transcribe-1.0",
   "date": "2026-10-26",
-  "reference": "",
+  "reference": "machine ఏడు bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు జారాయి. ఇది major defect.",
   "runs": [
     {
       "variant": "auto",
       "ok": true,
-      "seconds": 2.27,
-      "transcript": " ಮೆಷಿನ್ ಏడు, బండిల్ ముప్పై నాలుగు. కాలర్ దగ్గర కుట్లు జారాయి, ఇది మేనేజర్ డిఫెక్ట్.",
+      "seconds": 2.22,
+      "transcript": " మెషిన్ ఏడు బండిల్ ముప్పై నాలుగు. కాలర్ దగ్గర కుట్లు జారాయి ఇది మేనేజర్ డిఫెక్ట్.",
       "audio_ms": 9600
     },
     {
       "variant": "bias",
       "ok": true,
-      "seconds": 2.62,
-      "transcript": "మెషిన్ ఏడు, బండిల్ ముప్పై నాలుగు. కాలర్ దగ్గర కుట్లు జారాయి, ఇది మేనేజర్ మాన్యుఫ్యాక్చరింగ్ డిఫెక్ట్.",
+      "seconds": 2.17,
+      "transcript": "mission ఏడు బండిల్ ముప్పై నాలుగు. కాలర్ దగ్గర కుట్లు చేరాయి, ఇది మేనేజర్ డిఫెక్ట్.",
       "audio_ms": 9600
     },
     {
       "variant": "bias+keywords",
       "ok": true,
       "seconds": 2.18,
-      "transcript": "machine ఏడు bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు తెగారాయి, ఇది major defect.",
+      "transcript": "machine ఏడు bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు జారాయి ఇది ఇది major defect.",
       "audio_ms": 9600
     }
   ]

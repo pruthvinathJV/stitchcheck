@@ -1,0 +1,25 @@
+clip,keywords,run,expected_word_ok,transcript
+telugu_quiet,english,0,True,machine ఏడు bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు జారాయి ఇది major defect
+telugu_quiet,english,1,True,machine యేడు bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు జారాయి ఇది major defect.
+telugu_quiet,english,2,True,machine ఏడు bundle ముప్పై నాలుగు collar దగ్గర కుట్లు జారాయి ఇది ఇది major defect
+telugu_quiet,english,3,True,machine ఏడు bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు జారాయి ఇది ఇది major defect.
+telugu_quiet,english,4,True,machine ఏడు bundle ముప్పై నాలుగు collar దగ్గర కుట్లు జారాయి ఇది major defect
+telugu_quiet,english,5,True,"machine ఏడు bundle ముప్పై నాలుగు. collar తెగ్ర కుట్లు జారాయి, ఇది major defect."
+telugu_quiet,english+telugu,0,True,machine ఏడు. bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు జారాయి. ఇది major defect.
+telugu_quiet,english+telugu,1,False,"machine ఏడు, bundle ముప్పై నాలుగు, collar తెగర కుట్లు జరయ, ఇది major major defect."
+telugu_quiet,english+telugu,2,False,machine ఏడు bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు జరయ ఇది major defect.
+telugu_quiet,english+telugu,3,True,machine ఏడు bundle ముప్పై నాలుగు collar దగ్గర కుట్లు జారాయి ఇది major defect
+telugu_quiet,english+telugu,4,True,machine ఏడు bundle ముప్పై నాలుగు collar దగ్గర కుట్లు జారాయి ఇది major defect
+telugu_quiet,english+telugu,5,True,"machine ఏడు, bundle ముప్పై నాలుగు. collar తెగర కుట్లు జారాయి, ఇది major major defect."
+telugu_noisy,english,0,True,machine ఏడు bundle ముప్పై ముప్పై నాలుగు collar collar దగ్గర కుట్లు జారాయి ఇది major defect
+telugu_noisy,english,1,True,"machine ఏడు, bundle ముప్పై నాలుగు. collar దగ్గర దగ్గర కుట్లు జారాయి. ఇది major defect."
+telugu_noisy,english,2,True,"machine ఏడు, bundle ముప్పై నాలుగు, collar దగ్గర కుట్ట్లు జారాయి ఇది major defect"
+telugu_noisy,english,3,True,"machine ఏడు, bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు జారాయి. ఇది major defect."
+telugu_noisy,english,4,False,"machine ఏడు bundle ముప్పై ముప్పై నాలుగు. collar దగ్గర కుట్లు చేరాయి, ఇది major defect."
+telugu_noisy,english,5,False,"machine ఏడు, bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు చేరాయి, ఇది major defect."
+telugu_noisy,english+telugu,0,False,machine ఏడు bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు జరయ ఇది major defect.
+telugu_noisy,english+telugu,1,False,machine ఏడు bundle ముప్పై నాలుగు collar దగ్గర కుట్లు జరయ ఇది major defect
+telugu_noisy,english+telugu,2,False,"machine ఏడు, bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు కుట్లు జరయ ఇది major defect."
+telugu_noisy,english+telugu,3,False,machine ఏడు bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు కుట్లు జరయ ఇది major defect
+telugu_noisy,english+telugu,4,False,"machine ఏడు, bundle ముప్పై నాలుగు. నాలుగు. collar దగ్గర కుట్లు జరయ ఇది major defect."
+telugu_noisy,english+telugu,5,False,machine ఏడు bundle ముప్పై నాలుగు. collar దగ్గర కుట్లు జరయ ఇది major defect
