@@ -12,6 +12,8 @@ from stitchcheck.eval.metrics import MAJOR_DEFECTS
 rows = []
 for f in sorted(Path("results/classifier").glob("*/metrics.json")):
     m = json.loads(f.read_text())
+    if not m.get("n_val"):  # the 11-fabric demo model has no validation
+        continue
     per = {r["cls"]: r for r in m["per_class"]}
     preds = pd.read_csv(f.parent / "val_preds.csv")
     majors = preds[preds["label"].isin(MAJOR_DEFECTS)]

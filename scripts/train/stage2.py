@@ -1,0 +1,68 @@
+"""Stage 2 of the classifier search: rerun the top 3 Stage 1 settings with a second seed, pick the best mean.
+
+python scripts/train/stage2.py top3     prints trainer args for the seed-1 runs still missing (one line each)
+python scripts/train/stage2.py winner   writes results/classifier/stage2_selection.csv and selection.json,
+                                        prints trainer args for the winning setting
+
+Stage 1 ranks each setting by its seed-0 Linen macro-F1. The winner has the best mean over seeds 0 and 1;
+ties go to the smaller model. Only Linen validation runs on 8 fabrics are read.
+"""
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+RESULTS = Path("results/classifier")
+SETTING = ["arch", "aug", "lr", "backbone_lr_mult"]
+PARAMS_M = {"efficientnet_b0": 5.3, "mobilenet_v3_large": 5.5, "convnext_tiny": 28.6}  # millions, for ties
+
+
+def linen_runs():
+    rows = []
+    for f in sorted(RESULTS.glob("clean_*_8fab*/metrics.json")):
+        m = json.loads(f.read_text())
+        c = m["config"]
+        if c.get("holdout") or m["val_fabrics"] != ["Linen"]:
+            continue
+        macro = next(r["f1"] for r in m["per_class"] if r["cls"] == "macro")
+        rows.append(dict(run=m["run"], tag=c.get("tag", ""), seed=c["seed"], arch=c["arch"], aug=c.get("aug", "basic"),
+                         lr=c["lr"], backbone_lr_mult=c.get("backbone_lr_mult", 1.0), macro_f1=macro))
+    return pd.DataFrame(rows)
+
+
+def top3(df):
+    return df[df["seed"] == 0].sort_values("macro_f1", ascending=False).head(3)
+
+
+def args_for(row, seed=None, tag=None):
+    out = f"--arch {row.arch} --aug {row.aug} --lr {row.lr} --backbone-lr-mult {row.backbone_lr_mult}"
+    return out + (f" --seed {seed} --tag {tag}" if seed is not None else "")
+
+
+def main(cmd):
+    df = linen_runs()
+    top = top3(df)
+    if cmd == "top3":
+        for row in top.itertuples():
+            done = df.merge(pd.DataFrame([row._asdict()])[SETTING], on=SETTING)
+            if not (done["seed"] == 1).any():
+                print(args_for(row, 1, f"{row.tag or 'base'}-seed1"))
+        return
+    scores = df.merge(top[SETTING + ["tag"]].rename(columns={"tag": "setting"}), on=SETTING)
+    table = (scores.groupby(["setting"] + SETTING).agg(seeds=("seed", lambda s: sorted(s)), macro_f1_mean=("macro_f1", "mean"),
+                                                       macro_f1_runs=("macro_f1", list)).reset_index())
+    assert (table["seeds"].apply(len) >= 2).all(), "every top-3 setting needs seeds 0 and 1"
+    table["params_m"] = table["arch"].map(PARAMS_M)
+    table = table.sort_values(["macro_f1_mean", "params_m"], ascending=[False, True])
+    table.to_csv(RESULTS / "stage2_selection.csv", index=False)
+    win = table.iloc[0]
+    (RESULTS / "selection.json").write_text(json.dumps(
+        dict(win[["setting"] + SETTING + ["macro_f1_mean"]].to_dict(), selected_on="Linen validation, seeds 0 and 1"),
+        indent=2, default=float))
+    print(args_for(win), end="")
+    print(table.to_string(index=False), file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1])

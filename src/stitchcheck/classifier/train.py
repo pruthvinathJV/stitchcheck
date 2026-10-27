@@ -1,11 +1,12 @@
 """Fine-tune an ImageNet CNN on StitchingNet (leave-2-fabrics-out split, 8 training fabrics).
 
-python -m stitchcheck.classifier.train --variant clean [--arch efficientnet_b0] [--holdout FABRIC]
+python -m stitchcheck.classifier.train --variant clean [--arch efficientnet_b0] [--holdout FABRIC | --all-fabrics]
 
 clean: 5 classes, CC BY 4.0 images from StitchingNet-Seg only (the split loader asserts it).
 Validates on Linen (split == "val"). With --holdout, validates on one training fabric instead and trains on
-the other 7 (per-fabric difficulty without touching the test fabrics). Test splits are never loaded.
-Best epoch by validation macro-F1. Weights -> models/<run>/best.pt (gitignored); metrics -> results/classifier/<run>/.
+the other 7 (per-fabric difficulty without touching the test fabrics). Test splits are never loaded, except
+with --all-fabrics: the demo model, trained on all 11 fabrics with no validation; its weights are the last epoch's.
+Otherwise best epoch by validation macro-F1. Weights -> models/<run>/best.pt (gitignored); metrics -> results/classifier/<run>/.
 
 The MPS backend can hang inside a GPU sync. A watchdog exits with code 75 if no training step finishes for
 --stall-minutes; models/<run>/last.pt is saved every epoch, so the caller can rerun with --resume.
@@ -104,9 +105,12 @@ class Images(Dataset):
         return self.transform(Image.open(self.paths[i]).convert("RGB")), self.y[i]
 
 
-def select(variant, holdout=None):
+def select(variant, holdout=None, all_fabrics=False):
     """Return (train_df, val_df)."""
     df = load_split()
+    if all_fabrics:
+        train = df[df["split"].isin(["train", "val", "test"]) & df["label"].isin(CLASSES[variant])]
+        return train, train.iloc[:0]
     df = df[df["split"].isin(["train", "val"])]  # test and unseen_test are never read here
     if holdout:
         df = df[df["split"] == "train"]
@@ -134,6 +138,7 @@ def main():
     ap.add_argument("--variant", choices=list(CLASSES), required=True)
     ap.add_argument("--arch", default="efficientnet_b0")
     ap.add_argument("--holdout", help="validate on this training fabric instead of Linen")
+    ap.add_argument("--all-fabrics", action="store_true", help="demo model: train on all 11 fabrics, no validation")
     ap.add_argument("--epochs", type=int, default=12)
     ap.add_argument("--batch", type=int, default=64)
     ap.add_argument("--lr", type=float, default=5e-4)
@@ -150,17 +155,19 @@ def main():
     random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
     device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
     classes = CLASSES[args.variant]
-    run = (f"{args.variant}_{args.arch}_8fab" + (f"_{args.tag}" if args.tag else "")
+    run = (f"{args.variant}_{args.arch}_{11 if args.all_fabrics else 8}fab" + (f"_{args.tag}" if args.tag else "")
            + (f"_holdout-{args.holdout.replace(' ', '')}" if args.holdout else ""))
     res_dir, model_dir = Path("results/classifier") / run, Path("models") / run
     res_dir.mkdir(parents=True, exist_ok=True); model_dir.mkdir(parents=True, exist_ok=True)
 
-    train, val = select(args.variant, args.holdout)
+    assert not (args.all_fabrics and args.holdout), "--all-fabrics has no validation fabric"
+    train, val = select(args.variant, args.holdout, args.all_fabrics)
     loader = lambda df, tf, shuffle: DataLoader(Images(df, classes, tf), batch_size=args.batch, shuffle=shuffle,
                                                 num_workers=args.workers)
     train_dl = loader(train, train_transform(args.aug), True)
     val_dl = loader(val, eval_transform(), False)
-    print(f"{run}: train {len(train)}, val {len(val)} ({', '.join(sorted(val['fabric'].unique()))}), device {device}",
+    print(f"{run}: train {len(train)} ({train['fabric'].nunique()} fabrics), val {len(val)} "
+          f"({', '.join(sorted(val['fabric'].unique()))}), device {device}",
           flush=True)
 
     model = build_model(args.arch, len(classes)).to(device)
@@ -192,18 +199,27 @@ def main():
             total += loss.detach() * len(y)
             watchdog.beat()
         total = total.item()
-        probs = predict(model, val_dl, device, watchdog)
-        pred = [classes[i] for i in probs.argmax(1)]
-        macro_f1 = float(per_class_report(val.assign(pred=pred), classes).set_index("cls").loc["macro", "f1"])
+        macro_f1 = None
+        if len(val):
+            probs = predict(model, val_dl, device, watchdog)
+            pred = [classes[i] for i in probs.argmax(1)]
+            macro_f1 = float(per_class_report(val.assign(pred=pred), classes).set_index("cls").loc["macro", "f1"])
         history.append(dict(epoch=epoch, train_loss=total / len(train), val_macro_f1=macro_f1, seconds=round(time.time() - t0)))
         print(history[-1], flush=True)
-        if macro_f1 > best[0]:
-            best = (macro_f1, epoch)
+        if macro_f1 is None or macro_f1 > best[0]:  # no validation: keep the latest epoch
+            best = (macro_f1 if macro_f1 is not None else -1.0, epoch)
             torch.save(dict(state_dict=model.state_dict(), classes=classes, arch=args.arch), model_dir / "best.pt")
         torch.save(dict(model=model.state_dict(), opt=opt.state_dict(), sched=sched.state_dict(),
                         rng=torch.get_rng_state(), history=history, best=list(best), epoch=epoch), last_path)
         watchdog.beat()
 
+    if not len(val):
+        pd.DataFrame(history).to_csv(res_dir / "history.csv", index=False)
+        (res_dir / "metrics.json").write_text(json.dumps(dict(
+            run=run, variant=args.variant, arch=args.arch, val_fabrics=[], train_fabrics=sorted(train["fabric"].unique()),
+            n_train=len(train), n_val=0, final_epoch=args.epochs, config=vars(args)), indent=2, default=str))
+        print(f"saved {model_dir / 'best.pt'} (last epoch; no validation)")
+        return
     ckpt = torch.load(model_dir / "best.pt", map_location=device, weights_only=False)
     model.load_state_dict(ckpt["state_dict"])
     probs = predict(model, val_dl, device, watchdog)
