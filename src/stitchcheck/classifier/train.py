@@ -139,7 +139,8 @@ def main():
     ap.add_argument("--arch", default="efficientnet_b0")
     ap.add_argument("--holdout", help="validate on this training fabric instead of Linen")
     ap.add_argument("--all-fabrics", action="store_true", help="demo model: train on all 11 fabrics, no validation")
-    ap.add_argument("--epochs", type=int, default=12)
+    ap.add_argument("--epochs", type=int, default=12, help="length of the learning-rate schedule")
+    ap.add_argument("--stop-after", type=int, help="final models: stop after this epoch of the schedule and keep it")
     ap.add_argument("--batch", type=int, default=64)
     ap.add_argument("--lr", type=float, default=5e-4)
     ap.add_argument("--backbone-lr-mult", type=float, default=1.0, help="backbone lr = lr x this; the head gets lr")
@@ -163,6 +164,8 @@ def main():
     res_dir.mkdir(parents=True, exist_ok=True); model_dir.mkdir(parents=True, exist_ok=True)
 
     assert not (args.all_fabrics and args.holdout), "--all-fabrics has no validation fabric"
+    assert args.stop_after is None or 1 <= args.stop_after <= args.epochs
+    last_epoch = args.stop_after or args.epochs
     train, val = select(args.variant, args.holdout, args.all_fabrics)
     loader = lambda df, tf, shuffle: DataLoader(Images(df, classes, tf), batch_size=args.batch, shuffle=shuffle,
                                                 num_workers=args.workers)
@@ -191,7 +194,7 @@ def main():
         print(f"resumed after epoch {state['epoch']}", flush=True)
 
     watchdog = Watchdog(args.stall_minutes * 60)
-    for epoch in range(start, args.epochs + 1):
+    for epoch in range(start, last_epoch + 1):
         model.train(); t0 = time.time()
         if args.freeze_bn:
             for mod in model.modules():
@@ -212,7 +215,7 @@ def main():
             macro_f1 = float(per_class_report(val.assign(pred=pred), classes).set_index("cls").loc["macro", "f1"])
         history.append(dict(epoch=epoch, train_loss=total / len(train), val_macro_f1=macro_f1, seconds=round(time.time() - t0)))
         print(history[-1], flush=True)
-        if macro_f1 is None or macro_f1 > best[0]:  # no validation: keep the latest epoch
+        if macro_f1 is None or args.stop_after or macro_f1 > best[0]:  # no validation or a fixed stop: keep the latest
             best = (macro_f1 if macro_f1 is not None else -1.0, epoch)
             torch.save(dict(state_dict=model.state_dict(), classes=classes, arch=args.arch), model_dir / "best.pt")
         torch.save(dict(model=model.state_dict(), opt=opt.state_dict(), sched=sched.state_dict(),
@@ -223,7 +226,7 @@ def main():
         pd.DataFrame(history).to_csv(res_dir / "history.csv", index=False)
         (res_dir / "metrics.json").write_text(json.dumps(dict(
             run=run, variant=args.variant, arch=args.arch, val_fabrics=[], train_fabrics=sorted(train["fabric"].unique()),
-            n_train=len(train), n_val=0, final_epoch=args.epochs, config=vars(args)), indent=2, default=str))
+            n_train=len(train), n_val=0, final_epoch=last_epoch, config=vars(args)), indent=2, default=str))
         print(f"saved {model_dir / 'best.pt'} (last epoch; no validation)")
         return
     ckpt = torch.load(model_dir / "best.pt", map_location=device, weights_only=False)
