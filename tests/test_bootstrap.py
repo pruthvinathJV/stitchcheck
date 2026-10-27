@@ -39,3 +39,12 @@ def test_deferring_everything_shows_up_in_auto_recall_and_workload():
     assert major_recall(df) == 1.0
     assert major_recall(df, include_deferral=False) == 0.0
     assert checker_workload(df) == 1.0
+
+
+def test_per_class_report():
+    from stitchcheck.eval.metrics import per_class_report
+    df = pd.DataFrame(dict(label=["a", "a", "b", "b"], pred=["a", "b", "b", "b"]))
+    r = per_class_report(df, ["a", "b"]).set_index("cls")
+    assert r.loc["a", "precision"] == 1.0 and r.loc["a", "recall"] == 0.5
+    assert r.loc["b", "precision"] == round(2 / 3, 4) and r.loc["b", "recall"] == 1.0
+    assert r.loc["macro", "support"] == 4

@@ -29,3 +29,20 @@ def checker_workload(df, y_true="label", y_pred="pred"):
     """Share of good seams that are flagged or deferred: the false-alarm cost in checker taps."""
     good = df[df[y_true] == GOOD]
     return float((good[y_pred] != GOOD).mean()) if len(good) else float("nan")
+
+
+def per_class_report(df, labels, y_true="label", y_pred="pred"):
+    """Precision, recall, F1 and support per class, plus a macro-average row (over `labels`)."""
+    import pandas as pd
+
+    rows = []
+    for c in labels:
+        tp = int(((df[y_true] == c) & (df[y_pred] == c)).sum())
+        n_pred, n_true = int((df[y_pred] == c).sum()), int((df[y_true] == c).sum())
+        p = tp / n_pred if n_pred else 0.0
+        r = tp / n_true if n_true else float("nan")
+        f1 = 2 * p * r / (p + r) if (p + r) else 0.0
+        rows.append(dict(cls=c, precision=p, recall=r, f1=f1, support=n_true))
+    out = pd.DataFrame(rows)
+    macro = out[["precision", "recall", "f1"]].mean().to_dict() | dict(cls="macro", support=int(out["support"].sum()))
+    return pd.concat([out, pd.DataFrame([macro])], ignore_index=True).round(4)
