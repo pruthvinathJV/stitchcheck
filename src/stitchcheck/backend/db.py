@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS session (
     critical_parts TEXT NOT NULL DEFAULT '["collar", "placket"]',
     spot_check_rate REAL NOT NULL DEFAULT 0.1,
     is_demo INTEGER NOT NULL DEFAULT 0,
+    brain TEXT NOT NULL DEFAULT 'spark' CHECK (brain IN ('spark', 'open')),
     status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'closed'))
 );
 CREATE TABLE IF NOT EXISTS line_plan (
@@ -41,6 +42,8 @@ CREATE TABLE IF NOT EXISTS garment (
 CREATE TABLE IF NOT EXISTS agent_run (
     id INTEGER PRIMARY KEY,
     kind TEXT NOT NULL CHECK (kind IN ('inspect', 'voice', 'report', 'alert')),
+    brain TEXT,
+    fell_back INTEGER NOT NULL DEFAULT 0,
     request TEXT,
     tool_calls TEXT,
     tool_outputs TEXT,

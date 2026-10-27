@@ -77,7 +77,7 @@ Step-1 and step-2 latencies are logged for every photo; there is no hard target.
 
 **Agent trace.** Every verdict and every report links to its `agent_run` row. `GET /agent-runs/{id}` returns the tool calls made, in order, with their outputs (for a verdict: `classify_stitch` and its top-2 result; for a report: each `get_*` call and its result), the final answer, latency, tokens and cost. The UI shows it as an expandable list under the verdict or report.
 
-**Switchable brain (pending the Muse Spark Open smoke test; decided Day 4 with arm E).** The judgment and report steps would run on Muse Spark (Meta API) or Muse Spark Open (Modal shared endpoint), selectable per session, with Muse Spark Open used automatically when the Meta API fails.
+**Two measured modes** (`src/stitchcheck/backend/brains.py`). Verdicts, voice parsing and reports run on Muse Spark (default, "Low false alarm") or Muse Spark Open on Modal ("High sensitivity"), chosen per session; the UI shows each mode's StitchingNet test figures (hybrid, checker in the loop: major recall 0.929 vs 0.944, good seams flagged 9.5% vs 20.2%). When the Meta API fails or Muse Spark's daily cap is reached, Muse Spark Open answers automatically. Each agent run records the brain and whether it fell back. Daily caps: $10 Muse Spark, $5 Muse Spark Open; 60 model calls per visitor IP per hour.
 
 ## 5. Checker decision and voice
 

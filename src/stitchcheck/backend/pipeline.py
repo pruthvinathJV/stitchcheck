@@ -152,13 +152,17 @@ def step1(data, *, sam, ensemble, out_dir, classes):
                 step1_seconds=round(time.time() - t0, 2)), im
 
 
-def step2(s1, *, client, reference, line_plan, part):
-    """Muse Spark's review of the step-1 crop, and the line-plan mapping of the sequence part."""
+def step2(s1, *, brains, mode, reference, line_plan, part):
+    """The judgment brain's review of the step-1 crop (Muse Spark, or Muse Spark Open by choice or as the fallback;
+    stitchcheck.backend.brains), and the line-plan mapping of the sequence part."""
     t0 = time.time()
     t2 = s1["classifier_top2"]
+    brain, fell_back = None, False
     try:
-        v = hybrid.inspect(client, s1["crop_path"], reference, t2)
-    except Exception as ex:  # Spark down: the classifier's label goes to the checker, and the line keeps moving
+        v, b, fell_back = brains.call(mode, lambda b: hybrid.inspect(b.client, s1["crop_path"], reference, t2,
+                                                                    model=b.model, effort=b.effort))
+        brain = b.name
+    except Exception as ex:  # no brain answered: the classifier's label goes to the checker, and the line keeps moving
         v = dict(pred=hybrid.ASK_CHECKER, proposed=t2[0][0], severity=hybrid.severity(t2[0][0], None),
                  spark_error=f"{type(ex).__name__}: {ex}"[:200], tool_called=False)
     operator_id, machine_id = map_part(line_plan, part) if part else (None, None)
@@ -166,7 +170,8 @@ def step2(s1, *, client, reference, line_plan, part):
                 reason=v.get("reason"), part=part, operator_id=operator_id, machine_id=machine_id,
                 spark_verdict={k: v.get(k) for k in ("spark_verdict", "spark_label", "confidence", "protected", "pred",
                                                      "tool_called", "raw", "spark_error", "cached")},
-                tokens=[v.get("prompt_tokens"), v.get("completion_tokens")], step2_seconds=round(time.time() - t0, 2))
+                tokens=[v.get("prompt_tokens"), v.get("completion_tokens")], brain=brain, fell_back=fell_back,
+                step2_seconds=round(time.time() - t0, 2))
 
 
 def part_chip(im, sam, sequence_part):
@@ -176,8 +181,10 @@ def part_chip(im, sam, sequence_part):
 
 
 def inspect_photo(data, *, sam, ensemble, client, reference, line_plan, out_dir, part, classes):
-    """Steps 1 and 2 in one call (the phone-set evaluation and scripts). The part check is not included."""
+    """Steps 1 and 2 in one call (the phone-set evaluation and scripts), with Muse Spark only: no fallback, so a
+    scored result always comes from the evaluated brain. The part check is not included."""
+    from stitchcheck.backend.brains import SPARK, Brains
     s1, _ = step1(data, sam=sam, ensemble=ensemble, out_dir=out_dir, classes=classes)
     if not s1["seam_found"]:
         return s1
-    return s1 | step2(s1, client=client, reference=reference, line_plan=line_plan, part=part)
+    return s1 | step2(s1, brains=Brains({SPARK: client}), mode=SPARK, reference=reference, line_plan=line_plan, part=part)

@@ -25,8 +25,9 @@ Machines are numbers 1 to 25. Operators are IDs such as `OP07`.
 ## Screens
 
 ### 1. Start day
-Fields: date, style, fabric (A, B, C or free text), lot size, critical parts (default collar and placket), line plan (part, operator, machine per row; pre-filled template the supervisor edits). Button: Start.
-- `POST /sessions` with `{date, style, fabric, lot_size, critical_parts, line_plan: [{part, operator_id, machine_id}], is_demo}` → session with `id` and `line_plan`.
+Fields: date, style, fabric (A, B, C or free text), lot size, critical parts (default collar and placket), line plan (part, operator, machine per row; pre-filled template the supervisor edits), and the **AI mode**. Button: Start.
+- AI mode: `GET /brains` → `[{brain, label, major_recall, good_flagged, sent_to_checker, available, spent_today_usd}]`. Show two cards with their measured numbers, e.g. "Low false alarm (Muse Spark): catches 92.9% of major defects, flags 9.5% of good seams" and "High sensitivity (Muse Spark Open): catches 94.4%, flags 20.2%". Default: Muse Spark. A footnote: "Measured on a public stitch dataset; if Muse Spark is unavailable, Muse Spark Open answers automatically."
+- `POST /sessions` with `{date, style, fabric, lot_size, critical_parts, line_plan: [{part, operator_id, machine_id}], is_demo, brain}` → session with `id`, `brain` and `line_plan`. Change it later with `POST /sessions/{id}/brain` `{brain: "spark" | "open"}`.
 - Then `POST /sessions/{id}/bundles` with `{bundle_no}` → `{id, bundle_no}`.
 
 ### 2. Inspect (the main screen)
@@ -48,11 +49,12 @@ Top bar: bundle number, garment counter ("Garment 12"), DHU so far.
 **Result card** (when done), from the inspection:
 - Crop image (`crop_url`); tap to see the full photo (`photo_url`).
 - Proposed label (`proposed_label`) and severity (`proposed_severity`), the one-line reason (`spark_verdict.reason`).
+- Which brain answered: `spark_verdict.brain` ("Muse Spark" or "Muse Spark Open"); if `spark_verdict.fell_back` is true, a small note "Muse Spark was unavailable; Muse Spark Open answered". If `brain` is null, no AI review was possible and the card says "Classifier only: your call".
 - If `needs_checker` is 1: a clear "Your call" badge (the AI and the classifier disagree, or the AI was unsure).
 - Part chip: the part being inspected; if `part_chip` is set, show a second chip "SAM sees: Pocket" that the checker can tap to change the part (sends a Change decision with `part`).
 - Operator and machine (`operator_id`, `machine_id`).
 - Buttons: **Agree**, **Change**, **Not a defect**, **Retake**, and a **mic** button.
-- An expandable **"How the AI decided"** row: `GET /agent-runs/{agent_run_id}` → `steps: [{call: {name, arguments}, output}]`, `final`, `latency_ms`, `tokens_in`, `tokens_out`, `cost_usd`. Show each tool call with its output (for a verdict: `classify_stitch` → top-2 labels with probabilities).
+- An expandable **"How the AI decided"** row: `GET /agent-runs/{agent_run_id}` → `steps: [{call: {name, arguments}, output}]`, `final`, `brain`, `fell_back`, `latency_ms`, `tokens_in`, `tokens_out`, `cost_usd`. Show each tool call with its output (for a verdict: `classify_stitch` → top-2 labels with probabilities).
 
 **Decisions:** `POST /inspections/{id}/decision` with `{action, label?, part?, severity?, operator_id?, machine_id?, via}`.
 - `agree`: allowed only after the review is done (409 "still reviewing" otherwise).
@@ -100,4 +102,6 @@ For visitors without garments: a gallery of real phone photos that run through t
 ## Error handling
 
 - 404: the item does not exist; 409: "still reviewing"; 422: invalid input (message in `detail`).
+- 429: too many requests from this phone in the last hour (60 model calls); show "Please wait a few minutes".
+- 503: no AI brain available (both down or today's spend cap reached); the photo result still works (classifier only), voice and reports show "AI unavailable, try later".
 - Network loss mid-garment: keep the garment open and retry uploads; never mark a garment done without the server's reply.

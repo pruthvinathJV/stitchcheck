@@ -6,16 +6,19 @@ create_app(), so tests run with fakes and the server runs with the real ones.
 import hashlib
 import threading
 import time
+from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
-from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from stitchcheck.backend import db
+from stitchcheck.backend.brains import MODES, OPEN, SPARK, Brains
 from stitchcheck.backend.pipeline import part_chip, step1, step2
 from stitchcheck.backend.report import run_report
 from stitchcheck.backend.voice_parse import parse_correction
@@ -24,7 +27,7 @@ from stitchcheck.qc import counts
 from stitchcheck.qc.aql import aql_plan, audit_status
 from stitchcheck.spark import inspect as hybrid
 
-PRICE_IN, PRICE_OUT = 1.25 / 1e6, 4.25 / 1e6  # muse-spark-1.3 standard, USD per token
+PER_IP_PER_HOUR = 60  # requests that call a model (photos, voice, reports) per visitor IP
 PARTS = ("collar", "pocket", "hem", "side_seam", "sleeve", "placket", "cuff", "shoulder")
 
 
@@ -37,6 +40,7 @@ class Deps:
     spark: object
     transcribe: Callable
     reference: Callable  # fabric -> path of a good-seam reference crop
+    spark_open: object = None  # Muse Spark Open client (Modal shared endpoint), or None
     classes: list = field(default_factory=lambda: list(LABELS))
 
 
@@ -55,6 +59,11 @@ class NewSession(BaseModel):
     critical_parts: list[str] = ["collar", "placket"]
     spot_check_rate: float = 0.1
     is_demo: bool = False
+    brain: str = SPARK
+
+
+class BrainChoice(BaseModel):
+    brain: str
 
 
 class NewBundle(BaseModel):
@@ -75,10 +84,6 @@ class Decision(BaseModel):
     via: str = "tap"
 
 
-def cost(tokens_in, tokens_out):
-    return round((tokens_in or 0) * PRICE_IN + (tokens_out or 0) * PRICE_OUT, 6)
-
-
 def create_app(deps: Deps):
     app = FastAPI(title="StitchCheck")
     con = db.connect(deps.db_path)
@@ -93,6 +98,34 @@ def create_app(deps: Deps):
             return "/media/" + Path(path).resolve().relative_to(storage.resolve()).as_posix() if path else None
         except ValueError:
             return None
+
+    def spent_today(name):
+        r = con.execute("SELECT COALESCE(SUM(cost_usd), 0) AS usd FROM agent_run WHERE brain = ? "
+                        "AND date(created_at) = date('now')", (name,)).fetchone()
+        return r["usd"]
+
+    brains = Brains({SPARK: deps.spark, OPEN: deps.spark_open}, spent=spent_today)
+    hits = defaultdict(deque)
+
+    @app.middleware("http")
+    async def per_ip_limit(request: Request, call_next):
+        path = request.url.path
+        if request.method == "POST" and (path.endswith("/photos") or path.endswith("/voice") or path.endswith("/report")):
+            ip, now = request.client.host if request.client else "?", time.time()
+            q = hits[ip]
+            while q and now - q[0] > 3600:
+                q.popleft()
+            if len(q) >= PER_IP_PER_HOUR:
+                return JSONResponse({"detail": "too many requests from this address; try again later"}, status_code=429)
+            q.append(now)
+        return await call_next(request)
+
+    def run_brain(mode, fn):
+        """fn(brain) through the session's brain, with fallback and daily caps; 503 if none can answer."""
+        try:
+            return brains.call(mode, fn)
+        except RuntimeError as ex:
+            raise HTTPException(503, f"no AI brain available: {ex}")
 
     def write(fn, *a, **k):
         with lock:
@@ -109,20 +142,37 @@ def create_app(deps: Deps):
                            "ORDER BY sequence_no", (session_id,)).fetchall()
 
     def session_of_garment(garment_id):
-        return one("SELECT b.session_id, s.fabric FROM garment g JOIN bundle b ON b.id = g.bundle_id "
+        return one("SELECT b.session_id, s.fabric, s.brain FROM garment g JOIN bundle b ON b.id = g.bundle_id "
                    "JOIN session s ON s.id = b.session_id WHERE g.id = ?", garment_id)
 
     @app.get("/health")
     def health():
         return {"ok": True}
 
+    @app.get("/brains")
+    def list_brains():
+        """The two measured modes (StitchingNet test, hybrid with the checker in the loop) and today's spend."""
+        return [{"brain": n, **{k: m[k] for k in ("label", "major_recall", "good_flagged", "sent_to_checker")},
+                 "available": n in brains.available, "spent_today_usd": round(spent_today(n), 4)} for n, m in MODES.items()]
+
+    @app.post("/sessions/{sid}/brain")
+    def set_brain(sid: int, b: BrainChoice):
+        one("SELECT id FROM session WHERE id = ?", sid)
+        if b.brain not in MODES:
+            raise HTTPException(422, f"brain must be one of {list(MODES)}")
+        write(db.update, "session", sid, brain=b.brain)
+        return get_session(sid)
+
     @app.post("/sessions")
     def new_session(s: NewSession):
         bad = [r.part for r in s.line_plan if r.part not in PARTS]
         if bad:
             raise HTTPException(422, f"unknown parts: {bad}")
+        if s.brain not in MODES:
+            raise HTTPException(422, f"brain must be one of {list(MODES)}")
         sid = write(db.insert, "session", date=s.date, style=s.style, fabric=s.fabric, lot_size=s.lot_size,
-                    critical_parts=s.critical_parts, spot_check_rate=s.spot_check_rate, is_demo=int(s.is_demo))
+                    critical_parts=s.critical_parts, spot_check_rate=s.spot_check_rate, is_demo=int(s.is_demo),
+                    brain=s.brain)
         for i, r in enumerate(s.line_plan, 1):
             write(db.insert, "line_plan", session_id=sid, part=r.part, sequence_no=i, operator_id=r.operator_id,
                   machine_id=r.machine_id)
@@ -186,19 +236,21 @@ def create_app(deps: Deps):
 
     def review(iid, s1, im, part, sess):
         plan = line_plan(sess["session_id"])
-        s2 = step2(s1, client=deps.spark, reference=deps.reference(sess["fabric"]), line_plan=plan, part=part)
+        s2 = step2(s1, brains=brains, mode=sess["brain"], reference=deps.reference(sess["fabric"]), line_plan=plan, part=part)
         v = s2["spark_verdict"]
         tin, tout = s2["tokens"]
-        run_id = write(db.insert, "agent_run", kind="inspect",
+        usd = brains.available[s2["brain"]].cost(tin, tout) if s2["brain"] else 0.0
+        run_id = write(db.insert, "agent_run", kind="inspect", brain=s2["brain"], fell_back=int(s2["fell_back"]),
                        request={"crop": s1["crop_path"], "reference": str(deps.reference(sess["fabric"])),
                                 "prompt_sha": hashlib.sha256(hybrid.INSPECT_PROMPT.encode()).hexdigest()[:16]},
                        tool_calls=[{"name": "classify_stitch", "arguments": {}}] if v.get("tool_called") else [],
                        tool_outputs=[{"top2": s1["classifier_top2"]}] if v.get("tool_called") else [],
                        final={k: v.get(k) for k in ("spark_verdict", "spark_label", "pred", "protected", "spark_error")}
                        | {"reason": s2["reason"], "proposed": s2["proposed_label"]},
-                       latency_ms=int(s2["step2_seconds"] * 1000), tokens_in=tin, tokens_out=tout, cost_usd=cost(tin, tout))
+                       latency_ms=int(s2["step2_seconds"] * 1000), tokens_in=tin, tokens_out=tout, cost_usd=usd)
         timings = one("SELECT timings FROM inspection WHERE id = ?", iid)["timings"] | {"step2": s2["step2_seconds"]}
-        write(db.update, "inspection", iid, spark_verdict=v | {"reason": s2["reason"]}, proposed_label=s2["proposed_label"],
+        write(db.update, "inspection", iid, spark_verdict=v | {"reason": s2["reason"], "brain": s2["brain"],
+                                                                "fell_back": s2["fell_back"]}, proposed_label=s2["proposed_label"],
               proposed_severity=s2["proposed_severity"], needs_checker=int(s2["needs_checker"]), final_part=part,
               operator_id=s2["operator_id"], machine_id=s2["machine_id"], agent_run_id=run_id, timings=timings,
               review_status="done")
@@ -249,12 +301,15 @@ def create_app(deps: Deps):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(await audio.read())
         transcript = deps.transcribe(path)
-        parsed = parse_correction(deps.spark, transcript, line_plan(sess["session_id"]))
-        run_id = write(db.insert, "agent_run", kind="voice", request={"transcript": transcript}, tool_calls=[],
+        plan = line_plan(sess["session_id"])
+        parsed, brain, fell_back = run_brain(sess["brain"], lambda b: parse_correction(b.client, transcript, plan,
+                                                                                       model=b.model, effort=b.effort))
+        run_id = write(db.insert, "agent_run", kind="voice", brain=brain.name, fell_back=int(fell_back),
+                       request={"transcript": transcript}, tool_calls=[],
                        tool_outputs=[], final={"proposed": parsed["proposed"], "ambiguous": parsed["ambiguous"],
                                                "label_candidates": parsed["label_candidates"]},
                        latency_ms=int(parsed["seconds"] * 1000), tokens_in=parsed["prompt_tokens"],
-                       tokens_out=parsed["completion_tokens"], cost_usd=cost(parsed["prompt_tokens"], parsed["completion_tokens"]))
+                       tokens_out=parsed["completion_tokens"], cost_usd=brain.cost(parsed["prompt_tokens"], parsed["completion_tokens"]))
         vid = write(db.insert, "voice_note", inspection_id=iid, audio_path=str(path), transcript=transcript,
                     parsed={"proposed": parsed["proposed"], "ambiguous": parsed["ambiguous"], "agent_run_id": run_id})
         return {"voice_note_id": vid, "transcript": transcript, "proposed": parsed["proposed"],
@@ -314,13 +369,14 @@ def create_app(deps: Deps):
 
     @app.post("/sessions/{sid}/report")
     def report(sid: int):
-        one("SELECT id FROM session WHERE id = ?", sid)
+        s = one("SELECT * FROM session WHERE id = ?", sid)
         with lock:  # the report reads a consistent snapshot of the session
-            r = run_report(deps.spark, con, sid)
+            r, brain, fell_back = run_brain(s["brain"], lambda b: run_report(b.client, con, sid, model=b.model, effort=b.effort))
         tin, tout = r["tokens"]
-        run_id = write(db.insert, "agent_run", kind="report", request={"session_id": sid}, tool_calls=r["trace"]["tool_calls"],
+        run_id = write(db.insert, "agent_run", kind="report", brain=brain.name, fell_back=int(fell_back),
+                       request={"session_id": sid}, tool_calls=r["trace"]["tool_calls"],
                        tool_outputs=r["trace"]["tool_outputs"], final={"template": r["template"], "errors": r["errors"]},
-                       latency_ms=int(r["seconds"] * 1000), tokens_in=tin, tokens_out=tout, cost_usd=cost(tin, tout))
+                       latency_ms=int(r["seconds"] * 1000), tokens_in=tin, tokens_out=tout, cost_usd=brain.cost(tin, tout))
         rid = write(db.insert, "report", session_id=sid, kind="daily", body_template=r["template"], body_md=r["body_md"],
                     validator_ok=int(r["validator_ok"]), agent_run_id=run_id)
         return get_report(rid) | {"errors": r["errors"]}
@@ -346,6 +402,7 @@ def default_app():
     first start."""
     import os
 
+    from stitchcheck.backend.brains import open_client
     from stitchcheck.backend.demo import seed_demo
     from stitchcheck.classifier.ensemble import ONNX_DEMO, OnnxEnsemble
     from stitchcheck.meta_api import sam_segment, spark_client
@@ -368,6 +425,7 @@ def default_app():
         ensemble = Ensemble()
     app = create_app(Deps(db_path=str(env("STITCHCHECK_DB", "data/app/stitchcheck.db")),
                           storage=str(env("STITCHCHECK_STORAGE", "data/app/photos")), sam=sam_segment, ensemble=ensemble,
-                          spark=spark_client(), transcribe=transcribe_correction, reference=reference))
+                          spark=spark_client(), spark_open=open_client(), transcribe=transcribe_correction,
+                          reference=reference))
     seed_demo(app.state.con)
     return app
