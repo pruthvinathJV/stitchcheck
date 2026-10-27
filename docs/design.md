@@ -50,14 +50,14 @@ Also reported:
 - unseen-defect "called good" rate
 - Muse Spark unknown_defect flag rate
 - latency per photo
-- cost per 100 garments, assuming 5 close-ups per shirt (collar, two side seams, hem, pocket); the assumption is stated next to the number
+- cost per 100 photos, and per 100 garments at the product's photo rate: 2 critical seams per garment (collar, placket) plus a spot-check seam on 1 garment in 10, i.e. 2.1 photos per garment before any suspicious-seam photos; the assumption is stated next to the number
 
 ## Systems compared
 
 - **(A)** Zero-shot Muse Spark.
 - **(B)** Few-shot Muse Spark with one good-seam reference (k=1; design chosen on Linen, see Muse Spark settings), from the same fabric where possible.
-- **(C)** Fine-tuned classifier (five classes, CC BY data).
-- **(D)** Hybrid: Muse Spark calling the classifier as a tool, and judging puckering itself few-shot (phone set only).
+- **(C)** Fine-tuned classifier (five classes, CC BY data): the 3-seed 8-fabric ensemble, epoch 12. Reported on the full test split (1,428 + 667 unseen) and on the Spark subset (420 + 60), so comparisons with the Spark arms are paired.
+- **(D)** Hybrid: `inspect()` in `src/stitchcheck/spark/inspect.py`, the same function the app runs. Muse Spark with one good reference calls the classifier as a tool, and judges puckering itself few-shot (phone set only). Two views are reported: the auto label (disagreements count as ask_checker) and the label shown to the checker.
 - **(E, optional)** Muse Spark Open (open weights) on Modal Endpoints, with the same prompts, image size, few-shot references and test subset as the Muse Spark arms. Whether it runs is decided on Day 4. Its results go in the main table only if it runs on the full subset; a partial run is reported separately and labelled as partial.
 
 ## Classifier selection (fixed before the search runs)
@@ -99,6 +99,10 @@ Frozen BatchNorm is the base setting for Stage 1 and Stage 2 (`scripts/cloud/job
 
 Mid-schedule, while the learning rate is still high, single-seed scores swing by up to 19 points between epochs; over epochs 10 to 12, after the learning rate has decayed, both search runs hold at 0.940 to 0.958. The original median-best-epoch rule was itself a form of selection on noisy validation: both search runs peaking at epoch 9 was partly chance. Keeping the last epoch uses no Linen information to choose the epoch, so the benchmark ensemble's Linen macro-F1 stays labelled optimistic for one reason only: the setting was chosen on Linen. The ensemble report and the 90% demo agreement check are rerun on the epoch-12 models.
 
+**Final models, epoch 12 (Oct 27, before any test-set run; `results/classifier/ensemble.json`).** Benchmark seeds, Linen macro-F1: 0.918, 0.845, 0.886; 3-seed ensemble **0.921 (optimistic: the setting was chosen on Linen)**. Single seeds still vary by 7 points at epoch 12 (seed 1 moves between 0.78 and 0.92 over epochs 5 to 12), which is why the final models are ensembles. These are the benchmark (arms C and D) and demo models.
+
+**The demo agreement check cannot detect a bad seed, as designed.** Each demo seed agrees with the benchmark ensemble on 91.83% of Linen predictions, all three exactly the same. The demo seeds trained on Linen and get 99.7%, 99.85% and 100% of it right, so the agreement equals the benchmark ensemble's own Linen accuracy (91.83%), whatever the demo seeds do. The check passes, but it carries no information about the demo seeds. On images neither model trained on (the 2,887 unused images: unseen defect types on non-test fabrics, no labels needed), benchmark seeds agree with the benchmark ensemble on 81 to 83% and demo seeds on 69 to 74%. Those images have no correct class among the five, so this is not a clean health signal either. A replacement check is an open decision; the demo model is not used by any benchmark arm.
+
 **Demo model.** The winning setting is trained on all 11 fabrics (CC BY only, 7,148 images) with no validation fabric; its weights are those after the last epoch. It serves the app and the phone test set. StitchingNet test-fabric numbers come from the 8-fabric model with the same setting, scored once.
 
 **Chosen setting** (Stage 2, Oct 27, before any test-set run; `results/classifier/stage2_selection.csv`, `selection.json`): **ConvNeXt-Tiny, strong augmentation, lr 2e-4**, 12-epoch schedule, label smoothing 0.1. Linen macro-F1 by seed, best epoch:
@@ -122,7 +126,7 @@ Stage 1 seed-0 scores for the other settings: EfficientNet-B0 with TrivialAugmen
 
 An earlier run of this check (150 images) included 25 CC BY-NC puckering images. It was rerun on CC BY images only, before any test-set run, and gave the same choice.
 
-The benchmark and the app use the same setting. Before the few-shot and hybrid arms run on test data, the effort level is rechecked for them on the same validation sample, because comparing against a reference may need more reasoning.
+The benchmark and the app use the same setting. Before the few-shot and hybrid arms run on test data, the effort level is rechecked for them on the same validation sample, because comparing against a reference may need more reasoning. Both rechecks kept minimal (below).
 
 **Few-shot design: one good-seam reference, minimal effort** (chosen Oct 27, before any test-set run). Same 125 Linen images, 448 px, one image to inspect per request (`scripts/val/spark_fewshot.py`, `results/val/spark_fewshot_*.csv`). References come from the training fabrics only: the query's fabric when it is a training fabric, otherwise one training fabric drawn with the seed (Satin for every Linen query). Paired image bootstrap, 95% CIs:
 
@@ -141,6 +145,28 @@ The benchmark and the app use the same setting. Before the few-shot and hybrid a
 
 **Puckering** cannot be checked here: there is no CC BY puckering data. The puckering prompt and its few-shot references are finalised only when the Kadiri {F}-5-3 reference pairs arrive, before the phone test pairs are scored.
 
+**Prompt revision: rejected, the current prompt stays** (Oct 27, before any test-set run). One revision only: visual definitions for every label (`VISUAL_PROMPT` in `src/stitchcheck/spark/classify.py`). Tested with design (a) on a fresh seeded Linen sample (25 per class, no image shared with the 125 above), against a rule committed before the run: keep it only if skipped-stitch or major-defect recall improves with a CI above zero and the share of good seams flagged does not rise with a CI above zero (`scripts/val/spark_prompt_revision.py`, `results/val/spark_prompt_revision_*.csv`). Visual vs current: skipped recall +0.28 (0.11 to 0.47), major recall +0.067 (-0.013 to 0.151), macro-F1 +0.119 (0.038 to 0.194), but good seams flagged rose from 0% to 20%, +0.20 (0.05 to 0.375), so the rule rejects it. Arms A, B and D use the current prompt. No further prompt tuning.
+
+**Hybrid design (arm D and the app)** (Oct 27, before any test-set run).
+- **One function.** `inspect()` is used by benchmark arm D and by the app. One request with the image to inspect at 448 px, one good reference (design (a)), minimal effort, and a `classify_stitch` tool that returns the classifier ensemble's top-2 labels and probabilities. The Meta API accepts only `tool_choice: "auto"`, so a reply without the tool call is retried once; if Spark still skips it, the photo goes to the checker with the classifier's label. In a 10-image smoke test and the 125-image check below, Spark called the tool every time.
+- **Routing.** Spark and the classifier agree: that label. They disagree, or Spark says ask_checker: ask_checker, with Spark's label as the proposal shown to the checker. Spark's stated confidence is stored, not used for routing.
+- **Major-defect protection.** If the classifier's top label is skipped_stitch, broken_stitch or stain_damage with probability at least **t = 0.60**, the proposal cannot be good or crooked_seam: it stays the classifier's label and the photo goes to the checker.
+- **Choosing t.** Classifier only, all 673 Linen images: the lowest t on a 0.50 to 0.90 grid (step 0.05) at which every major class's precision is at least 0.90. At 0.60: skipped 0.903 (113 calls), broken 1.00, stain 1.00; at 0.55 skipped precision is 0.896. *Caveat:* the classifier setting was chosen on Linen, so its Linen probabilities are optimistic; on the test fabrics and phone photos the same t protects more wrong calls.
+- **Severity** comes from a fixed map (skipped, broken, open seam: major); Spark judges only stain_damage, crooked_seam and puckering, and an unjudged one defaults to major.
+- **Sanity check vs the classifier alone**, same 125 Linen images (`scripts/val/hybrid_sanity.py`, `results/val/hybrid_sanity_*.csv`):
+
+| system | macro-F1 | major recall | auto major recall | good flagged | sent to checker |
+|---|---|---|---|---|---|
+| classifier alone | 0.944 | 1.000 | 1.000 | 16% | 0% |
+| hybrid, auto label | 0.766 | 1.000 | 0.627 | 16% | 25.6% |
+| hybrid, label shown to checker | 0.960 | 0.973 | 0.973 | 4% | n/a |
+
+  Spark disagrees with the classifier on a quarter of the photos, which go to the checker, so major recall holds only with checker review. The label shown to the checker cuts flagged good seams from 16% to 4%, and the protection keeps skipped stitches proposed as skipped (0.96) although Spark itself never names them. Median latency 1.9 s for the two-turn call. Effort recheck: low vs minimal changed shown-label macro-F1 by -0.004 (-0.027 to 0.020) and auto major recall by -0.04 (-0.09 to 0.00), at 3.0 s vs 1.9 s, so minimal stays.
+
+**References on the StitchingNet test.** Test fabrics (Cotton, Oxford) are not training fabrics, so every test query gets its good reference from the seeded training fabric, Satin, not from its own fabric. Few-shot (arms B and D) is therefore understated on StitchingNet. The Kadiri phone set, with references sewn on the same fabric (`{F}-1-5`), is the fair few-shot test.
+
+**Phone set runs the product path.** On the Kadiri photos, arms C and D use the app's SAM seam crop and tiling, the same code as the per-photo pipeline, so the phone-set numbers describe the product as built.
+
 ## SAM 3.1: garment part and seam localisation
 
 Tested on StitchingNet swatches and on four photos of one shirt: full shot, collar, pocket and hem close-ups (`scripts/smoke/sam_seam.py`, `results/smoke/sam_seam*.json`). SAM is used only for garment parts and stitch lines, never to name defects.
@@ -158,6 +184,10 @@ Tested on two 10-second clips of mixed Telugu and English ("machine ఏడు, b
 - **Keywords are English only:** machine, bundle, operator, major, minor, the defect names and the garment parts. Adding the Telugu defect words (జారాయి, తెగింది, వంకర, ముడతలు, మరక) as keywords made the defect word itself come back wrong more often: జారాయి was right in 4 of 12 runs with them, 10 of 12 without (`results/smoke/transcribe_keywords.csv`). The Telugu words go to Muse Spark instead, for the mapping step.
 - **Muse Spark maps the transcript onto the fixed defect list only**, using the Telugu words as a guide (జారాయి = skipped stitch, తెగింది = broken stitch, వంకర = crooked seam, ముడతలు = puckering, మరక = stain). If the defect word is ambiguous or matches nothing, it asks the checker rather than guessing.
 - **Nothing is logged from voice alone.** The checker sees the parsed entry (machine, bundle, part, defect, severity) and taps to confirm. This matters because the defect word is the least stable part of the transcript: across reruns of the same clip it sometimes changed to a different word.
+
+## Test-set lock
+
+Before any test-set run, everything above is committed and tagged `test-lock`: prompts (by hash), image size, effort, few-shot design and reference paths, t, the routing and severity rules, the three benchmark classifier runs, the subset file, the metrics and the bootstrap settings (`results/test/lock.json`). The test runner (`scripts/test/run_arms.py`) refuses to start if the working tree has changes or HEAD is not the tagged commit. Arms A, B, C and D run on the StitchingNet test in one go. The only change allowed after the lock is the puckering definition and its references, decided on the `{F}-5-3` reference pairs before any phone test pair is scored. Arm E, if run, uses the locked prompts and references.
 
 ## Day 5 decision rule
 
