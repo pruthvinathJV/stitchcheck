@@ -145,6 +145,8 @@ def main():
     ap.add_argument("--backbone-lr-mult", type=float, default=1.0, help="backbone lr = lr x this; the head gets lr")
     ap.add_argument("--aug", choices=AUGS, default="basic")
     ap.add_argument("--label-smoothing", type=float, default=0.1)
+    ap.add_argument("--freeze-bn", action="store_true",
+                    help="keep BatchNorm running statistics at their ImageNet values during fine-tuning")
     ap.add_argument("--tag", default="", help="suffix for the run name, e.g. a sweep config id")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--workers", type=int, default=4)
@@ -191,6 +193,10 @@ def main():
     watchdog = Watchdog(args.stall_minutes * 60)
     for epoch in range(start, args.epochs + 1):
         model.train(); t0 = time.time()
+        if args.freeze_bn:
+            for mod in model.modules():
+                if isinstance(mod, nn.modules.batchnorm._BatchNorm):
+                    mod.eval()
         total = torch.zeros((), device=device)  # summed on the device: no GPU sync per step
         for x, y in train_dl:
             x, y = x.to(device), y.to(device)

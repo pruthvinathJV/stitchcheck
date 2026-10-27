@@ -1,0 +1,7 @@
+# Seed-gap check: the baseline setting with standard and with frozen BatchNorm, 3 seeds each.
+--variant clean --seed 0 --workers 8
+--variant clean --seed 1 --tag s0-seed1 --workers 8
+--variant clean --seed 2 --tag base-seed2 --workers 8
+--variant clean --seed 0 --freeze-bn --tag bnfrozen-seed0 --workers 8
+--variant clean --seed 1 --freeze-bn --tag bnfrozen-seed1 --workers 8
+--variant clean --seed 2 --freeze-bn --tag bnfrozen-seed2 --workers 8
