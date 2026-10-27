@@ -6,15 +6,28 @@
 
 **Exact duplicates are removed before splitting** (147 images, all within one fabric and class).
 
-**Six classes for the classifier:** good, skipped_stitch, broken_stitch, crooked_seam, puckering, stain_damage. The other five StitchingNet defect classes (pinched fabric, needle mark, thread sagging, overlapped stitch, bobbin thread pulling up) are never trained on. Those images from the held-out fabrics form an "unseen defect" test. It measures (1) how often each system calls them good, and (2) how often Muse Spark flags them as an unknown defect.
+**Classifier classes.** The clean classifier has five: good, skipped_stitch, broken_stitch, crooked_seam, stain_damage. The full classifier adds puckering (see "Puckering and licensing"). The other five StitchingNet defect classes (pinched fabric, needle mark, thread sagging, overlapped stitch, bobbin thread pulling up) are never trained on. Those images from the held-out fabrics form an "unseen defect" test. It measures (1) how often each system calls them good, and (2) how often Muse Spark flags them as an unknown defect.
 
 **Muse Spark subset.** The Spark arms run on a fixed, seeded sample: 42 images per class per test fabric (504), plus 10 per unseen class per test fabric (100).
 
-**Two classifiers.** Benchmark numbers on StitchingNet come from a model trained on 8 fabrics. The demo and the phone test set use a model retrained on all 11 fabrics. Every reported number says which model produced it.
+**Training fabrics.** Benchmark numbers on StitchingNet come from models trained on 8 fabrics. The demo and the phone test set use models retrained on all 11 fabrics. Every reported number says which model produced it (clean or full, 8 or 11 fabrics).
+
+**Optional: leave-one-fabric-out.** If Day 2 has time, 11 extra runs (train on 10 fabrics, test on the 11th) give a per-fabric difficulty table. It does not change the main split.
 
 **Phone test set.** Sewn and photographed by a tailor in Kadiri, Andhra Pradesh, on locally bought shirting cotton. Three shirting cottons (white, dark, checks). Seven seam types: good, skipped, broken, crooked, puckering, stain, and open seam (an unseen defect). Per fabric: 4 good pairs, 3 pairs each of skipped and broken stitch, and 2 pairs of every other type (51 pairs, 204 photos in all). Each sewn pair is photographed at four chalk marks 15 cm apart, top-down, in daylight. Broken stitch, crooked seam, stain and open seam are made at every chalk mark. Skipped stitch and puckering run along the whole seam, so a mark may show no visible defect; those photos are reviewed one by one and relabelled as good or rejected. All phone-set confidence intervals come from a bootstrap that resamples whole pairs, not single photos, because photos of the same pair are correlated. The phone set is never used for training or tuning.
 
-**Puckering fallback.** If the CC BY-NC terms rule out using StitchingNet puckering, the classifier drops it and puckering is evaluated with zero-shot and few-shot Muse Spark only. The README will say so.
+## Puckering and licensing (fixed before training)
+
+Two classifiers are trained:
+
+- **Clean (default):** five classes (good, skipped_stitch, broken_stitch, crooked_seam, stain_damage), trained only on images that StitchingNet-Seg publishes under CC BY 4.0. Selected by the `licence` column of the split file.
+- **Full:** six classes, adding puckering from the CC BY-NC 4.0 release. It is trained and evaluated but not shipped.
+
+In the product, puckering is handled by Muse Spark: few-shot, with a good-seam reference from the same fabric. The QC agent still logs it, assigns severity and reports it like any other defect.
+
+**Switch rule.** If the StitchingNet authors grant permission by Day 5 (Fri Oct 30), the demo and final results switch to the full classifier. Otherwise the clean classifier is final. The README records which one shipped. Without permission it says: "The classifier covers four defects using CC BY data only. Puckering is detected by Muse Spark."
+
+**Evaluation.** Puckering results are reported for Muse Spark alone, on both the StitchingNet test subset and the Kadiri phone set. The full classifier's puckering numbers are a side comparison, labelled as such. The tailor's puckering pairs stay in the phone set: they are the only real-world test of Muse Spark on puckering.
 
 ## Metrics (fixed before results)
 
@@ -42,8 +55,8 @@ Also reported:
 
 - **(A)** Zero-shot Muse Spark.
 - **(B)** Few-shot Muse Spark with k=1 and k=3 good-seam references from the same fabric.
-- **(C)** Fine-tuned classifier.
-- **(D)** Hybrid: Muse Spark calling the classifier as a tool.
+- **(C)** Fine-tuned classifier (clean; full as a side comparison).
+- **(D)** Hybrid: Muse Spark calling the classifier as a tool, and judging puckering itself few-shot.
 - **(E, optional)** Hybrid with Muse Spark Open, if Baseten credits arrive.
 
 ## Day 5 decision rule
@@ -52,4 +65,4 @@ If hybrid recall on major defects on the phone set is below 60% (pair-bootstrap 
 
 ## Licence coverage
 
-StitchingNet is CC BY-NC 4.0. StitchingNet-Seg republishes the same images for 8 classes under CC BY 4.0 (verified by file hash). For the six classifier classes, every good, skipped, broken, crooked and stain image is covered by CC BY; only puckering relies solely on the CC BY-NC release.
+StitchingNet is CC BY-NC 4.0. StitchingNet-Seg republishes the same images for 8 classes under CC BY 4.0 (verified by file hash). Every good, skipped, broken, crooked and stain image is covered by CC BY, so the clean classifier needs nothing from the CC BY-NC release. Only puckering relies solely on it.
