@@ -13,6 +13,7 @@ data/phone/
 data/audio/
 data/cache/
 data/smoke/
+data/app/
 results/**/*.jpg
 results/**/*.png
 
