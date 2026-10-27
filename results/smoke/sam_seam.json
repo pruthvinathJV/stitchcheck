@@ -1,0 +1,240 @@
+{
+  "model": "sam-3.1",
+  "date": "2026-10-26",
+  "runs": [
+    {
+      "image": "A_00_016.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "seam",
+      "seconds": 1.95,
+      "ok": true,
+      "n_objects": 1,
+      "confidences": [
+        0.8128654956817627
+      ],
+      "mask_area_frac": [
+        0.0226
+      ],
+      "raw_head": "<0f>0<|box;x1=0;y1=115;x2=223;y2=121;w=224;h=224;c=0.8128654956817627|><|mask;x=0;y=0;c=0.8128654956817627;data=7,224,~!!!-f!l#k*))nIAk6!:gcgW88Y7tU6-+Xnk+9XL)L8-p7ZkYgjr$I#UB.[1x%1us^.l{K?6!COLtp%lfn"
+    },
+    {
+      "image": "A_00_016.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "stitch line",
+      "seconds": 1.06,
+      "ok": true,
+      "n_objects": 1,
+      "confidences": [
+        0.7037037014961243
+      ],
+      "mask_area_frac": [
+        0.0228
+      ],
+      "raw_head": "<0f>0<|box;x1=0;y1=115;x2=223;y2=121;w=224;h=224;c=0.7037037014961243|><|mask;x=0;y=0;c=0.7037037014961243;data=7,224,~!!!.(!kbL*J)BQ'-z{3*lDFNBBk)SQM(?QBg)ZC]E2K8ij4t0ABoqeikH6Nc79xwd1RDRHEWlo5wX00yx"
+    },
+    {
+      "image": "A_00_016.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "collar",
+      "seconds": 1.53,
+      "ok": true,
+      "n_objects": 0,
+      "confidences": [],
+      "mask_area_frac": [],
+      "raw_head": ""
+    },
+    {
+      "image": "A_00_016.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "pocket",
+      "seconds": 1.19,
+      "ok": true,
+      "n_objects": 0,
+      "confidences": [],
+      "mask_area_frac": [],
+      "raw_head": ""
+    },
+    {
+      "image": "A_00_016.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "hem",
+      "seconds": 2.22,
+      "ok": true,
+      "n_objects": 0,
+      "confidences": [],
+      "mask_area_frac": [],
+      "raw_head": ""
+    },
+    {
+      "image": "A_00_125.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "seam",
+      "seconds": 0.81,
+      "ok": true,
+      "n_objects": 1,
+      "confidences": [
+        0.8324607610702515
+      ],
+      "mask_area_frac": [
+        0.0249
+      ],
+      "raw_head": "<0f>0<|box;x1=0;y1=110;x2=223;y2=118;w=224;h=224;c=0.8324607610702515|><|mask;x=0;y=0;c=0.8324607610702515;data=9,224,~!!!/X!kX@-e8wU-plA6F^Bt5@%va/UgsKbJwW10E#qPdl#.K*MLj17{BFwSh)ckKrC`Ey^hab$/s(x:6m"
+    },
+    {
+      "image": "A_00_125.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "stitch line",
+      "seconds": 1.58,
+      "ok": true,
+      "n_objects": 1,
+      "confidences": [
+        0.6878048777580261
+      ],
+      "mask_area_frac": [
+        0.0249
+      ],
+      "raw_head": "<0f>0<|box;x1=0;y1=110;x2=223;y2=118;w=224;h=224;c=0.6878048777580261|><|mask;x=0;y=0;c=0.6878048777580261;data=9,224,~!!!0.!kO4/*Tx6m+Lbcv?XMas/sBK5FF_xw]G64R[f10y4-veW^Gxlky.%Mh/tfvC(IL)(AAwIF^%GB2O"
+    },
+    {
+      "image": "A_00_125.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "collar",
+      "seconds": 1.43,
+      "ok": true,
+      "n_objects": 0,
+      "confidences": [],
+      "mask_area_frac": [],
+      "raw_head": ""
+    },
+    {
+      "image": "A_00_125.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "pocket",
+      "seconds": 0.64,
+      "ok": true,
+      "n_objects": 0,
+      "confidences": [],
+      "mask_area_frac": [],
+      "raw_head": ""
+    },
+    {
+      "image": "A_00_125.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "hem",
+      "seconds": 1.12,
+      "ok": true,
+      "n_objects": 0,
+      "confidences": [],
+      "mask_area_frac": [],
+      "raw_head": ""
+    },
+    {
+      "image": "A_00_142.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "seam",
+      "seconds": 0.66,
+      "ok": true,
+      "n_objects": 1,
+      "confidences": [
+        0.8128654956817627
+      ],
+      "mask_area_frac": [
+        0.0257
+      ],
+      "raw_head": "<0f>0<|box;x1=0;y1=114;x2=223;y2=121;w=224;h=224;c=0.8128654956817627|><|mask;x=0;y=0;c=0.8128654956817627;data=8,224,~!!!.w!kO4/*lmlZdY6qjLPUsN!Fv#jkdqVDVLj#/`R*A`fT!:GxcOfkmdQO$caX0wd_tvD)JPt9(#U?bp"
+    },
+    {
+      "image": "A_00_142.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "stitch line",
+      "seconds": 0.96,
+      "ok": true,
+      "n_objects": 1,
+      "confidences": [
+        0.6831682920455933
+      ],
+      "mask_area_frac": [
+        0.0259
+      ],
+      "raw_head": "<0f>0<|box;x1=0;y1=114;x2=223;y2=121;w=224;h=224;c=0.6831682920455933|><|mask;x=0;y=0;c=0.6831682920455933;data=8,224,~!!!/[!kDuD8NqvQv0B.+?Y?mW*q5u?^+lfG&H$L)gSM=D?Yj5h&A]YXJMoC]tx)L1B^bzAv#zk[ui9IR1"
+    },
+    {
+      "image": "A_00_142.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "collar",
+      "seconds": 0.79,
+      "ok": true,
+      "n_objects": 0,
+      "confidences": [],
+      "mask_area_frac": [],
+      "raw_head": ""
+    },
+    {
+      "image": "A_00_142.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "pocket",
+      "seconds": 0.89,
+      "ok": true,
+      "n_objects": 0,
+      "confidences": [],
+      "mask_area_frac": [],
+      "raw_head": ""
+    },
+    {
+      "image": "A_00_142.jpg",
+      "size": [
+        224,
+        224
+      ],
+      "prompt": "hem",
+      "seconds": 2.4,
+      "ok": true,
+      "n_objects": 0,
+      "confidences": [],
+      "mask_area_frac": [],
+      "raw_head": ""
+    }
+  ]
+}

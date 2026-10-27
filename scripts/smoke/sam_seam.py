@@ -1,9 +1,9 @@
 """Check what SAM 3.1 returns for garment-part and seam concepts.
 
-python scripts/smoke/sam_seam.py [IMAGE ...] [--prompts seam "stitch line" collar pocket hem]
+python scripts/smoke/sam_seam.py [IMAGE ... | FOLDER] [--prompts seam "stitch line" collar pocket hem] [--name shirt]
 
-With no images, uses 3 held-out StitchingNet test images. Writes results/smoke/sam_seam.json and
-overlay PNGs (gitignored) to results/smoke/sam/.
+With no images, uses 3 held-out StitchingNet test images. Phone photos are downscaled to --max-side first.
+Writes results/smoke/sam_seam[_<name>].json and overlay PNGs (gitignored) to results/smoke/sam/.
 """
 import argparse
 import json
@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from PIL import Image
+from PIL import Image, ImageOps
 
 from stitchcheck.data.stitchingnet import STITCHINGNET_DIR
 from stitchcheck.meta_api import SAM_MODEL, sam_segment
@@ -32,15 +32,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("images", nargs="*", type=Path)
     ap.add_argument("--prompts", nargs="+", default=["seam", "stitch line", "collar", "pocket", "hem"])
+    ap.add_argument("--max-side", type=int, default=1536)
+    ap.add_argument("--name", default="")
     args = ap.parse_args()
-    images = args.images
+    images = [f for p in args.images for f in (sorted(p.iterdir()) if p.is_dir() else [p])
+              if f.suffix.lower() in {".jpg", ".jpeg", ".png", ".heic"}]
     if not images:
         test = pd.read_csv("data/splits/stitchingnet_v1.csv").query("split == 'test' and label == 'good'")
         images = [STITCHINGNET_DIR / p for p in test.sample(3, random_state=0)["path"]]
     (OUT / "sam").mkdir(parents=True, exist_ok=True)
     rows = []
     for img_path in images:
-        im = Image.open(img_path).convert("RGB")
+        im = ImageOps.exif_transpose(Image.open(img_path)).convert("RGB")
+        im.thumbnail((args.max_side, args.max_side))
         for prompt in args.prompts:
             t0 = time.time()
             try:
@@ -56,7 +60,7 @@ def main():
             rows.append(dict(image=Path(img_path).name, size=list(im.size), prompt=prompt,
                              seconds=round(time.time() - t0, 2), **row))
             print({k: v for k, v in rows[-1].items() if k != "raw_head"})
-    (OUT / "sam_seam.json").write_text(json.dumps(dict(model=SAM_MODEL, date=time.strftime("%Y-%m-%d"), runs=rows), indent=2))
+    (OUT / f"sam_seam{'_' + args.name if args.name else ''}.json").write_text(json.dumps(dict(model=SAM_MODEL, date=time.strftime("%Y-%m-%d"), runs=rows), indent=2))
 
 
 if __name__ == "__main__":

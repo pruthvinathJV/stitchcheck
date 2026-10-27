@@ -1,0 +1,47 @@
+{
+  "model": "muse-spark-1.3",
+  "date": "2026-10-26",
+  "runs": [
+    {
+      "n_images": 1,
+      "size": 224,
+      "ok": true,
+      "seconds": 3.62,
+      "prompt_tokens": 131,
+      "completion_tokens": 439,
+      "answer": "[\"broken_stitch\"]",
+      "answers_parsed": true
+    },
+    {
+      "n_images": 5,
+      "size": 224,
+      "ok": true,
+      "seconds": 32.43,
+      "prompt_tokens": 395,
+      "completion_tokens": 8025,
+      "answer": "[\"broken_stitch\", \"skipped_stitch\", \"good\", \"broken_stitch\", \"crooked_seam\"]",
+      "answers_parsed": true
+    },
+    {
+      "n_images": 20,
+      "size": 224,
+      "ok": true,
+      "seconds": 20.36,
+      "prompt_tokens": 1385,
+      "completion_tokens": 5733,
+      "answer": "[\"broken_stitch\",\"broken_stitch\",\"good\",\"broken_stitch\",\"crooked_seam\",\"good\",\"puckering\",\"crooked_seam\",\"skipped_stitch\",\"puckering\",\"skipped_stitch\",\"good\",\"good\",\"stain_damage\",\"good\",\"good\",\"stain_damage\",\"puckering\",\"crooked_seam\",\"good\"]",
+      "answers_parsed": true
+    },
+    {
+      "n_images": 1,
+      "size": 1280,
+      "ok": true,
+      "seconds": 3.16,
+      "prompt_tokens": 2092,
+      "completion_tokens": 470,
+      "answer": "[\"broken_stitch\"]",
+      "answers_parsed": true
+    }
+  ],
+  "tokens_per_224px_image": 66.0
+}
