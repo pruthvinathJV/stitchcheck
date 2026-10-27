@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from stitchcheck.data.stitchingnet import STITCHINGNET_DIR
+from stitchcheck.data.stitchingnet import image_path, load_split
 from stitchcheck.eval.metrics import checker_workload, major_recall
 from stitchcheck.meta_api import spark_client
 from stitchcheck.spark.classify import classify
@@ -45,7 +45,7 @@ def main():
     ap.add_argument("--workers", type=int, default=8)
     args = ap.parse_args()
 
-    val = pd.read_csv("data/splits/stitchingnet_v1.csv").query("split == 'val'")
+    val = load_split().query("split == 'val'")
     sample = val.groupby("label", group_keys=False).sample(args.per_class, random_state=SEED)
     client = spark_client()
     jobs = [(row, e, s) for e in args.efforts for s in args.sizes for row in sample.itertuples()]
@@ -53,7 +53,7 @@ def main():
     def run(job):
         row, effort, size = job
         try:
-            res = classify(client, STITCHINGNET_DIR / row.path, size=size, effort=None if effort == "default" else effort)
+            res = classify(client, image_path(row.path), size=size, effort=None if effort == "default" else effort)
         except Exception as ex:
             res = dict(pred="api_error", raw=f"{type(ex).__name__}: {ex}"[:300])
         return dict(path=row.path, label=row.label, effort=effort, size=size, **res)
