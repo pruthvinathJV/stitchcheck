@@ -1,0 +1,542 @@
+[
+  {
+    "sheet_id": "TP-01",
+    "buyer": "Sample Buyer Co.",
+    "style_no": "SB-101",
+    "style_name": "Men's formal shirt, full sleeve",
+    "fabric": "100% cotton poplin, 110 GSM",
+    "color": "White",
+    "thread": "Spun polyester Tex 27, colour matched",
+    "operations": [
+      {
+        "part": "collar",
+        "operation": "Collar edge stitch",
+        "stitch_type": "301",
+        "spi_target": 14,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": true
+      },
+      {
+        "part": "collar_band",
+        "operation": "Collar band attach and topstitch",
+        "stitch_type": "301",
+        "spi_target": 14,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": true
+      },
+      {
+        "part": "placket",
+        "operation": "Front placket topstitch, 1/4 in from edge",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": true
+      },
+      {
+        "part": "pocket",
+        "operation": "Pocket attach with bartacks",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": false
+      },
+      {
+        "part": "shoulder",
+        "operation": "Shoulder seam, felled",
+        "stitch_type": "401",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": false
+      },
+      {
+        "part": "sleeve",
+        "operation": "Sleeve attach",
+        "stitch_type": "514",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": false
+      },
+      {
+        "part": "side_seam",
+        "operation": "Side seam, felled",
+        "stitch_type": "401",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": false
+      },
+      {
+        "part": "cuff",
+        "operation": "Cuff attach and edge stitch",
+        "stitch_type": "301",
+        "spi_target": 14,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": false
+      },
+      {
+        "part": "hem",
+        "operation": "Bottom hem, double fold",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": false
+      }
+    ],
+    "aql": {
+      "inspection_level": "II",
+      "critical": 0,
+      "major": 2.5,
+      "minor": 4.0
+    },
+    "severity_rules": [
+      {
+        "text": "Any open seam is a critical defect.",
+        "defect": "open_seam",
+        "location": "any",
+        "severity": "critical"
+      },
+      {
+        "text": "Skipped stitch on collar or placket is major regardless of length.",
+        "defect": "skipped_stitch",
+        "location": "collar, placket",
+        "severity": "major"
+      },
+      {
+        "text": "Stain visible on the front panel is major; stain on the inside is minor.",
+        "defect": "stain_damage",
+        "location": "front panel / inside",
+        "severity": "major / minor"
+      }
+    ],
+    "out_of_scope": [
+      "measurements",
+      "packing"
+    ],
+    "missing_or_unreadable": [],
+    "unsupported_by_app": [],
+    "capture_instructions": "Clean PDF. Use the PDF file as-is (also upload the PNG). Do not print."
+  },
+  {
+    "sheet_id": "TP-02",
+    "buyer": "Sample Buyer Co.",
+    "style_no": "SB-102",
+    "style_name": "Men's casual shirt, half sleeve",
+    "fabric": "100% cotton yarn-dyed check, 120 GSM",
+    "color": "Blue / white check",
+    "thread": "Spun polyester Tex 27, colour matched to ground",
+    "operations": [
+      {
+        "part": "collar",
+        "operation": "Collar edge stitch",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": true
+      },
+      {
+        "part": "placket",
+        "operation": "Front placket topstitch",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": true
+      },
+      {
+        "part": "pocket",
+        "operation": "Pocket attach, check matched to body",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": true
+      },
+      {
+        "part": "shoulder",
+        "operation": "Shoulder seam",
+        "stitch_type": "514",
+        "spi_target": 10,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": false
+      },
+      {
+        "part": "sleeve",
+        "operation": "Sleeve attach",
+        "stitch_type": "514",
+        "spi_target": 10,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": false
+      },
+      {
+        "part": "side_seam",
+        "operation": "Side seam",
+        "stitch_type": "514",
+        "spi_target": 10,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": false
+      },
+      {
+        "part": "hem",
+        "operation": "Bottom hem, double fold",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 8,
+        "critical": false
+      }
+    ],
+    "aql": {
+      "inspection_level": "II",
+      "critical": 0,
+      "major": 2.5,
+      "minor": 4.0
+    },
+    "severity_rules": [
+      {
+        "text": "Check mismatch at placket or pocket over 3 mm is major.",
+        "defect": "other",
+        "location": "placket, pocket",
+        "severity": "major"
+      },
+      {
+        "text": "Broken stitch of 3 mm or less on the inside hem is minor.",
+        "defect": "broken_stitch",
+        "location": "hem (inside)",
+        "severity": "minor"
+      }
+    ],
+    "out_of_scope": [
+      "measurements",
+      "packing"
+    ],
+    "missing_or_unreadable": [],
+    "unsupported_by_app": [],
+    "capture_instructions": "Print in colour. Photograph at an angle (about 20 to 30 degrees tilt), whole page in frame, daylight."
+  },
+  {
+    "sheet_id": "TP-03",
+    "buyer": "Sample Buyer Co.",
+    "style_no": "SB-103",
+    "style_name": "Boys' school shirt, half sleeve",
+    "fabric": "65/35 polyester-cotton, 105 GSM",
+    "color": "Light blue",
+    "thread": "Spun polyester Tex 24",
+    "operations": [
+      {
+        "part": "collar",
+        "operation": "Collar edge stitch",
+        "stitch_type": "301",
+        "spi_target": 14,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": true
+      },
+      {
+        "part": "placket",
+        "operation": "Front placket topstitch",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": true
+      },
+      {
+        "part": "pocket",
+        "operation": "Pocket attach with bartacks",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": false
+      },
+      {
+        "part": "side_seam",
+        "operation": "Side seam",
+        "stitch_type": "504",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 8,
+        "critical": false
+      },
+      {
+        "part": "hem",
+        "operation": "Bottom hem",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": false
+      }
+    ],
+    "aql": {
+      "inspection_level": "II",
+      "critical": 0,
+      "major": 1.5,
+      "minor": 4.0
+    },
+    "severity_rules": [
+      {
+        "text": "Any loose or broken stitch on the collar is major (children's wear).",
+        "defect": "broken_stitch",
+        "location": "collar",
+        "severity": "major"
+      },
+      {
+        "text": "Sharp points, needles or metal fragments: critical, reject the lot.",
+        "defect": "other",
+        "location": "any",
+        "severity": "critical"
+      }
+    ],
+    "out_of_scope": [
+      "measurements",
+      "packing"
+    ],
+    "missing_or_unreadable": [],
+    "unsupported_by_app": [
+      "aql.major=1.5 (only 2.5 and 4.0 are supported)"
+    ],
+    "capture_instructions": "Print. Fold the page in half and unfold it so a crease runs across. Photograph flat with a shadow falling across part of the page (e.g. your hand or phone)."
+  },
+  {
+    "sheet_id": "TP-04",
+    "buyer": "Sample Buyer Co.",
+    "style_no": "SB-104",
+    "style_name": "Men's Oxford shirt, full sleeve, button-down collar",
+    "fabric": "100% cotton Oxford, 140 GSM",
+    "color": "Light pink",
+    "thread": "Spun polyester Tex 30, colour matched",
+    "operations": [
+      {
+        "part": "collar",
+        "operation": "Collar edge stitch, button-down",
+        "stitch_type": "301",
+        "spi_target": 14,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": true
+      },
+      {
+        "part": "placket",
+        "operation": "Front placket topstitch",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": true
+      },
+      {
+        "part": "pocket",
+        "operation": "Pocket attach",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": false
+      },
+      {
+        "part": "shoulder",
+        "operation": "Shoulder seam, felled",
+        "stitch_type": "401",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": false
+      },
+      {
+        "part": "sleeve",
+        "operation": "Sleeve attach",
+        "stitch_type": "514",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": false
+      },
+      {
+        "part": "side_seam",
+        "operation": "Side seam, felled",
+        "stitch_type": "401",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": false
+      },
+      {
+        "part": "cuff",
+        "operation": "Cuff attach and edge stitch",
+        "stitch_type": "301",
+        "spi_target": 14,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": false
+      },
+      {
+        "part": "hem",
+        "operation": "Bottom hem, double fold",
+        "stitch_type": "301",
+        "spi_target": 12,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": false
+      }
+    ],
+    "aql": {
+      "inspection_level": "II",
+      "critical": 0,
+      "major": 2.5,
+      "minor": 4.0
+    },
+    "severity_rules": [
+      {
+        "text": "Puckering visible at arm's length on collar or placket is major.",
+        "defect": "puckering",
+        "location": "collar, placket",
+        "severity": "major"
+      },
+      {
+        "text": "Any open seam is a critical defect.",
+        "defect": "open_seam",
+        "location": "any",
+        "severity": "critical"
+      }
+    ],
+    "out_of_scope": [
+      "measurements",
+      "packing"
+    ],
+    "missing_or_unreadable": [],
+    "unsupported_by_app": [],
+    "capture_instructions": "Print. With a blue or black pen, strike through the collar SPI '12' and write '14' next to it, and initial it. Photograph flat, straight on, daylight.",
+    "handwritten_corrections": [
+      "collar SPI: printed 12, corrected by hand to 14"
+    ]
+  },
+  {
+    "sheet_id": "TP-05",
+    "buyer": "Sample Buyer Co.",
+    "style_no": "SB-105",
+    "style_name": "Men's denim shirt, full sleeve",
+    "fabric": "100% cotton denim, 6 oz",
+    "color": "Indigo",
+    "thread": null,
+    "operations": [
+      {
+        "part": "collar",
+        "operation": "Collar edge stitch",
+        "stitch_type": "301",
+        "spi_target": 10,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": true
+      },
+      {
+        "part": "placket",
+        "operation": "Front placket topstitch, contrast thread",
+        "stitch_type": "301",
+        "spi_target": 10,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 10,
+        "critical": true
+      },
+      {
+        "part": "pocket",
+        "operation": "Flap pocket attach with bartacks",
+        "stitch_type": "301",
+        "spi_target": 10,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": true
+      },
+      {
+        "part": "shoulder",
+        "operation": "Shoulder seam, felled",
+        "stitch_type": "401",
+        "spi_target": 10,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 12,
+        "critical": false
+      },
+      {
+        "part": "side_seam",
+        "operation": "Side seam, felled",
+        "stitch_type": "401",
+        "spi_target": 10,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 12,
+        "critical": false
+      },
+      {
+        "part": "cuff",
+        "operation": "Cuff attach",
+        "stitch_type": "301",
+        "spi_target": 10,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 6,
+        "critical": false
+      },
+      {
+        "part": "hem",
+        "operation": "Bottom hem, double fold",
+        "stitch_type": "301",
+        "spi_target": 10,
+        "spi_tolerance": 1,
+        "seam_allowance_mm": 8,
+        "critical": false
+      }
+    ],
+    "aql": {
+      "inspection_level": "II",
+      "critical": 0,
+      "major": 2.5,
+      "minor": 6.5
+    },
+    "severity_rules": [
+      {
+        "text": "కాలర్ దగ్గర మరక ఉంటే మేజర్.",
+        "meaning": "Stain near the collar is major.",
+        "defect": "stain_damage",
+        "location": "collar",
+        "severity": "major",
+        "text_language": "te"
+      },
+      {
+        "text": "ఫ్లాప్ పాకెట్ బార్‌టాక్ లేకపోతే మేజర్.",
+        "meaning": "Missing bartack on flap pocket is major.",
+        "defect": "other",
+        "location": "pocket",
+        "severity": "major",
+        "text_language": "te"
+      }
+    ],
+    "out_of_scope": [
+      "measurements",
+      "packing"
+    ],
+    "missing_or_unreadable": [
+      "thread (printed as TBC)"
+    ],
+    "unsupported_by_app": [
+      "aql.minor=6.5 (only 2.5 and 4.0 are supported)"
+    ],
+    "capture_instructions": "Print. Photograph flat, straight on, daylight. (Contains Telugu notes and one field marked TBC.)",
+    "general_notes": [
+      {
+        "text": "గమనిక: డెనిమ్ మందంగా ఉంటుంది. సూది నెం. 16 వాడండి. కుట్లు జారితే వెంటనే సూది మార్చండి.",
+        "meaning": "Note: denim is thick. Use needle no. 16. If stitches skip, change the needle immediately.",
+        "text_language": "te"
+      }
+    ]
+  }
+]
