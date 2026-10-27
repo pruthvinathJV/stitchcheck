@@ -69,7 +69,7 @@ function summary(){
 }
 function card(p){
   const d=document.createElement('div'); d.className='card '+p.status;
-  d.innerHTML=`<img loading="lazy" src="/img/${p.photo_id}.jpg"><div class="meta">${p.photo_id} · ${p.fabric_desc} · ${p.source_file}</div>`+
+  d.innerHTML=`<img loading="lazy" src="/img/${p.photo_id}.jpg"><div class="meta">${p.photo_id} · ${p.chalk_cm} cm · ${p.fabric_desc} · ${p.source_file}</div>`+
     (p.check_visible?'<div class="hint">Whole-seam defect: relabel as good or reject if not visible here</div>':'');
   d.querySelector('img').onclick=()=>{const z=document.getElementById('zoom');z.querySelector('img').src=`/img/${p.photo_id}.jpg`;z.style.display='flex'};
   const row=document.createElement('div'); row.className='row';

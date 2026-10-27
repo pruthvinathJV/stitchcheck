@@ -1,22 +1,26 @@
 """Ingest the tailor's phone photos into a labelled manifest.
 
-Capture protocol given to the tailor: 3 shirting cottons x 7 types. Per fabric: 4 good pairs, 3 pairs each of
-skipped and broken, 2 pairs of every other defect type (18 pairs); 4 photos per pair at chalk marks 15 cm apart. Photos arrive on WhatsApp as Documents, each group
-preceded by a text tag "<fabric>-<type>", e.g. "B-3". Within a tag, photos are in pair order:
-photo i -> pair i // 4 + 1, chalk mark i % 4 + 1.
+Capture protocol (final): 3 shirting cottons (A white, B dark, C checks) x 7 seam types. Per fabric: 4 good pairs,
+3 skipped, 3 broken, 2 each of crooked, puckering, stain and open seam = 18 test pairs; 54 pairs, 216 photos.
+Each pair is announced by one WhatsApp text tag "<fabric>-<type>-<pair>" (e.g. "B-3-2"), followed by exactly
+4 photos sent as Documents, in chalk-mark order (10, 25, 40, 55 cm along the seam).
 
-Reference pairs are tagged "<fabric>-<type>-REF" (1 good and 1 puckering pair per fabric, e.g. "A-1-REF", "A-5-REF").
-They are separate sewn pairs used for few-shot references and seam-threshold calibration, never for test metrics,
-so they go to their own folder and manifest: <out>/ref/.
+Reference pairs come last, tagged "<fabric>-1-REF" (good) and "<fabric>-5-REF" (puckering): 6 pairs, 24 photos.
+They are used for few-shot references and seam-threshold calibration, never for test metrics, so they go to
+their own folder and manifest: <out>/ref/.
 
 Inputs (either):
   WhatsApp "Export chat" with media, unzipped or as .zip (iOS `_chat.txt` or Android `WhatsApp Chat with *.txt`)
-  --folders: a directory with one sub-folder per tag (B-3/...), photos sorted by capture time then name
+  --folders: a directory with one sub-folder per tag (B-3-2/...), photos sorted by capture time then name
 
-python -m stitchcheck.phone.ingest <export.zip | export_dir> [--folders] [--out data/phone]
+python -m stitchcheck.phone.ingest <export.zip | export_dir> [--folders] [--out data/phone] [--pairs A-1-1 ...]
+
+--pairs ingests only those tags (e.g. the first quality-check pair) into data/phone/pilot unless --out is given,
+and checks completeness against that list only.
 
 Writes <out>/images/<photo_id>.jpg (EXIF rotation applied, all metadata incl. GPS stripped) and <out>/manifest.csv,
-and the same under <out>/ref/ for reference pairs.
+and the same under <out>/ref/ for reference pairs. Warns on: tags without exactly 4 photos, duplicate tags
+(the latest one is kept), unknown tags (their photos are skipped) and expected tags that never arrived.
 """
 import argparse
 import hashlib
@@ -33,15 +37,23 @@ from PIL import Image, ImageOps
 FABRICS = {"A": "white", "B": "dark", "C": "checks"}
 TYPES = {1: "good", 2: "skipped_stitch", 3: "broken_stitch", 4: "crooked_seam",
          5: "puckering", 6: "stain_damage", 7: "open_seam"}  # 7 is the unseen-defect probe
-PAIRS_PER_TYPE = {1: 4, 2: 3, 3: 3}  # good 4, skipped and broken 3, every other type 2
+PAIRS_PER_TYPE = {1: 4, 2: 3, 3: 3, 4: 2, 5: 2, 6: 2, 7: 2}
+REF_TYPES = (1, 5)  # one reference pair per fabric: good, puckering
 # Skipped stitch and puckering run along the whole seam, so a given chalk mark may not show them.
 # The other defects are made at every chalk mark.
 WHOLE_SEAM_TYPES = {2, 5}
-PHOTOS_PER_PAIR = 4
-REF_TYPES = {1: 1, 5: 1}  # reference pairs per fabric: 1 good, 1 puckering
+CHALK_MARKS_CM = (10, 25, 40, 55)
+PHOTOS_PER_PAIR = len(CHALK_MARKS_CM)
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".heic", ".webp"}
 
-TAG = re.compile(r"(?<![A-Za-z0-9])([ABCabc])\s*[-–]\s*([1-7])(?:\s*[-–]\s*(REF))?(?![0-9A-Za-z]|\s*[-–]\s*REF)", re.IGNORECASE)
+
+TEST_TAGS = [f"{f}-{t}-{p}" for f in FABRICS for t in TYPES for p in range(1, PAIRS_PER_TYPE[t] + 1)]
+REF_TAGS = [f"{f}-{t}-REF" for f in FABRICS for t in REF_TYPES]
+EXPECTED_TAGS = TEST_TAGS + REF_TAGS  # in the order the tailor sends them
+
+# Anything that looks like a tag (letter-number[-suffix]); checked against EXPECTED_TAGS afterwards,
+# so typos like "A-1" or "A-5-REFX" are reported as unknown rather than silently matched.
+TAG_LIKE = re.compile(r"(?<![A-Za-z0-9])([A-Za-z])\s*[-–]\s*(\d{1,2})(?:\s*[-–]\s*([A-Za-z0-9]+))?(?![A-Za-z0-9])")
 # iOS:     [28/10/26, 7:12:03 PM] Name: text        attachment: <attached: 00000012-IMG_1234.jpg>
 # Android: 28/10/26, 7:12 pm - Name: text           attachment: IMG_1234.jpg (file attached)
 MSG_START = re.compile(r"^\[?\d{1,4}[/.-]\d{1,2}[/.-]\d{1,4},? \d{1,2}:\d{2}")
@@ -49,17 +61,17 @@ IOS_ATTACH = re.compile(r"<attached:\s*([^>]+)>")
 ANDROID_ATTACH = re.compile(r"^(?:.*?:\s)?(\S.*?\.\w{2,5}) \(file attached\)", re.MULTILINE)
 
 
-def expected_count(type_id, ref=False):
-    if ref:
-        return REF_TYPES.get(type_id, 0) * PHOTOS_PER_PAIR
-    return PAIRS_PER_TYPE.get(type_id, 2) * PHOTOS_PER_PAIR
-
-
 @dataclass
 class Photo:
     tag: str
+    occurrence: int  # which appearance of the tag this photo follows (to resolve duplicate tags)
     source: Path
     sent_at: str = ""
+
+
+def normalise_tag(match):
+    letter, number, suffix = match.groups()
+    return f"{letter.upper()}-{int(number)}" + (f"-{suffix.upper()}" if suffix else "")
 
 
 def _messages(chat_text):
@@ -74,22 +86,23 @@ def _messages(chat_text):
     return msgs
 
 
-def _normalise_tag(match):
-    return f"{match.group(1).upper()}-{match.group(2)}" + ("-REF" if match.group(3) else "")
-
-
 def parse_chat(chat_text, media_dir):
-    """Walk messages in order; a tag sets the label for every following attachment until the next tag."""
-    photos, warnings, current = [], [], None
+    """Walk messages in order; a valid tag applies to every following attachment until the next tag."""
+    photos, warnings, current, occurrence = [], [], None, 0
     for msg in _messages(chat_text):
         body = msg.split(": ", 1)[1] if ": " in msg.split("\n", 1)[0] else msg
         files = IOS_ATTACH.findall(msg) + ANDROID_ATTACH.findall(body)
         text = IOS_ATTACH.sub("", ANDROID_ATTACH.sub("", body))
-        tags = TAG.findall(text)
+        tags = [normalise_tag(m) for m in TAG_LIKE.finditer(text)]
         if tags:
-            current = _normalise_tag(TAG.search(text))
             if len(set(tags)) > 1:
-                warnings.append(f"several tags in one message, using {current}: {msg[:80]!r}")
+                warnings.append(f"several tags in one message, using {tags[0]}: {msg[:80]!r}")
+            occurrence += 1
+            if tags[0] in EXPECTED_TAGS:
+                current = tags[0]
+            else:
+                current = None
+                warnings.append(f"unknown tag {tags[0]!r}; photos after it are skipped until the next valid tag")
         if re.search(r"\b(media|image|document) omitted", body, re.IGNORECASE):
             warnings.append(f"media missing (export was made without media?): {msg[:80]!r}")
         for name in files:
@@ -97,11 +110,12 @@ def parse_chat(chat_text, media_dir):
             if path.suffix.lower() not in IMAGE_SUFFIXES:
                 continue
             if current is None:
-                warnings.append(f"photo before any tag, skipped: {name}")
+                warnings.append(f"photo without a valid tag, skipped: {name}")
             elif not path.exists():
                 warnings.append(f"attachment not found in export: {name}")
             else:
-                photos.append(Photo(current, path, MSG_START.match(msg).group(0).strip("[") if MSG_START.match(msg) else ""))
+                start = MSG_START.match(msg)
+                photos.append(Photo(current, occurrence, path, start.group(0).strip("[") if start else ""))
     return photos, warnings
 
 
@@ -115,19 +129,20 @@ def _capture_time(path):
 
 def parse_folders(root):
     photos, warnings = [], []
-    for d in sorted(p for p in root.iterdir() if p.is_dir()):
-        m = TAG.fullmatch(d.name.strip())
-        if not m:
-            warnings.append(f"folder name is not a tag, skipped: {d.name}")
+    for i, d in enumerate(sorted(p for p in root.iterdir() if p.is_dir())):
+        m = TAG_LIKE.fullmatch(d.name.strip())
+        tag = normalise_tag(m) if m else None
+        if tag not in EXPECTED_TAGS:
+            warnings.append(f"folder name is not a known tag, skipped: {d.name}")
             continue
         files = sorted((f for f in d.iterdir() if f.suffix.lower() in IMAGE_SUFFIXES),
                        key=lambda f: (_capture_time(f), f.name))
-        photos += [Photo(_normalise_tag(m), f) for f in files]
+        photos += [Photo(tag, i, f) for f in files]
     return photos, warnings
 
 
-def label_photos(photos):
-    """Assign pair / chalk-mark position by order within each tag; drop exact re-sends."""
+def label_photos(photos, expected=EXPECTED_TAGS):
+    """One row per photo: pair from the tag, chalk mark from the order within the tag. Drops exact re-sends."""
     rows, warnings, seen = [], [], {}
     by_tag = {}
     for p in photos:
@@ -136,28 +151,29 @@ def label_photos(photos):
             warnings.append(f"duplicate file {p.source.name} (same as {seen[digest]}), skipped")
             continue
         seen[digest] = p.source.name
-        by_tag.setdefault(p.tag, []).append((p, digest))
-    for tag in sorted(by_tag):
-        fabric, type_id, ref = tag[0], int(tag[2]), tag.endswith("-REF")
-        items = by_tag[tag]
-        expected = expected_count(type_id, ref)
-        if ref and type_id not in REF_TYPES:
-            warnings.append(f"{tag}: reference pairs are expected only for types {sorted(REF_TYPES)}")
-        if len(items) != expected:
-            warnings.append(f"{tag}: {len(items)} photos, expected {expected}; pair numbers may be off")
+        by_tag.setdefault(p.tag, {}).setdefault(p.occurrence, []).append((p, digest))
+    for tag in sorted(by_tag, key=EXPECTED_TAGS.index):
+        occurrences = by_tag[tag]
+        if len(occurrences) > 1:
+            warnings.append(f"{tag}: tag sent {len(occurrences)} times; keeping the latest "
+                            f"({len(occurrences[max(occurrences)])} photos), dropping the earlier ones")
+        items = occurrences[max(occurrences)]
+        if len(items) != PHOTOS_PER_PAIR:
+            warnings.append(f"{tag}: {len(items)} photos, expected {PHOTOS_PER_PAIR}; chalk marks may be off")
+        fabric, type_id, pair = tag.split("-")
+        type_id, ref = int(type_id), pair == "REF"
+        pair_id = f"{fabric}{type_id}-REF" if ref else f"{fabric}{type_id}-p{pair}"
         for i, (p, digest) in enumerate(items):
-            pair, mark = i // PHOTOS_PER_PAIR + 1, i % PHOTOS_PER_PAIR + 1
-            pair_id = f"{fabric}{type_id}" + ("-REF" if ref else "") + f"-p{pair}"
+            mark = i + 1
             rows.append(dict(
                 photo_id=f"{pair_id}-m{mark}", tag=tag, ref=int(ref), fabric=fabric, fabric_desc=FABRICS[fabric],
                 type_id=type_id, label=TYPES[type_id], unseen=int(type_id == 7),
-                check_visible=int(type_id in WHOLE_SEAM_TYPES),
-                pair_id=pair_id, chalk_mark=mark, order_in_tag=i + 1,
-                count_ok=int(len(items) == expected), source_file=p.source.name, sent_at=p.sent_at, md5=digest))
-    missing = [f"{f}-{t}" for f in FABRICS for t in TYPES if f"{f}-{t}" not in by_tag]
-    missing += [f"{f}-{t}-REF" for f in FABRICS for t in REF_TYPES if f"{f}-{t}-REF" not in by_tag]
+                check_visible=int(type_id in WHOLE_SEAM_TYPES), pair_id=pair_id, chalk_mark=mark,
+                chalk_cm=CHALK_MARKS_CM[i] if i < PHOTOS_PER_PAIR else None,
+                count_ok=int(len(items) == PHOTOS_PER_PAIR), source_file=p.source.name, sent_at=p.sent_at, md5=digest))
+    missing = [t for t in expected if t not in by_tag]
     if missing:
-        warnings.append(f"tags with no photos: {', '.join(missing)}")
+        warnings.append(f"{len(missing)} expected tags with no photos: {', '.join(missing)}")
     return pd.DataFrame(rows), warnings
 
 
@@ -180,7 +196,14 @@ def _find_chat(root):
     return chats[0]
 
 
-def ingest(src, out, folders=False):
+def ingest(src, out, folders=False, pairs=None):
+    """pairs: optional list of tags to ingest (e.g. ["A-1-1"]); completeness is then checked against it only."""
+    expected = EXPECTED_TAGS
+    if pairs:
+        expected = [normalise_tag(m) if (m := TAG_LIKE.fullmatch(t.strip())) else t for t in pairs]
+        bad = [t for t in expected if t not in EXPECTED_TAGS]
+        if bad:
+            raise ValueError(f"not in the capture spec: {', '.join(bad)}")
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(src)
         if root.suffix == ".zip":
@@ -191,7 +214,9 @@ def ingest(src, out, folders=False):
         else:
             chat = _find_chat(root)
             photos, warnings = parse_chat(chat.read_text(encoding="utf-8", errors="replace"), chat.parent)
-        df, more = label_photos(photos)
+        if pairs:
+            photos = [p for p in photos if p.tag in expected]
+        df, more = label_photos(photos, expected)
         warnings += more
         if df.empty:
             return df, warnings
@@ -209,9 +234,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("src", type=Path)
     ap.add_argument("--folders", action="store_true")
-    ap.add_argument("--out", type=Path, default=Path("data/phone"))
+    ap.add_argument("--pairs", nargs="+", help="ingest only these tags, e.g. A-1-1 (default out: data/phone/pilot)")
+    ap.add_argument("--out", type=Path)
     args = ap.parse_args()
-    df, warnings = ingest(args.src, args.out, args.folders)
+    out = args.out or Path("data/phone/pilot" if args.pairs else "data/phone")
+    df, warnings = ingest(args.src, out, args.folders, args.pairs)
     for w in warnings:
         print("WARN", w)
     if df.empty:
@@ -219,8 +246,11 @@ def main():
     for ref, name in ((0, "test"), (1, "ref")):
         part = df[df["ref"] == ref]
         if len(part):
-            print(f"{name}: {len(part)} photos -> {args.out / ('ref' if ref else '') / 'manifest.csv'}")
+            print(f"{name}: {len(part)} photos, {part['pair_id'].nunique()} pairs -> "
+                  f"{(out / 'ref' if ref else out) / 'manifest.csv'}")
             print(pd.crosstab(part["label"], part["fabric"], margins=True).to_string())
+    if args.pairs:
+        print(f"review: python -m stitchcheck.phone.review --dir {out}")
 
 
 if __name__ == "__main__":
