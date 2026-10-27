@@ -1,0 +1,4 @@
+system,macro_f1,major_recall,auto_major_recall,skipped_recall,good_flagged,sent_to_checker,major_recall_vs_classifier,good_flagged_vs_classifier,proposal_macro_f1_vs_classifier
+classifier,0.944,1.0,1.0,1.0,0.16,0.0,,,
+hybrid,0.752,1.0,0.587,0.0,0.16,0.28,"(0.0, 0.0, 0.0)","(0.0, 0.0, 0.0)",
+hybrid_proposal,0.956,0.973,0.973,0.92,0.0,0.0,,,"(np.float64(0.012), -0.025, 0.053)"
