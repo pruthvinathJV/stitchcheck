@@ -1,7 +1,7 @@
-# Final models: the Stage 2 winner, seeds 0 to 2, 8 fabrics (benchmark) and 11 fabrics (demo), stopped after epoch N (scripts/train/stage2.py final).
---variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 9 --seed 0 --tag final-seed0 --workers 8
---variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 9 --seed 0 --tag final-seed0 --all-fabrics --workers 8
---variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 9 --seed 1 --tag final-seed1 --workers 8
---variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 9 --seed 1 --tag final-seed1 --all-fabrics --workers 8
---variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 9 --seed 2 --tag final-seed2 --workers 8
---variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 9 --seed 2 --tag final-seed2 --all-fabrics --workers 8
+# Final models: the Stage 2 winner, seeds 0 to 2, 8 fabrics (benchmark) and 11 fabrics (demo), full 12-epoch schedule, last epoch kept (scripts/train/stage2.py final).
+--variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 12 --seed 0 --tag final12-seed0 --workers 8
+--variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 12 --seed 0 --tag final12-seed0 --all-fabrics --workers 8
+--variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 12 --seed 1 --tag final12-seed1 --workers 8
+--variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 12 --seed 1 --tag final12-seed1 --all-fabrics --workers 8
+--variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 12 --seed 2 --tag final12-seed2 --workers 8
+--variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --stop-after 12 --seed 2 --tag final12-seed2 --all-fabrics --workers 8

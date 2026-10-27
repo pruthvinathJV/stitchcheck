@@ -4,11 +4,11 @@ python scripts/train/stage2.py top3     prints trainer args for the seed-1 runs 
 python scripts/train/stage2.py winner   writes results/classifier/stage2_selection.csv and selection.json,
                                         prints trainer args for the winning setting
 python scripts/train/stage2.py final    prints the 6 final-model jobs: the winning setting, seeds 0 to 2, on 8 fabrics
-                                        (benchmark) and on all 11 (demo), each stopped after epoch N
+                                        (benchmark) and on all 11 (demo), each trained for the full schedule
 
 Stage 1 ranks each setting by its seed-0 Linen macro-F1. The winner has the best mean over seeds 0 and 1;
-ties go to the smaller model. N is the median best epoch over every seed of the winning setting (a .5 rounds up),
-so final models never pick an epoch on Linen. Only Linen validation runs on 8 fabrics with frozen BatchNorm are read
+ties go to the smaller model. Final models keep the last epoch of the full schedule (amended Oct 27; the earlier
+median-best-epoch N is still written to selection.json as stop_after, but is no longer used). Only Linen validation runs on 8 fabrics with frozen BatchNorm are read
 (the base setting since the Oct 27 seed check; see docs/design.md).
 """
 import json
@@ -21,6 +21,7 @@ import pandas as pd
 
 RESULTS = Path("results/classifier")
 SETTING = ["arch", "aug", "lr", "backbone_lr_mult", "freeze_bn"]
+FINAL_EPOCH = 12  # the trainer's default schedule length: final models keep its last epoch
 PARAMS_M = {"efficientnet_b0": 5.3, "mobilenet_v3_large": 5.5, "convnext_tiny": 28.6}  # millions, for ties
 
 
@@ -60,8 +61,9 @@ def main(cmd):
     win = table.iloc[0]
     if cmd == "final":
         for seed in range(3):
-            print(f"--variant clean {args_for(win)} --stop-after {win.stop_after} --seed {seed} --tag final-seed{seed} --workers 8")
-            print(f"--variant clean {args_for(win)} --stop-after {win.stop_after} --seed {seed} --tag final-seed{seed} --all-fabrics --workers 8")
+            job = f"--variant clean {args_for(win)} --stop-after {FINAL_EPOCH} --seed {seed} --tag final{FINAL_EPOCH}-seed{seed}"
+            print(job + " --workers 8")
+            print(job + " --all-fabrics --workers 8")
         return
     table.to_csv(RESULTS / "stage2_selection.csv", index=False)
     (RESULTS / "selection.json").write_text(json.dumps(

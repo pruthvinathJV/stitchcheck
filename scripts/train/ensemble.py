@@ -2,8 +2,8 @@
 
 python scripts/train/ensemble.py --bench RUN RUN RUN [--demo RUN RUN RUN]
 
---bench: the 8-fabric runs, each stopped after the same fixed epoch N. Reports each seed's Linen macro-F1 and the
-         ensemble's at epoch N, labelled optimistic: the setting and N were both chosen on Linen.
+--bench: the 8-fabric runs, each kept at the same final epoch. Reports each seed's Linen macro-F1 and the
+         ensemble's at that epoch, labelled optimistic: the setting was chosen on Linen.
 --demo:  the 11-fabric runs. Linen is in their training data, so this is not a score: each seed must agree with
          the benchmark ensemble on at least 90% of Linen predictions, as a check that no seed went bad.
 Writes results/classifier/ensemble.json.
@@ -45,7 +45,7 @@ def main():
     epochs = {json.loads((Path("results/classifier") / run / "metrics.json").read_text())["best_epoch"] for run in args.bench}
     assert len(epochs) == 1, f"benchmark seeds stopped at different epochs: {epochs}"
     out = dict(val="Linen", n=len(val), epoch=epochs.pop(),
-               note="optimistic: the setting and the epoch were chosen on Linen", bench={run: round(macro(p), 4) for run, p in bench.items()},
+               note="optimistic: the setting was chosen on Linen", bench={run: round(macro(p), 4) for run, p in bench.items()},
                bench_ensemble=round(macro(ens), 4))
     if args.demo:
         agree = {run: round(float((predict(load(run, device), dl, device).argmax(1) == ens.argmax(1)).mean()), 4)

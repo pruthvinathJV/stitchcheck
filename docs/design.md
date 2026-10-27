@@ -88,6 +88,17 @@ Frozen BatchNorm is the base setting for Stage 1 and Stage 2 (`scripts/cloud/job
 - Training on the GPU is not bit-for-bit reproducible. The final seeds 0 and 1 repeat the search runs' settings and seeds, yet scored 0.944 and 0.927 at epoch 9 against 0.958 and 0.962 in the search, so the search score of 0.960 is partly luck.
 - Epoch 9 sits where the learning rate is still well above its final value, and single-seed Linen F1 moves a lot from epoch to epoch there (final seed 2: 0.906, 0.784, 0.886, 0.881, 0.879 over epochs 5 to 9; seed 1: 0.962 at epoch 6, 0.773 at epoch 8). The seed spread at epoch 9 is 6.4 points; the ensemble absorbs most of it.
 
+*Amended Oct 27, on validation results, before any test-set run: final models keep epoch 12.* All 6 final models (3 benchmark seeds, 3 demo seeds) train the full 12-epoch schedule and keep the last epoch (`--stop-after 12`, run tags `final12-seed*`). The epoch-9 models above are superseded and not reported. Reason: Linen macro-F1 by epoch for the winning setting:
+
+| run | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
+|---|---|---|---|---|---|---|---|---|
+| final seed 1 (stopped at 9) | 0.762 | 0.962 | 0.934 | 0.773 | 0.927 | | | |
+| final seed 2 (stopped at 9) | 0.906 | 0.784 | 0.886 | 0.881 | 0.880 | | | |
+| search seed 0 | 0.874 | 0.891 | 0.936 | 0.941 | 0.958 | 0.948 | 0.940 | 0.942 |
+| search seed 1 | 0.954 | 0.929 | 0.922 | 0.879 | 0.962 | 0.958 | 0.951 | 0.950 |
+
+Mid-schedule, while the learning rate is still high, single-seed scores swing by up to 19 points between epochs; over epochs 10 to 12, after the learning rate has decayed, both search runs hold at 0.940 to 0.958. The original median-best-epoch rule was itself a form of selection on noisy validation: both search runs peaking at epoch 9 was partly chance. Keeping the last epoch uses no Linen information to choose the epoch, so the benchmark ensemble's Linen macro-F1 stays labelled optimistic for one reason only: the setting was chosen on Linen. The ensemble report and the 90% demo agreement check are rerun on the epoch-12 models.
+
 **Demo model.** The winning setting is trained on all 11 fabrics (CC BY only, 7,148 images) with no validation fabric; its weights are those after the last epoch. It serves the app and the phone test set. StitchingNet test-fabric numbers come from the 8-fabric model with the same setting, scored once.
 
 **Chosen setting** (Stage 2, Oct 27, before any test-set run; `results/classifier/stage2_selection.csv`, `selection.json`): **ConvNeXt-Tiny, strong augmentation, lr 2e-4**, 12-epoch schedule, label smoothing 0.1. Linen macro-F1 by seed, best epoch:
