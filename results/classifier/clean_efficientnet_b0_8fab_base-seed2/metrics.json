@@ -1,0 +1,110 @@
+{
+  "run": "clean_efficientnet_b0_8fab_base-seed2",
+  "variant": "clean",
+  "arch": "efficientnet_b0",
+  "val_fabrics": [
+    "Linen"
+  ],
+  "n_train": 5047,
+  "n_val": 673,
+  "best_epoch": 6,
+  "config": {
+    "variant": "clean",
+    "arch": "efficientnet_b0",
+    "holdout": null,
+    "all_fabrics": false,
+    "epochs": 12,
+    "batch": 64,
+    "lr": 0.0005,
+    "backbone_lr_mult": 1.0,
+    "aug": "basic",
+    "label_smoothing": 0.1,
+    "freeze_bn": false,
+    "tag": "base-seed2",
+    "seed": 2,
+    "workers": 8,
+    "resume": false,
+    "stall_minutes": 10
+  },
+  "per_class": [
+    {
+      "cls": "good",
+      "precision": 0.75,
+      "recall": 0.9,
+      "f1": 0.8182,
+      "support": 220
+    },
+    {
+      "cls": "skipped_stitch",
+      "precision": 0.6111,
+      "recall": 0.7476,
+      "f1": 0.6725,
+      "support": 103
+    },
+    {
+      "cls": "broken_stitch",
+      "precision": 0.9266,
+      "recall": 0.8632,
+      "f1": 0.8938,
+      "support": 117
+    },
+    {
+      "cls": "crooked_seam",
+      "precision": 0.8819,
+      "recall": 0.9769,
+      "f1": 0.927,
+      "support": 130
+    },
+    {
+      "cls": "stain_damage",
+      "precision": 0.9,
+      "recall": 0.2621,
+      "f1": 0.406,
+      "support": 103
+    },
+    {
+      "cls": "macro",
+      "precision": 0.8139,
+      "recall": 0.75,
+      "f1": 0.7435,
+      "support": 673
+    }
+  ],
+  "confusion": {
+    "broken_stitch": {
+      "broken_stitch": 101,
+      "crooked_seam": 1,
+      "good": 0,
+      "skipped_stitch": 0,
+      "stain_damage": 7
+    },
+    "crooked_seam": {
+      "broken_stitch": 0,
+      "crooked_seam": 127,
+      "good": 5,
+      "skipped_stitch": 12,
+      "stain_damage": 0
+    },
+    "good": {
+      "broken_stitch": 3,
+      "crooked_seam": 1,
+      "good": 198,
+      "skipped_stitch": 14,
+      "stain_damage": 48
+    },
+    "skipped_stitch": {
+      "broken_stitch": 10,
+      "crooked_seam": 1,
+      "good": 17,
+      "skipped_stitch": 77,
+      "stain_damage": 21
+    },
+    "stain_damage": {
+      "broken_stitch": 3,
+      "crooked_seam": 0,
+      "good": 0,
+      "skipped_stitch": 0,
+      "stain_damage": 27
+    }
+  }
+}

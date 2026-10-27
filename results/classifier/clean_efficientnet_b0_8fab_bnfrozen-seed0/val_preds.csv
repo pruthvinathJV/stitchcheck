@@ -1,0 +1,674 @@
+path,fabric,label,pred,conf
+B. Linen-Poly/0. Normal/image/B_00_001.jpg,Linen,good,good,0.8491727
+B. Linen-Poly/0. Normal/image/B_00_002.jpg,Linen,good,good,0.8846603
+B. Linen-Poly/0. Normal/image/B_00_003.jpg,Linen,good,stain_damage,0.41184244
+B. Linen-Poly/0. Normal/image/B_00_004.jpg,Linen,good,good,0.7484006
+B. Linen-Poly/0. Normal/image/B_00_005.jpg,Linen,good,good,0.8471631
+B. Linen-Poly/0. Normal/image/B_00_006.jpg,Linen,good,good,0.8929546
+B. Linen-Poly/0. Normal/image/B_00_007.jpg,Linen,good,good,0.8774993
+B. Linen-Poly/0. Normal/image/B_00_008.jpg,Linen,good,good,0.89545095
+B. Linen-Poly/0. Normal/image/B_00_009.jpg,Linen,good,good,0.8901203
+B. Linen-Poly/0. Normal/image/B_00_010.jpg,Linen,good,good,0.8882401
+B. Linen-Poly/0. Normal/image/B_00_011.jpg,Linen,good,good,0.3529827
+B. Linen-Poly/0. Normal/image/B_00_012.jpg,Linen,good,stain_damage,0.8082786
+B. Linen-Poly/0. Normal/image/B_00_013.jpg,Linen,good,good,0.8872721
+B. Linen-Poly/0. Normal/image/B_00_014.jpg,Linen,good,stain_damage,0.6341274
+B. Linen-Poly/0. Normal/image/B_00_015.jpg,Linen,good,stain_damage,0.61080945
+B. Linen-Poly/0. Normal/image/B_00_016.jpg,Linen,good,good,0.7664749
+B. Linen-Poly/0. Normal/image/B_00_017.jpg,Linen,good,good,0.80642384
+B. Linen-Poly/0. Normal/image/B_00_018.jpg,Linen,good,good,0.61199826
+B. Linen-Poly/0. Normal/image/B_00_019.jpg,Linen,good,good,0.6264917
+B. Linen-Poly/0. Normal/image/B_00_020.jpg,Linen,good,good,0.6448848
+B. Linen-Poly/0. Normal/image/B_00_021.jpg,Linen,good,good,0.6535789
+B. Linen-Poly/0. Normal/image/B_00_022.jpg,Linen,good,good,0.6554002
+B. Linen-Poly/0. Normal/image/B_00_023.jpg,Linen,good,good,0.66011107
+B. Linen-Poly/0. Normal/image/B_00_024.jpg,Linen,good,good,0.87271845
+B. Linen-Poly/0. Normal/image/B_00_025.jpg,Linen,good,good,0.79329354
+B. Linen-Poly/0. Normal/image/B_00_026.jpg,Linen,good,good,0.8660333
+B. Linen-Poly/0. Normal/image/B_00_027.jpg,Linen,good,good,0.6334631
+B. Linen-Poly/0. Normal/image/B_00_028.jpg,Linen,good,crooked_seam,0.55085635
+B. Linen-Poly/0. Normal/image/B_00_029.jpg,Linen,good,good,0.85634637
+B. Linen-Poly/0. Normal/image/B_00_030.jpg,Linen,good,crooked_seam,0.33919472
+B. Linen-Poly/0. Normal/image/B_00_031.jpg,Linen,good,skipped_stitch,0.36786637
+B. Linen-Poly/0. Normal/image/B_00_032.jpg,Linen,good,crooked_seam,0.414262
+B. Linen-Poly/0. Normal/image/B_00_033.jpg,Linen,good,good,0.6185922
+B. Linen-Poly/0. Normal/image/B_00_034.jpg,Linen,good,good,0.2974462
+B. Linen-Poly/0. Normal/image/B_00_035.jpg,Linen,good,good,0.7497845
+B. Linen-Poly/0. Normal/image/B_00_036.jpg,Linen,good,good,0.70774335
+B. Linen-Poly/0. Normal/image/B_00_037.jpg,Linen,good,crooked_seam,0.33382156
+B. Linen-Poly/0. Normal/image/B_00_038.jpg,Linen,good,good,0.77271724
+B. Linen-Poly/0. Normal/image/B_00_039.jpg,Linen,good,crooked_seam,0.46598977
+B. Linen-Poly/0. Normal/image/B_00_040.jpg,Linen,good,good,0.6272261
+B. Linen-Poly/0. Normal/image/B_00_041.jpg,Linen,good,good,0.42664167
+B. Linen-Poly/0. Normal/image/B_00_042.jpg,Linen,good,good,0.65726435
+B. Linen-Poly/0. Normal/image/B_00_043.jpg,Linen,good,good,0.63689804
+B. Linen-Poly/0. Normal/image/B_00_044.jpg,Linen,good,good,0.7631238
+B. Linen-Poly/0. Normal/image/B_00_045.jpg,Linen,good,good,0.8345168
+B. Linen-Poly/0. Normal/image/B_00_046.jpg,Linen,good,stain_damage,0.45829126
+B. Linen-Poly/0. Normal/image/B_00_047.jpg,Linen,good,good,0.8532601
+B. Linen-Poly/0. Normal/image/B_00_048.jpg,Linen,good,good,0.66013205
+B. Linen-Poly/0. Normal/image/B_00_049.jpg,Linen,good,good,0.5414769
+B. Linen-Poly/0. Normal/image/B_00_050.jpg,Linen,good,good,0.40463936
+B. Linen-Poly/0. Normal/image/B_00_051.jpg,Linen,good,good,0.85346055
+B. Linen-Poly/0. Normal/image/B_00_052.jpg,Linen,good,good,0.8817899
+B. Linen-Poly/0. Normal/image/B_00_053.jpg,Linen,good,good,0.75523424
+B. Linen-Poly/0. Normal/image/B_00_054.jpg,Linen,good,good,0.6491997
+B. Linen-Poly/0. Normal/image/B_00_055.jpg,Linen,good,good,0.6814827
+B. Linen-Poly/0. Normal/image/B_00_056.jpg,Linen,good,good,0.7840879
+B. Linen-Poly/0. Normal/image/B_00_057.jpg,Linen,good,good,0.7818551
+B. Linen-Poly/0. Normal/image/B_00_058.jpg,Linen,good,good,0.7966002
+B. Linen-Poly/0. Normal/image/B_00_059.jpg,Linen,good,good,0.8788147
+B. Linen-Poly/0. Normal/image/B_00_060.jpg,Linen,good,good,0.82694227
+B. Linen-Poly/0. Normal/image/B_00_061.jpg,Linen,good,good,0.5808793
+B. Linen-Poly/0. Normal/image/B_00_062.jpg,Linen,good,good,0.7372683
+B. Linen-Poly/0. Normal/image/B_00_063.jpg,Linen,good,good,0.79797566
+B. Linen-Poly/0. Normal/image/B_00_064.jpg,Linen,good,good,0.8299352
+B. Linen-Poly/0. Normal/image/B_00_065.jpg,Linen,good,good,0.8652978
+B. Linen-Poly/0. Normal/image/B_00_066.jpg,Linen,good,good,0.8148145
+B. Linen-Poly/0. Normal/image/B_00_067.jpg,Linen,good,good,0.6359875
+B. Linen-Poly/0. Normal/image/B_00_068.jpg,Linen,good,good,0.8882028
+B. Linen-Poly/0. Normal/image/B_00_069.jpg,Linen,good,good,0.5858994
+B. Linen-Poly/0. Normal/image/B_00_070.jpg,Linen,good,good,0.855918
+B. Linen-Poly/0. Normal/image/B_00_071.jpg,Linen,good,good,0.7228403
+B. Linen-Poly/0. Normal/image/B_00_072.jpg,Linen,good,good,0.80996835
+B. Linen-Poly/0. Normal/image/B_00_073.jpg,Linen,good,good,0.8119266
+B. Linen-Poly/0. Normal/image/B_00_074.jpg,Linen,good,good,0.78129613
+B. Linen-Poly/0. Normal/image/B_00_075.jpg,Linen,good,good,0.38903365
+B. Linen-Poly/0. Normal/image/B_00_076.jpg,Linen,good,good,0.8938891
+B. Linen-Poly/0. Normal/image/B_00_077.jpg,Linen,good,good,0.77491194
+B. Linen-Poly/0. Normal/image/B_00_078.jpg,Linen,good,good,0.78743404
+B. Linen-Poly/0. Normal/image/B_00_079.jpg,Linen,good,good,0.8594512
+B. Linen-Poly/0. Normal/image/B_00_080.jpg,Linen,good,good,0.8600706
+B. Linen-Poly/0. Normal/image/B_00_081.jpg,Linen,good,good,0.8728028
+B. Linen-Poly/0. Normal/image/B_00_082.jpg,Linen,good,good,0.87714714
+B. Linen-Poly/0. Normal/image/B_00_083.jpg,Linen,good,good,0.75811416
+B. Linen-Poly/0. Normal/image/B_00_084.jpg,Linen,good,good,0.744057
+B. Linen-Poly/0. Normal/image/B_00_085.jpg,Linen,good,good,0.8626398
+B. Linen-Poly/0. Normal/image/B_00_086.jpg,Linen,good,good,0.38168558
+B. Linen-Poly/0. Normal/image/B_00_087.jpg,Linen,good,good,0.86055255
+B. Linen-Poly/0. Normal/image/B_00_088.jpg,Linen,good,good,0.78525484
+B. Linen-Poly/0. Normal/image/B_00_089.jpg,Linen,good,good,0.8420653
+B. Linen-Poly/0. Normal/image/B_00_090.jpg,Linen,good,good,0.8253775
+B. Linen-Poly/0. Normal/image/B_00_091.jpg,Linen,good,good,0.8512235
+B. Linen-Poly/0. Normal/image/B_00_092.jpg,Linen,good,good,0.87307006
+B. Linen-Poly/0. Normal/image/B_00_093.jpg,Linen,good,good,0.82593745
+B. Linen-Poly/0. Normal/image/B_00_094.jpg,Linen,good,good,0.8909203
+B. Linen-Poly/0. Normal/image/B_00_095.jpg,Linen,good,good,0.8722897
+B. Linen-Poly/0. Normal/image/B_00_096.jpg,Linen,good,good,0.8573185
+B. Linen-Poly/0. Normal/image/B_00_097.jpg,Linen,good,good,0.8980108
+B. Linen-Poly/0. Normal/image/B_00_098.jpg,Linen,good,good,0.8465412
+B. Linen-Poly/0. Normal/image/B_00_099.jpg,Linen,good,good,0.80864084
+B. Linen-Poly/0. Normal/image/B_00_100.jpg,Linen,good,good,0.8843916
+B. Linen-Poly/0. Normal/image/B_00_101.jpg,Linen,good,good,0.78222215
+B. Linen-Poly/0. Normal/image/B_00_102.jpg,Linen,good,good,0.85314995
+B. Linen-Poly/0. Normal/image/B_00_103.jpg,Linen,good,good,0.7548371
+B. Linen-Poly/0. Normal/image/B_00_104.jpg,Linen,good,good,0.6602522
+B. Linen-Poly/0. Normal/image/B_00_105.jpg,Linen,good,good,0.8694723
+B. Linen-Poly/0. Normal/image/B_00_106.jpg,Linen,good,good,0.88366055
+B. Linen-Poly/0. Normal/image/B_00_107.jpg,Linen,good,good,0.85859686
+B. Linen-Poly/0. Normal/image/B_00_108.jpg,Linen,good,good,0.8691167
+B. Linen-Poly/0. Normal/image/B_00_109.jpg,Linen,good,good,0.87368226
+B. Linen-Poly/0. Normal/image/B_00_110.jpg,Linen,good,skipped_stitch,0.5027018
+B. Linen-Poly/0. Normal/image/B_00_111.jpg,Linen,good,good,0.8101012
+B. Linen-Poly/0. Normal/image/B_00_112.jpg,Linen,good,stain_damage,0.44631797
+B. Linen-Poly/0. Normal/image/B_00_113.jpg,Linen,good,good,0.86504984
+B. Linen-Poly/0. Normal/image/B_00_114.jpg,Linen,good,good,0.78210115
+B. Linen-Poly/0. Normal/image/B_00_115.jpg,Linen,good,good,0.76469857
+B. Linen-Poly/0. Normal/image/B_00_116.jpg,Linen,good,good,0.6552213
+B. Linen-Poly/0. Normal/image/B_00_117.jpg,Linen,good,skipped_stitch,0.3704839
+B. Linen-Poly/0. Normal/image/B_00_118.jpg,Linen,good,skipped_stitch,0.45142242
+B. Linen-Poly/0. Normal/image/B_00_119.jpg,Linen,good,good,0.81409013
+B. Linen-Poly/0. Normal/image/B_00_120.jpg,Linen,good,good,0.72339183
+B. Linen-Poly/0. Normal/image/B_00_121.jpg,Linen,good,good,0.90782374
+B. Linen-Poly/0. Normal/image/B_00_122.jpg,Linen,good,good,0.6169622
+B. Linen-Poly/0. Normal/image/B_00_123.jpg,Linen,good,good,0.88886327
+B. Linen-Poly/0. Normal/image/B_00_124.jpg,Linen,good,good,0.8514359
+B. Linen-Poly/0. Normal/image/B_00_125.jpg,Linen,good,good,0.34967348
+B. Linen-Poly/0. Normal/image/B_00_126.jpg,Linen,good,good,0.8812261
+B. Linen-Poly/0. Normal/image/B_00_127.jpg,Linen,good,good,0.8514563
+B. Linen-Poly/0. Normal/image/B_00_128.jpg,Linen,good,good,0.81138057
+B. Linen-Poly/0. Normal/image/B_00_129.jpg,Linen,good,good,0.8430591
+B. Linen-Poly/0. Normal/image/B_00_130.jpg,Linen,good,good,0.88938093
+B. Linen-Poly/0. Normal/image/B_00_131.jpg,Linen,good,good,0.7875759
+B. Linen-Poly/0. Normal/image/B_00_132.jpg,Linen,good,good,0.7421447
+B. Linen-Poly/0. Normal/image/B_00_133.jpg,Linen,good,good,0.8044833
+B. Linen-Poly/0. Normal/image/B_00_134.jpg,Linen,good,skipped_stitch,0.5065816
+B. Linen-Poly/0. Normal/image/B_00_135.jpg,Linen,good,good,0.8240761
+B. Linen-Poly/0. Normal/image/B_00_136.jpg,Linen,good,good,0.37849298
+B. Linen-Poly/0. Normal/image/B_00_137.jpg,Linen,good,good,0.8827104
+B. Linen-Poly/0. Normal/image/B_00_138.jpg,Linen,good,good,0.8685511
+B. Linen-Poly/0. Normal/image/B_00_139.jpg,Linen,good,good,0.738053
+B. Linen-Poly/0. Normal/image/B_00_140.jpg,Linen,good,good,0.80793333
+B. Linen-Poly/0. Normal/image/B_00_141.jpg,Linen,good,good,0.64767456
+B. Linen-Poly/0. Normal/image/B_00_142.jpg,Linen,good,good,0.839603
+B. Linen-Poly/0. Normal/image/B_00_143.jpg,Linen,good,good,0.70938724
+B. Linen-Poly/0. Normal/image/B_00_144.jpg,Linen,good,good,0.8520459
+B. Linen-Poly/0. Normal/image/B_00_145.jpg,Linen,good,good,0.8117355
+B. Linen-Poly/0. Normal/image/B_00_146.jpg,Linen,good,good,0.80307055
+B. Linen-Poly/0. Normal/image/B_00_147.jpg,Linen,good,good,0.85429716
+B. Linen-Poly/0. Normal/image/B_00_148.jpg,Linen,good,good,0.8650542
+B. Linen-Poly/0. Normal/image/B_00_149.jpg,Linen,good,good,0.79879236
+B. Linen-Poly/0. Normal/image/B_00_150.jpg,Linen,good,good,0.8496404
+B. Linen-Poly/0. Normal/image/B_00_151.jpg,Linen,good,good,0.8338762
+B. Linen-Poly/0. Normal/image/B_00_152.jpg,Linen,good,good,0.88282764
+B. Linen-Poly/0. Normal/image/B_00_153.jpg,Linen,good,good,0.90208906
+B. Linen-Poly/0. Normal/image/B_00_154.jpg,Linen,good,good,0.8693725
+B. Linen-Poly/0. Normal/image/B_00_155.jpg,Linen,good,good,0.8523498
+B. Linen-Poly/0. Normal/image/B_00_156.jpg,Linen,good,good,0.8829755
+B. Linen-Poly/0. Normal/image/B_00_157.jpg,Linen,good,good,0.8298669
+B. Linen-Poly/0. Normal/image/B_00_158.jpg,Linen,good,good,0.88214225
+B. Linen-Poly/0. Normal/image/B_00_159.jpg,Linen,good,good,0.8726529
+B. Linen-Poly/0. Normal/image/B_00_160.jpg,Linen,good,good,0.8821113
+B. Linen-Poly/0. Normal/image/B_00_161.jpg,Linen,good,good,0.82759
+B. Linen-Poly/0. Normal/image/B_00_162.jpg,Linen,good,good,0.89261895
+B. Linen-Poly/0. Normal/image/B_00_163.jpg,Linen,good,good,0.8482197
+B. Linen-Poly/0. Normal/image/B_00_164.jpg,Linen,good,good,0.8204272
+B. Linen-Poly/0. Normal/image/B_00_165.jpg,Linen,good,good,0.8371684
+B. Linen-Poly/0. Normal/image/B_00_166.jpg,Linen,good,good,0.88594747
+B. Linen-Poly/0. Normal/image/B_00_167.jpg,Linen,good,good,0.8707393
+B. Linen-Poly/0. Normal/image/B_00_168.jpg,Linen,good,good,0.88714737
+B. Linen-Poly/0. Normal/image/B_00_169.jpg,Linen,good,good,0.77427435
+B. Linen-Poly/0. Normal/image/B_00_170.jpg,Linen,good,good,0.87213266
+B. Linen-Poly/0. Normal/image/B_00_171.jpg,Linen,good,good,0.87101364
+B. Linen-Poly/0. Normal/image/B_00_172.jpg,Linen,good,stain_damage,0.837589
+B. Linen-Poly/0. Normal/image/B_00_173.jpg,Linen,good,stain_damage,0.84260666
+B. Linen-Poly/0. Normal/image/B_00_174.jpg,Linen,good,good,0.5153141
+B. Linen-Poly/0. Normal/image/B_00_175.jpg,Linen,good,good,0.6945984
+B. Linen-Poly/0. Normal/image/B_00_176.jpg,Linen,good,stain_damage,0.525911
+B. Linen-Poly/0. Normal/image/B_00_177.jpg,Linen,good,good,0.69179267
+B. Linen-Poly/0. Normal/image/B_00_178.jpg,Linen,good,stain_damage,0.73739153
+B. Linen-Poly/0. Normal/image/B_00_179.jpg,Linen,good,stain_damage,0.52200496
+B. Linen-Poly/0. Normal/image/B_00_180.jpg,Linen,good,good,0.5919681
+B. Linen-Poly/0. Normal/image/B_00_181.jpg,Linen,good,good,0.85704935
+B. Linen-Poly/0. Normal/image/B_00_182.jpg,Linen,good,good,0.84731525
+B. Linen-Poly/0. Normal/image/B_00_183.jpg,Linen,good,good,0.65549904
+B. Linen-Poly/0. Normal/image/B_00_184.jpg,Linen,good,good,0.6688403
+B. Linen-Poly/0. Normal/image/B_00_185.jpg,Linen,good,good,0.74632865
+B. Linen-Poly/0. Normal/image/B_00_186.jpg,Linen,good,good,0.3827368
+B. Linen-Poly/0. Normal/image/B_00_187.jpg,Linen,good,good,0.8481944
+B. Linen-Poly/0. Normal/image/B_00_188.jpg,Linen,good,good,0.8212877
+B. Linen-Poly/0. Normal/image/B_00_189.jpg,Linen,good,good,0.8510182
+B. Linen-Poly/0. Normal/image/B_00_190.jpg,Linen,good,good,0.7958106
+B. Linen-Poly/0. Normal/image/B_00_191.jpg,Linen,good,good,0.5252687
+B. Linen-Poly/0. Normal/image/B_00_192.jpg,Linen,good,good,0.4671868
+B. Linen-Poly/0. Normal/image/B_00_193.jpg,Linen,good,stain_damage,0.77727705
+B. Linen-Poly/0. Normal/image/B_00_194.jpg,Linen,good,stain_damage,0.52241176
+B. Linen-Poly/0. Normal/image/B_00_195.jpg,Linen,good,good,0.7827737
+B. Linen-Poly/0. Normal/image/B_00_196.jpg,Linen,good,good,0.83386993
+B. Linen-Poly/0. Normal/image/B_00_197.jpg,Linen,good,good,0.77939427
+B. Linen-Poly/0. Normal/image/B_00_198.jpg,Linen,good,good,0.8118202
+B. Linen-Poly/0. Normal/image/B_00_199.jpg,Linen,good,good,0.8849342
+B. Linen-Poly/0. Normal/image/B_00_200.jpg,Linen,good,good,0.5610779
+B. Linen-Poly/0. Normal/image/B_00_201.jpg,Linen,good,stain_damage,0.5046402
+B. Linen-Poly/0. Normal/image/B_00_202.jpg,Linen,good,good,0.87769824
+B. Linen-Poly/0. Normal/image/B_00_203.jpg,Linen,good,good,0.86800724
+B. Linen-Poly/0. Normal/image/B_00_204.jpg,Linen,good,good,0.7456088
+B. Linen-Poly/0. Normal/image/B_00_205.jpg,Linen,good,stain_damage,0.71050614
+B. Linen-Poly/0. Normal/image/B_00_206.jpg,Linen,good,good,0.7445414
+B. Linen-Poly/0. Normal/image/B_00_207.jpg,Linen,good,stain_damage,0.6798479
+B. Linen-Poly/0. Normal/image/B_00_208.jpg,Linen,good,stain_damage,0.7975436
+B. Linen-Poly/0. Normal/image/B_00_209.jpg,Linen,good,good,0.61661804
+B. Linen-Poly/0. Normal/image/B_00_210.jpg,Linen,good,good,0.49319375
+B. Linen-Poly/0. Normal/image/B_00_211.jpg,Linen,good,stain_damage,0.78639996
+B. Linen-Poly/0. Normal/image/B_00_212.jpg,Linen,good,stain_damage,0.5249998
+B. Linen-Poly/0. Normal/image/B_00_213.jpg,Linen,good,stain_damage,0.41117686
+B. Linen-Poly/0. Normal/image/B_00_214.jpg,Linen,good,stain_damage,0.6586596
+B. Linen-Poly/0. Normal/image/B_00_215.jpg,Linen,good,stain_damage,0.5786025
+B. Linen-Poly/0. Normal/image/B_00_216.jpg,Linen,good,stain_damage,0.5133027
+B. Linen-Poly/0. Normal/image/B_00_217.jpg,Linen,good,stain_damage,0.48946616
+B. Linen-Poly/0. Normal/image/B_00_218.jpg,Linen,good,stain_damage,0.6152376
+B. Linen-Poly/0. Normal/image/B_00_219.jpg,Linen,good,stain_damage,0.626059
+B. Linen-Poly/0. Normal/image/B_00_220.jpg,Linen,good,stain_damage,0.7087628
+B. Linen-Poly/1. Skipped stitch/image/B_01_001.jpg,Linen,skipped_stitch,skipped_stitch,0.6944461
+B. Linen-Poly/1. Skipped stitch/image/B_01_002.jpg,Linen,skipped_stitch,good,0.8913913
+B. Linen-Poly/1. Skipped stitch/image/B_01_003.jpg,Linen,skipped_stitch,skipped_stitch,0.9175388
+B. Linen-Poly/1. Skipped stitch/image/B_01_004.jpg,Linen,skipped_stitch,skipped_stitch,0.91850066
+B. Linen-Poly/1. Skipped stitch/image/B_01_005.jpg,Linen,skipped_stitch,skipped_stitch,0.7755152
+B. Linen-Poly/1. Skipped stitch/image/B_01_006.jpg,Linen,skipped_stitch,skipped_stitch,0.92574215
+B. Linen-Poly/1. Skipped stitch/image/B_01_007.jpg,Linen,skipped_stitch,skipped_stitch,0.89186186
+B. Linen-Poly/1. Skipped stitch/image/B_01_008.jpg,Linen,skipped_stitch,skipped_stitch,0.927214
+B. Linen-Poly/1. Skipped stitch/image/B_01_009.jpg,Linen,skipped_stitch,skipped_stitch,0.8670714
+B. Linen-Poly/1. Skipped stitch/image/B_01_010.jpg,Linen,skipped_stitch,skipped_stitch,0.871131
+B. Linen-Poly/1. Skipped stitch/image/B_01_011.jpg,Linen,skipped_stitch,skipped_stitch,0.846509
+B. Linen-Poly/1. Skipped stitch/image/B_01_012.jpg,Linen,skipped_stitch,skipped_stitch,0.76989293
+B. Linen-Poly/1. Skipped stitch/image/B_01_013.jpg,Linen,skipped_stitch,skipped_stitch,0.8637976
+B. Linen-Poly/1. Skipped stitch/image/B_01_014.jpg,Linen,skipped_stitch,skipped_stitch,0.8789455
+B. Linen-Poly/1. Skipped stitch/image/B_01_015.jpg,Linen,skipped_stitch,skipped_stitch,0.88005847
+B. Linen-Poly/1. Skipped stitch/image/B_01_016.jpg,Linen,skipped_stitch,skipped_stitch,0.9140434
+B. Linen-Poly/1. Skipped stitch/image/B_01_017.jpg,Linen,skipped_stitch,skipped_stitch,0.9028055
+B. Linen-Poly/1. Skipped stitch/image/B_01_018.jpg,Linen,skipped_stitch,skipped_stitch,0.9041855
+B. Linen-Poly/1. Skipped stitch/image/B_01_019.jpg,Linen,skipped_stitch,skipped_stitch,0.9097315
+B. Linen-Poly/1. Skipped stitch/image/B_01_020.jpg,Linen,skipped_stitch,skipped_stitch,0.91256255
+B. Linen-Poly/1. Skipped stitch/image/B_01_021.jpg,Linen,skipped_stitch,skipped_stitch,0.9043881
+B. Linen-Poly/1. Skipped stitch/image/B_01_022.jpg,Linen,skipped_stitch,skipped_stitch,0.89496386
+B. Linen-Poly/1. Skipped stitch/image/B_01_023.jpg,Linen,skipped_stitch,good,0.84983903
+B. Linen-Poly/1. Skipped stitch/image/B_01_024.jpg,Linen,skipped_stitch,good,0.87675446
+B. Linen-Poly/1. Skipped stitch/image/B_01_025.jpg,Linen,skipped_stitch,skipped_stitch,0.49548736
+B. Linen-Poly/1. Skipped stitch/image/B_01_026.jpg,Linen,skipped_stitch,skipped_stitch,0.8542473
+B. Linen-Poly/1. Skipped stitch/image/B_01_027.jpg,Linen,skipped_stitch,skipped_stitch,0.74979275
+B. Linen-Poly/1. Skipped stitch/image/B_01_028.jpg,Linen,skipped_stitch,stain_damage,0.4551835
+B. Linen-Poly/1. Skipped stitch/image/B_01_029.jpg,Linen,skipped_stitch,good,0.8990393
+B. Linen-Poly/1. Skipped stitch/image/B_01_030.jpg,Linen,skipped_stitch,good,0.8491853
+B. Linen-Poly/1. Skipped stitch/image/B_01_031.jpg,Linen,skipped_stitch,good,0.8892001
+B. Linen-Poly/1. Skipped stitch/image/B_01_032.jpg,Linen,skipped_stitch,good,0.88046026
+B. Linen-Poly/1. Skipped stitch/image/B_01_033.jpg,Linen,skipped_stitch,good,0.5056092
+B. Linen-Poly/1. Skipped stitch/image/B_01_034.jpg,Linen,skipped_stitch,skipped_stitch,0.702361
+B. Linen-Poly/1. Skipped stitch/image/B_01_035.jpg,Linen,skipped_stitch,skipped_stitch,0.9120591
+B. Linen-Poly/1. Skipped stitch/image/B_01_036.jpg,Linen,skipped_stitch,good,0.48845604
+B. Linen-Poly/1. Skipped stitch/image/B_01_037.jpg,Linen,skipped_stitch,skipped_stitch,0.65632075
+B. Linen-Poly/1. Skipped stitch/image/B_01_038.jpg,Linen,skipped_stitch,skipped_stitch,0.90880775
+B. Linen-Poly/1. Skipped stitch/image/B_01_039.jpg,Linen,skipped_stitch,skipped_stitch,0.70996463
+B. Linen-Poly/1. Skipped stitch/image/B_01_040.jpg,Linen,skipped_stitch,skipped_stitch,0.7856844
+B. Linen-Poly/1. Skipped stitch/image/B_01_041.jpg,Linen,skipped_stitch,skipped_stitch,0.7089564
+B. Linen-Poly/1. Skipped stitch/image/B_01_042.jpg,Linen,skipped_stitch,skipped_stitch,0.8648198
+B. Linen-Poly/1. Skipped stitch/image/B_01_043.jpg,Linen,skipped_stitch,skipped_stitch,0.72711307
+B. Linen-Poly/1. Skipped stitch/image/B_01_044.jpg,Linen,skipped_stitch,skipped_stitch,0.8604883
+B. Linen-Poly/1. Skipped stitch/image/B_01_045.jpg,Linen,skipped_stitch,skipped_stitch,0.75132936
+B. Linen-Poly/1. Skipped stitch/image/B_01_046.jpg,Linen,skipped_stitch,skipped_stitch,0.7967315
+B. Linen-Poly/1. Skipped stitch/image/B_01_047.jpg,Linen,skipped_stitch,skipped_stitch,0.4652967
+B. Linen-Poly/1. Skipped stitch/image/B_01_048.jpg,Linen,skipped_stitch,skipped_stitch,0.7632577
+B. Linen-Poly/1. Skipped stitch/image/B_01_049.jpg,Linen,skipped_stitch,good,0.8681122
+B. Linen-Poly/1. Skipped stitch/image/B_01_050.jpg,Linen,skipped_stitch,skipped_stitch,0.7288921
+B. Linen-Poly/1. Skipped stitch/image/B_01_051.jpg,Linen,skipped_stitch,skipped_stitch,0.8698637
+B. Linen-Poly/1. Skipped stitch/image/B_01_052.jpg,Linen,skipped_stitch,skipped_stitch,0.90905356
+B. Linen-Poly/1. Skipped stitch/image/B_01_053.jpg,Linen,skipped_stitch,skipped_stitch,0.9261994
+B. Linen-Poly/1. Skipped stitch/image/B_01_054.jpg,Linen,skipped_stitch,skipped_stitch,0.9231781
+B. Linen-Poly/1. Skipped stitch/image/B_01_055.jpg,Linen,skipped_stitch,skipped_stitch,0.9238382
+B. Linen-Poly/1. Skipped stitch/image/B_01_056.jpg,Linen,skipped_stitch,skipped_stitch,0.916545
+B. Linen-Poly/1. Skipped stitch/image/B_01_057.jpg,Linen,skipped_stitch,skipped_stitch,0.90558445
+B. Linen-Poly/1. Skipped stitch/image/B_01_058.jpg,Linen,skipped_stitch,skipped_stitch,0.92478734
+B. Linen-Poly/1. Skipped stitch/image/B_01_059.jpg,Linen,skipped_stitch,skipped_stitch,0.887812
+B. Linen-Poly/1. Skipped stitch/image/B_01_060.jpg,Linen,skipped_stitch,good,0.67338234
+B. Linen-Poly/1. Skipped stitch/image/B_01_061.jpg,Linen,skipped_stitch,skipped_stitch,0.9124083
+B. Linen-Poly/1. Skipped stitch/image/B_01_062.jpg,Linen,skipped_stitch,skipped_stitch,0.9213765
+B. Linen-Poly/1. Skipped stitch/image/B_01_063.jpg,Linen,skipped_stitch,skipped_stitch,0.9218444
+B. Linen-Poly/1. Skipped stitch/image/B_01_064.jpg,Linen,skipped_stitch,skipped_stitch,0.9214161
+B. Linen-Poly/1. Skipped stitch/image/B_01_065.jpg,Linen,skipped_stitch,skipped_stitch,0.9241171
+B. Linen-Poly/1. Skipped stitch/image/B_01_066.jpg,Linen,skipped_stitch,skipped_stitch,0.86429244
+B. Linen-Poly/1. Skipped stitch/image/B_01_067.jpg,Linen,skipped_stitch,skipped_stitch,0.8986334
+B. Linen-Poly/1. Skipped stitch/image/B_01_068.jpg,Linen,skipped_stitch,skipped_stitch,0.8782989
+B. Linen-Poly/1. Skipped stitch/image/B_01_069.jpg,Linen,skipped_stitch,skipped_stitch,0.8601208
+B. Linen-Poly/1. Skipped stitch/image/B_01_070.jpg,Linen,skipped_stitch,skipped_stitch,0.83218205
+B. Linen-Poly/1. Skipped stitch/image/B_01_071.jpg,Linen,skipped_stitch,skipped_stitch,0.86978984
+B. Linen-Poly/1. Skipped stitch/image/B_01_072.jpg,Linen,skipped_stitch,skipped_stitch,0.8815013
+B. Linen-Poly/1. Skipped stitch/image/B_01_073.jpg,Linen,skipped_stitch,skipped_stitch,0.89144754
+B. Linen-Poly/1. Skipped stitch/image/B_01_074.jpg,Linen,skipped_stitch,skipped_stitch,0.8644118
+B. Linen-Poly/1. Skipped stitch/image/B_01_075.jpg,Linen,skipped_stitch,skipped_stitch,0.88964194
+B. Linen-Poly/1. Skipped stitch/image/B_01_076.jpg,Linen,skipped_stitch,skipped_stitch,0.77818054
+B. Linen-Poly/1. Skipped stitch/image/B_01_077.jpg,Linen,skipped_stitch,skipped_stitch,0.8419974
+B. Linen-Poly/1. Skipped stitch/image/B_01_078.jpg,Linen,skipped_stitch,skipped_stitch,0.4699713
+B. Linen-Poly/1. Skipped stitch/image/B_01_079.jpg,Linen,skipped_stitch,skipped_stitch,0.7771106
+B. Linen-Poly/1. Skipped stitch/image/B_01_080.jpg,Linen,skipped_stitch,skipped_stitch,0.8079934
+B. Linen-Poly/1. Skipped stitch/image/B_01_081.jpg,Linen,skipped_stitch,skipped_stitch,0.825231
+B. Linen-Poly/1. Skipped stitch/image/B_01_082.jpg,Linen,skipped_stitch,skipped_stitch,0.9386903
+B. Linen-Poly/1. Skipped stitch/image/B_01_083.jpg,Linen,skipped_stitch,skipped_stitch,0.79598504
+B. Linen-Poly/1. Skipped stitch/image/B_01_084.jpg,Linen,skipped_stitch,skipped_stitch,0.856791
+B. Linen-Poly/1. Skipped stitch/image/B_01_085.jpg,Linen,skipped_stitch,skipped_stitch,0.4410844
+B. Linen-Poly/1. Skipped stitch/image/B_01_086.jpg,Linen,skipped_stitch,skipped_stitch,0.8198432
+B. Linen-Poly/1. Skipped stitch/image/B_01_087.jpg,Linen,skipped_stitch,skipped_stitch,0.7723927
+B. Linen-Poly/1. Skipped stitch/image/B_01_088.jpg,Linen,skipped_stitch,skipped_stitch,0.8739877
+B. Linen-Poly/1. Skipped stitch/image/B_01_089.jpg,Linen,skipped_stitch,skipped_stitch,0.8801703
+B. Linen-Poly/1. Skipped stitch/image/B_01_090.jpg,Linen,skipped_stitch,skipped_stitch,0.8577729
+B. Linen-Poly/1. Skipped stitch/image/B_01_091.jpg,Linen,skipped_stitch,skipped_stitch,0.8915664
+B. Linen-Poly/1. Skipped stitch/image/B_01_092.jpg,Linen,skipped_stitch,skipped_stitch,0.8781199
+B. Linen-Poly/1. Skipped stitch/image/B_01_093.jpg,Linen,skipped_stitch,skipped_stitch,0.9222666
+B. Linen-Poly/1. Skipped stitch/image/B_01_094.jpg,Linen,skipped_stitch,skipped_stitch,0.5928156
+B. Linen-Poly/1. Skipped stitch/image/B_01_095.jpg,Linen,skipped_stitch,skipped_stitch,0.92312765
+B. Linen-Poly/1. Skipped stitch/image/B_01_096.jpg,Linen,skipped_stitch,skipped_stitch,0.9178597
+B. Linen-Poly/1. Skipped stitch/image/B_01_097.jpg,Linen,skipped_stitch,skipped_stitch,0.90296847
+B. Linen-Poly/1. Skipped stitch/image/B_01_098.jpg,Linen,skipped_stitch,skipped_stitch,0.89128304
+B. Linen-Poly/1. Skipped stitch/image/B_01_099.jpg,Linen,skipped_stitch,skipped_stitch,0.92326665
+B. Linen-Poly/1. Skipped stitch/image/B_01_100.jpg,Linen,skipped_stitch,skipped_stitch,0.9254843
+B. Linen-Poly/1. Skipped stitch/image/B_01_101.jpg,Linen,skipped_stitch,skipped_stitch,0.91927576
+B. Linen-Poly/1. Skipped stitch/image/B_01_102.jpg,Linen,skipped_stitch,skipped_stitch,0.90998644
+B. Linen-Poly/1. Skipped stitch/image/B_01_103.jpg,Linen,skipped_stitch,skipped_stitch,0.92168814
+B. Linen-Poly/2. Broken stitch/image/B_02_001.jpg,Linen,broken_stitch,broken_stitch,0.8857715
+B. Linen-Poly/2. Broken stitch/image/B_02_002.jpg,Linen,broken_stitch,broken_stitch,0.9074796
+B. Linen-Poly/2. Broken stitch/image/B_02_003.jpg,Linen,broken_stitch,broken_stitch,0.8149635
+B. Linen-Poly/2. Broken stitch/image/B_02_004.jpg,Linen,broken_stitch,broken_stitch,0.8907301
+B. Linen-Poly/2. Broken stitch/image/B_02_005.jpg,Linen,broken_stitch,stain_damage,0.4846317
+B. Linen-Poly/2. Broken stitch/image/B_02_006.jpg,Linen,broken_stitch,skipped_stitch,0.48739246
+B. Linen-Poly/2. Broken stitch/image/B_02_007.jpg,Linen,broken_stitch,good,0.4030341
+B. Linen-Poly/2. Broken stitch/image/B_02_008.jpg,Linen,broken_stitch,broken_stitch,0.91731477
+B. Linen-Poly/2. Broken stitch/image/B_02_009.jpg,Linen,broken_stitch,broken_stitch,0.9173473
+B. Linen-Poly/2. Broken stitch/image/B_02_010.jpg,Linen,broken_stitch,broken_stitch,0.9152176
+B. Linen-Poly/2. Broken stitch/image/B_02_011.jpg,Linen,broken_stitch,broken_stitch,0.9423287
+B. Linen-Poly/2. Broken stitch/image/B_02_012.jpg,Linen,broken_stitch,broken_stitch,0.9281569
+B. Linen-Poly/2. Broken stitch/image/B_02_013.jpg,Linen,broken_stitch,broken_stitch,0.9049655
+B. Linen-Poly/2. Broken stitch/image/B_02_014.jpg,Linen,broken_stitch,broken_stitch,0.93791926
+B. Linen-Poly/2. Broken stitch/image/B_02_015.jpg,Linen,broken_stitch,broken_stitch,0.92686456
+B. Linen-Poly/2. Broken stitch/image/B_02_016.jpg,Linen,broken_stitch,broken_stitch,0.9213924
+B. Linen-Poly/2. Broken stitch/image/B_02_017.jpg,Linen,broken_stitch,broken_stitch,0.9106442
+B. Linen-Poly/2. Broken stitch/image/B_02_018.jpg,Linen,broken_stitch,broken_stitch,0.92132735
+B. Linen-Poly/2. Broken stitch/image/B_02_019.jpg,Linen,broken_stitch,broken_stitch,0.92733794
+B. Linen-Poly/2. Broken stitch/image/B_02_020.jpg,Linen,broken_stitch,broken_stitch,0.93199867
+B. Linen-Poly/2. Broken stitch/image/B_02_021.jpg,Linen,broken_stitch,broken_stitch,0.9295181
+B. Linen-Poly/2. Broken stitch/image/B_02_022.jpg,Linen,broken_stitch,broken_stitch,0.8897747
+B. Linen-Poly/2. Broken stitch/image/B_02_023.jpg,Linen,broken_stitch,broken_stitch,0.90249765
+B. Linen-Poly/2. Broken stitch/image/B_02_024.jpg,Linen,broken_stitch,broken_stitch,0.9046706
+B. Linen-Poly/2. Broken stitch/image/B_02_025.jpg,Linen,broken_stitch,broken_stitch,0.89885247
+B. Linen-Poly/2. Broken stitch/image/B_02_026.jpg,Linen,broken_stitch,broken_stitch,0.92073435
+B. Linen-Poly/2. Broken stitch/image/B_02_027.jpg,Linen,broken_stitch,broken_stitch,0.9007619
+B. Linen-Poly/2. Broken stitch/image/B_02_028.jpg,Linen,broken_stitch,broken_stitch,0.91084623
+B. Linen-Poly/2. Broken stitch/image/B_02_029.jpg,Linen,broken_stitch,broken_stitch,0.9193489
+B. Linen-Poly/2. Broken stitch/image/B_02_030.jpg,Linen,broken_stitch,broken_stitch,0.9002002
+B. Linen-Poly/2. Broken stitch/image/B_02_031.jpg,Linen,broken_stitch,broken_stitch,0.9284272
+B. Linen-Poly/2. Broken stitch/image/B_02_032.jpg,Linen,broken_stitch,broken_stitch,0.925249
+B. Linen-Poly/2. Broken stitch/image/B_02_033.jpg,Linen,broken_stitch,broken_stitch,0.9152813
+B. Linen-Poly/2. Broken stitch/image/B_02_034.jpg,Linen,broken_stitch,broken_stitch,0.9110533
+B. Linen-Poly/2. Broken stitch/image/B_02_035.jpg,Linen,broken_stitch,broken_stitch,0.9113143
+B. Linen-Poly/2. Broken stitch/image/B_02_036.jpg,Linen,broken_stitch,broken_stitch,0.8970658
+B. Linen-Poly/2. Broken stitch/image/B_02_037.jpg,Linen,broken_stitch,broken_stitch,0.9135329
+B. Linen-Poly/2. Broken stitch/image/B_02_038.jpg,Linen,broken_stitch,broken_stitch,0.8976055
+B. Linen-Poly/2. Broken stitch/image/B_02_039.jpg,Linen,broken_stitch,broken_stitch,0.8970987
+B. Linen-Poly/2. Broken stitch/image/B_02_040.jpg,Linen,broken_stitch,broken_stitch,0.8674888
+B. Linen-Poly/2. Broken stitch/image/B_02_041.jpg,Linen,broken_stitch,broken_stitch,0.9163253
+B. Linen-Poly/2. Broken stitch/image/B_02_042.jpg,Linen,broken_stitch,broken_stitch,0.8995282
+B. Linen-Poly/2. Broken stitch/image/B_02_043.jpg,Linen,broken_stitch,broken_stitch,0.8869599
+B. Linen-Poly/2. Broken stitch/image/B_02_044.jpg,Linen,broken_stitch,broken_stitch,0.9250241
+B. Linen-Poly/2. Broken stitch/image/B_02_045.jpg,Linen,broken_stitch,broken_stitch,0.8677735
+B. Linen-Poly/2. Broken stitch/image/B_02_046.jpg,Linen,broken_stitch,broken_stitch,0.8868553
+B. Linen-Poly/2. Broken stitch/image/B_02_047.jpg,Linen,broken_stitch,broken_stitch,0.89333504
+B. Linen-Poly/2. Broken stitch/image/B_02_048.jpg,Linen,broken_stitch,broken_stitch,0.8966265
+B. Linen-Poly/2. Broken stitch/image/B_02_049.jpg,Linen,broken_stitch,broken_stitch,0.895407
+B. Linen-Poly/2. Broken stitch/image/B_02_050.jpg,Linen,broken_stitch,broken_stitch,0.9043651
+B. Linen-Poly/2. Broken stitch/image/B_02_051.jpg,Linen,broken_stitch,broken_stitch,0.898878
+B. Linen-Poly/2. Broken stitch/image/B_02_052.jpg,Linen,broken_stitch,broken_stitch,0.9364649
+B. Linen-Poly/2. Broken stitch/image/B_02_053.jpg,Linen,broken_stitch,broken_stitch,0.9353532
+B. Linen-Poly/2. Broken stitch/image/B_02_054.jpg,Linen,broken_stitch,broken_stitch,0.9370665
+B. Linen-Poly/2. Broken stitch/image/B_02_055.jpg,Linen,broken_stitch,broken_stitch,0.9381199
+B. Linen-Poly/2. Broken stitch/image/B_02_056.jpg,Linen,broken_stitch,broken_stitch,0.94361913
+B. Linen-Poly/2. Broken stitch/image/B_02_057.jpg,Linen,broken_stitch,broken_stitch,0.92651343
+B. Linen-Poly/2. Broken stitch/image/B_02_058.jpg,Linen,broken_stitch,broken_stitch,0.92781556
+B. Linen-Poly/2. Broken stitch/image/B_02_059.jpg,Linen,broken_stitch,broken_stitch,0.9283264
+B. Linen-Poly/2. Broken stitch/image/B_02_060.jpg,Linen,broken_stitch,broken_stitch,0.92794174
+B. Linen-Poly/2. Broken stitch/image/B_02_061.jpg,Linen,broken_stitch,broken_stitch,0.9304763
+B. Linen-Poly/2. Broken stitch/image/B_02_062.jpg,Linen,broken_stitch,broken_stitch,0.9362634
+B. Linen-Poly/2. Broken stitch/image/B_02_063.jpg,Linen,broken_stitch,broken_stitch,0.9367717
+B. Linen-Poly/2. Broken stitch/image/B_02_064.jpg,Linen,broken_stitch,broken_stitch,0.9302153
+B. Linen-Poly/2. Broken stitch/image/B_02_065.jpg,Linen,broken_stitch,broken_stitch,0.9289745
+B. Linen-Poly/2. Broken stitch/image/B_02_066.jpg,Linen,broken_stitch,broken_stitch,0.9369751
+B. Linen-Poly/2. Broken stitch/image/B_02_067.jpg,Linen,broken_stitch,broken_stitch,0.92438823
+B. Linen-Poly/2. Broken stitch/image/B_02_068.jpg,Linen,broken_stitch,broken_stitch,0.92397887
+B. Linen-Poly/2. Broken stitch/image/B_02_069.jpg,Linen,broken_stitch,broken_stitch,0.9304202
+B. Linen-Poly/2. Broken stitch/image/B_02_070.jpg,Linen,broken_stitch,broken_stitch,0.929306
+B. Linen-Poly/2. Broken stitch/image/B_02_071.jpg,Linen,broken_stitch,broken_stitch,0.92366374
+B. Linen-Poly/2. Broken stitch/image/B_02_072.jpg,Linen,broken_stitch,broken_stitch,0.9287256
+B. Linen-Poly/2. Broken stitch/image/B_02_073.jpg,Linen,broken_stitch,broken_stitch,0.9126492
+B. Linen-Poly/2. Broken stitch/image/B_02_074.jpg,Linen,broken_stitch,broken_stitch,0.91154194
+B. Linen-Poly/2. Broken stitch/image/B_02_075.jpg,Linen,broken_stitch,broken_stitch,0.8961568
+B. Linen-Poly/2. Broken stitch/image/B_02_076.jpg,Linen,broken_stitch,broken_stitch,0.9247096
+B. Linen-Poly/2. Broken stitch/image/B_02_077.jpg,Linen,broken_stitch,broken_stitch,0.9350779
+B. Linen-Poly/2. Broken stitch/image/B_02_078.jpg,Linen,broken_stitch,broken_stitch,0.93807906
+B. Linen-Poly/2. Broken stitch/image/B_02_079.jpg,Linen,broken_stitch,broken_stitch,0.9344774
+B. Linen-Poly/2. Broken stitch/image/B_02_080.jpg,Linen,broken_stitch,broken_stitch,0.9224993
+B. Linen-Poly/2. Broken stitch/image/B_02_081.jpg,Linen,broken_stitch,broken_stitch,0.93907
+B. Linen-Poly/2. Broken stitch/image/B_02_082.jpg,Linen,broken_stitch,broken_stitch,0.88990134
+B. Linen-Poly/2. Broken stitch/image/B_02_083.jpg,Linen,broken_stitch,broken_stitch,0.9198149
+B. Linen-Poly/2. Broken stitch/image/B_02_084.jpg,Linen,broken_stitch,broken_stitch,0.8970634
+B. Linen-Poly/2. Broken stitch/image/B_02_085.jpg,Linen,broken_stitch,broken_stitch,0.91099095
+B. Linen-Poly/2. Broken stitch/image/B_02_086.jpg,Linen,broken_stitch,broken_stitch,0.89500654
+B. Linen-Poly/2. Broken stitch/image/B_02_087.jpg,Linen,broken_stitch,broken_stitch,0.9164376
+B. Linen-Poly/2. Broken stitch/image/B_02_088.jpg,Linen,broken_stitch,broken_stitch,0.82163006
+B. Linen-Poly/2. Broken stitch/image/B_02_089.jpg,Linen,broken_stitch,broken_stitch,0.9037501
+B. Linen-Poly/2. Broken stitch/image/B_02_090.jpg,Linen,broken_stitch,broken_stitch,0.92464095
+B. Linen-Poly/2. Broken stitch/image/B_02_091.jpg,Linen,broken_stitch,broken_stitch,0.93775976
+B. Linen-Poly/2. Broken stitch/image/B_02_092.jpg,Linen,broken_stitch,broken_stitch,0.9193642
+B. Linen-Poly/2. Broken stitch/image/B_02_093.jpg,Linen,broken_stitch,broken_stitch,0.89817
+B. Linen-Poly/2. Broken stitch/image/B_02_094.jpg,Linen,broken_stitch,broken_stitch,0.90198475
+B. Linen-Poly/2. Broken stitch/image/B_02_095.jpg,Linen,broken_stitch,broken_stitch,0.47213575
+B. Linen-Poly/2. Broken stitch/image/B_02_096.jpg,Linen,broken_stitch,broken_stitch,0.93663687
+B. Linen-Poly/2. Broken stitch/image/B_02_097.jpg,Linen,broken_stitch,broken_stitch,0.6980892
+B. Linen-Poly/2. Broken stitch/image/B_02_098.jpg,Linen,broken_stitch,broken_stitch,0.6657326
+B. Linen-Poly/2. Broken stitch/image/B_02_099.jpg,Linen,broken_stitch,crooked_seam,0.66799164
+B. Linen-Poly/2. Broken stitch/image/B_02_100.jpg,Linen,broken_stitch,crooked_seam,0.49716225
+B. Linen-Poly/2. Broken stitch/image/B_02_101.jpg,Linen,broken_stitch,broken_stitch,0.79012686
+B. Linen-Poly/2. Broken stitch/image/B_02_102.jpg,Linen,broken_stitch,broken_stitch,0.8496716
+B. Linen-Poly/2. Broken stitch/image/B_02_103.jpg,Linen,broken_stitch,broken_stitch,0.49307477
+B. Linen-Poly/2. Broken stitch/image/B_02_104.jpg,Linen,broken_stitch,broken_stitch,0.88985264
+B. Linen-Poly/2. Broken stitch/image/B_02_105.jpg,Linen,broken_stitch,broken_stitch,0.9098598
+B. Linen-Poly/2. Broken stitch/image/B_02_106.jpg,Linen,broken_stitch,broken_stitch,0.57769877
+B. Linen-Poly/2. Broken stitch/image/B_02_107.jpg,Linen,broken_stitch,broken_stitch,0.93161106
+B. Linen-Poly/2. Broken stitch/image/B_02_108.jpg,Linen,broken_stitch,crooked_seam,0.8138794
+B. Linen-Poly/2. Broken stitch/image/B_02_109.jpg,Linen,broken_stitch,broken_stitch,0.7601187
+B. Linen-Poly/2. Broken stitch/image/B_02_110.jpg,Linen,broken_stitch,broken_stitch,0.8214284
+B. Linen-Poly/2. Broken stitch/image/B_02_111.jpg,Linen,broken_stitch,broken_stitch,0.55881095
+B. Linen-Poly/2. Broken stitch/image/B_02_112.jpg,Linen,broken_stitch,good,0.7672121
+B. Linen-Poly/2. Broken stitch/image/B_02_113.jpg,Linen,broken_stitch,good,0.44584388
+B. Linen-Poly/2. Broken stitch/image/B_02_114.jpg,Linen,broken_stitch,broken_stitch,0.7540885
+B. Linen-Poly/2. Broken stitch/image/B_02_115.jpg,Linen,broken_stitch,broken_stitch,0.7023044
+B. Linen-Poly/2. Broken stitch/image/B_02_116.jpg,Linen,broken_stitch,good,0.27399367
+B. Linen-Poly/2. Broken stitch/image/B_02_117.jpg,Linen,broken_stitch,broken_stitch,0.87902266
+B. Linen-Poly/4. Crooked seam/image/B_04_001.jpg,Linen,crooked_seam,crooked_seam,0.90444463
+B. Linen-Poly/4. Crooked seam/image/B_04_002.jpg,Linen,crooked_seam,crooked_seam,0.90395075
+B. Linen-Poly/4. Crooked seam/image/B_04_003.jpg,Linen,crooked_seam,crooked_seam,0.9373186
+B. Linen-Poly/4. Crooked seam/image/B_04_004.jpg,Linen,crooked_seam,crooked_seam,0.93439543
+B. Linen-Poly/4. Crooked seam/image/B_04_005.jpg,Linen,crooked_seam,crooked_seam,0.9278194
+B. Linen-Poly/4. Crooked seam/image/B_04_006.jpg,Linen,crooked_seam,crooked_seam,0.93912625
+B. Linen-Poly/4. Crooked seam/image/B_04_007.jpg,Linen,crooked_seam,crooked_seam,0.9343374
+B. Linen-Poly/4. Crooked seam/image/B_04_008.jpg,Linen,crooked_seam,crooked_seam,0.9233256
+B. Linen-Poly/4. Crooked seam/image/B_04_009.jpg,Linen,crooked_seam,crooked_seam,0.9299663
+B. Linen-Poly/4. Crooked seam/image/B_04_010.jpg,Linen,crooked_seam,crooked_seam,0.91427404
+B. Linen-Poly/4. Crooked seam/image/B_04_011.jpg,Linen,crooked_seam,crooked_seam,0.92287815
+B. Linen-Poly/4. Crooked seam/image/B_04_012.jpg,Linen,crooked_seam,crooked_seam,0.828459
+B. Linen-Poly/4. Crooked seam/image/B_04_013.jpg,Linen,crooked_seam,crooked_seam,0.92993575
+B. Linen-Poly/4. Crooked seam/image/B_04_014.jpg,Linen,crooked_seam,crooked_seam,0.9090824
+B. Linen-Poly/4. Crooked seam/image/B_04_015.jpg,Linen,crooked_seam,crooked_seam,0.9187361
+B. Linen-Poly/4. Crooked seam/image/B_04_016.jpg,Linen,crooked_seam,crooked_seam,0.91448396
+B. Linen-Poly/4. Crooked seam/image/B_04_017.jpg,Linen,crooked_seam,crooked_seam,0.9070809
+B. Linen-Poly/4. Crooked seam/image/B_04_018.jpg,Linen,crooked_seam,crooked_seam,0.91396785
+B. Linen-Poly/4. Crooked seam/image/B_04_019.jpg,Linen,crooked_seam,crooked_seam,0.8971919
+B. Linen-Poly/4. Crooked seam/image/B_04_020.jpg,Linen,crooked_seam,crooked_seam,0.93189275
+B. Linen-Poly/4. Crooked seam/image/B_04_021.jpg,Linen,crooked_seam,crooked_seam,0.92882115
+B. Linen-Poly/4. Crooked seam/image/B_04_022.jpg,Linen,crooked_seam,crooked_seam,0.9283216
+B. Linen-Poly/4. Crooked seam/image/B_04_023.jpg,Linen,crooked_seam,crooked_seam,0.932756
+B. Linen-Poly/4. Crooked seam/image/B_04_024.jpg,Linen,crooked_seam,crooked_seam,0.9334753
+B. Linen-Poly/4. Crooked seam/image/B_04_025.jpg,Linen,crooked_seam,crooked_seam,0.9322025
+B. Linen-Poly/4. Crooked seam/image/B_04_026.jpg,Linen,crooked_seam,crooked_seam,0.93123037
+B. Linen-Poly/4. Crooked seam/image/B_04_027.jpg,Linen,crooked_seam,crooked_seam,0.9294491
+B. Linen-Poly/4. Crooked seam/image/B_04_028.jpg,Linen,crooked_seam,crooked_seam,0.93254614
+B. Linen-Poly/4. Crooked seam/image/B_04_029.jpg,Linen,crooked_seam,crooked_seam,0.93232757
+B. Linen-Poly/4. Crooked seam/image/B_04_030.jpg,Linen,crooked_seam,crooked_seam,0.92084825
+B. Linen-Poly/4. Crooked seam/image/B_04_031.jpg,Linen,crooked_seam,crooked_seam,0.9343614
+B. Linen-Poly/4. Crooked seam/image/B_04_032.jpg,Linen,crooked_seam,crooked_seam,0.9350388
+B. Linen-Poly/4. Crooked seam/image/B_04_033.jpg,Linen,crooked_seam,crooked_seam,0.9293885
+B. Linen-Poly/4. Crooked seam/image/B_04_034.jpg,Linen,crooked_seam,crooked_seam,0.9292719
+B. Linen-Poly/4. Crooked seam/image/B_04_035.jpg,Linen,crooked_seam,crooked_seam,0.9217758
+B. Linen-Poly/4. Crooked seam/image/B_04_036.jpg,Linen,crooked_seam,crooked_seam,0.92655784
+B. Linen-Poly/4. Crooked seam/image/B_04_037.jpg,Linen,crooked_seam,crooked_seam,0.92948174
+B. Linen-Poly/4. Crooked seam/image/B_04_038.jpg,Linen,crooked_seam,crooked_seam,0.92912644
+B. Linen-Poly/4. Crooked seam/image/B_04_039.jpg,Linen,crooked_seam,crooked_seam,0.9345793
+B. Linen-Poly/4. Crooked seam/image/B_04_040.jpg,Linen,crooked_seam,crooked_seam,0.9321553
+B. Linen-Poly/4. Crooked seam/image/B_04_041.jpg,Linen,crooked_seam,crooked_seam,0.7820745
+B. Linen-Poly/4. Crooked seam/image/B_04_042.jpg,Linen,crooked_seam,crooked_seam,0.9299147
+B. Linen-Poly/4. Crooked seam/image/B_04_043.jpg,Linen,crooked_seam,good,0.6641374
+B. Linen-Poly/4. Crooked seam/image/B_04_044.jpg,Linen,crooked_seam,crooked_seam,0.93584037
+B. Linen-Poly/4. Crooked seam/image/B_04_045.jpg,Linen,crooked_seam,crooked_seam,0.9197682
+B. Linen-Poly/4. Crooked seam/image/B_04_046.jpg,Linen,crooked_seam,crooked_seam,0.9240169
+B. Linen-Poly/4. Crooked seam/image/B_04_047.jpg,Linen,crooked_seam,crooked_seam,0.9355411
+B. Linen-Poly/4. Crooked seam/image/B_04_048.jpg,Linen,crooked_seam,crooked_seam,0.9402225
+B. Linen-Poly/4. Crooked seam/image/B_04_049.jpg,Linen,crooked_seam,crooked_seam,0.929781
+B. Linen-Poly/4. Crooked seam/image/B_04_050.jpg,Linen,crooked_seam,crooked_seam,0.9279608
+B. Linen-Poly/4. Crooked seam/image/B_04_051.jpg,Linen,crooked_seam,crooked_seam,0.9334897
+B. Linen-Poly/4. Crooked seam/image/B_04_052.jpg,Linen,crooked_seam,crooked_seam,0.9433352
+B. Linen-Poly/4. Crooked seam/image/B_04_053.jpg,Linen,crooked_seam,crooked_seam,0.9369336
+B. Linen-Poly/4. Crooked seam/image/B_04_054.jpg,Linen,crooked_seam,crooked_seam,0.922174
+B. Linen-Poly/4. Crooked seam/image/B_04_055.jpg,Linen,crooked_seam,crooked_seam,0.94073874
+B. Linen-Poly/4. Crooked seam/image/B_04_056.jpg,Linen,crooked_seam,crooked_seam,0.93711936
+B. Linen-Poly/4. Crooked seam/image/B_04_057.jpg,Linen,crooked_seam,crooked_seam,0.94099295
+B. Linen-Poly/4. Crooked seam/image/B_04_058.jpg,Linen,crooked_seam,crooked_seam,0.9393248
+B. Linen-Poly/4. Crooked seam/image/B_04_059.jpg,Linen,crooked_seam,crooked_seam,0.9383761
+B. Linen-Poly/4. Crooked seam/image/B_04_060.jpg,Linen,crooked_seam,crooked_seam,0.9387149
+B. Linen-Poly/4. Crooked seam/image/B_04_061.jpg,Linen,crooked_seam,crooked_seam,0.9435896
+B. Linen-Poly/4. Crooked seam/image/B_04_062.jpg,Linen,crooked_seam,crooked_seam,0.9465941
+B. Linen-Poly/4. Crooked seam/image/B_04_063.jpg,Linen,crooked_seam,crooked_seam,0.92894197
+B. Linen-Poly/4. Crooked seam/image/B_04_064.jpg,Linen,crooked_seam,crooked_seam,0.9194704
+B. Linen-Poly/4. Crooked seam/image/B_04_065.jpg,Linen,crooked_seam,crooked_seam,0.8769612
+B. Linen-Poly/4. Crooked seam/image/B_04_066.jpg,Linen,crooked_seam,crooked_seam,0.9321924
+B. Linen-Poly/4. Crooked seam/image/B_04_067.jpg,Linen,crooked_seam,crooked_seam,0.92528677
+B. Linen-Poly/4. Crooked seam/image/B_04_068.jpg,Linen,crooked_seam,crooked_seam,0.9328663
+B. Linen-Poly/4. Crooked seam/image/B_04_069.jpg,Linen,crooked_seam,crooked_seam,0.9319931
+B. Linen-Poly/4. Crooked seam/image/B_04_070.jpg,Linen,crooked_seam,crooked_seam,0.9431071
+B. Linen-Poly/4. Crooked seam/image/B_04_071.jpg,Linen,crooked_seam,crooked_seam,0.9257464
+B. Linen-Poly/4. Crooked seam/image/B_04_072.jpg,Linen,crooked_seam,crooked_seam,0.9314973
+B. Linen-Poly/4. Crooked seam/image/B_04_073.jpg,Linen,crooked_seam,crooked_seam,0.92740834
+B. Linen-Poly/4. Crooked seam/image/B_04_074.jpg,Linen,crooked_seam,crooked_seam,0.94325656
+B. Linen-Poly/4. Crooked seam/image/B_04_075.jpg,Linen,crooked_seam,crooked_seam,0.93616337
+B. Linen-Poly/4. Crooked seam/image/B_04_076.jpg,Linen,crooked_seam,crooked_seam,0.51397985
+B. Linen-Poly/4. Crooked seam/image/B_04_077.jpg,Linen,crooked_seam,crooked_seam,0.9403358
+B. Linen-Poly/4. Crooked seam/image/B_04_078.jpg,Linen,crooked_seam,crooked_seam,0.9276628
+B. Linen-Poly/4. Crooked seam/image/B_04_079.jpg,Linen,crooked_seam,crooked_seam,0.92183125
+B. Linen-Poly/4. Crooked seam/image/B_04_080.jpg,Linen,crooked_seam,crooked_seam,0.93237597
+B. Linen-Poly/4. Crooked seam/image/B_04_081.jpg,Linen,crooked_seam,crooked_seam,0.9206261
+B. Linen-Poly/4. Crooked seam/image/B_04_082.jpg,Linen,crooked_seam,crooked_seam,0.9339477
+B. Linen-Poly/4. Crooked seam/image/B_04_083.jpg,Linen,crooked_seam,crooked_seam,0.93687624
+B. Linen-Poly/4. Crooked seam/image/B_04_084.jpg,Linen,crooked_seam,crooked_seam,0.9379013
+B. Linen-Poly/4. Crooked seam/image/B_04_085.jpg,Linen,crooked_seam,crooked_seam,0.9270728
+B. Linen-Poly/4. Crooked seam/image/B_04_086.jpg,Linen,crooked_seam,crooked_seam,0.9385138
+B. Linen-Poly/4. Crooked seam/image/B_04_087.jpg,Linen,crooked_seam,crooked_seam,0.8635102
+B. Linen-Poly/4. Crooked seam/image/B_04_088.jpg,Linen,crooked_seam,crooked_seam,0.9201948
+B. Linen-Poly/4. Crooked seam/image/B_04_089.jpg,Linen,crooked_seam,crooked_seam,0.9385243
+B. Linen-Poly/4. Crooked seam/image/B_04_090.jpg,Linen,crooked_seam,crooked_seam,0.9377274
+B. Linen-Poly/4. Crooked seam/image/B_04_091.jpg,Linen,crooked_seam,crooked_seam,0.91709805
+B. Linen-Poly/4. Crooked seam/image/B_04_092.jpg,Linen,crooked_seam,crooked_seam,0.9279296
+B. Linen-Poly/4. Crooked seam/image/B_04_093.jpg,Linen,crooked_seam,crooked_seam,0.9271467
+B. Linen-Poly/4. Crooked seam/image/B_04_094.jpg,Linen,crooked_seam,crooked_seam,0.91908073
+B. Linen-Poly/4. Crooked seam/image/B_04_095.jpg,Linen,crooked_seam,crooked_seam,0.91666204
+B. Linen-Poly/4. Crooked seam/image/B_04_096.jpg,Linen,crooked_seam,crooked_seam,0.9191476
+B. Linen-Poly/4. Crooked seam/image/B_04_097.jpg,Linen,crooked_seam,crooked_seam,0.9235579
+B. Linen-Poly/4. Crooked seam/image/B_04_098.jpg,Linen,crooked_seam,crooked_seam,0.8458443
+B. Linen-Poly/4. Crooked seam/image/B_04_099.jpg,Linen,crooked_seam,crooked_seam,0.9303724
+B. Linen-Poly/4. Crooked seam/image/B_04_100.jpg,Linen,crooked_seam,crooked_seam,0.9267854
+B. Linen-Poly/4. Crooked seam/image/B_04_101.jpg,Linen,crooked_seam,crooked_seam,0.93027276
+B. Linen-Poly/4. Crooked seam/image/B_04_102.jpg,Linen,crooked_seam,crooked_seam,0.9315091
+B. Linen-Poly/4. Crooked seam/image/B_04_103.jpg,Linen,crooked_seam,crooked_seam,0.92508024
+B. Linen-Poly/4. Crooked seam/image/B_04_104.jpg,Linen,crooked_seam,crooked_seam,0.9336464
+B. Linen-Poly/4. Crooked seam/image/B_04_105.jpg,Linen,crooked_seam,crooked_seam,0.93220705
+B. Linen-Poly/4. Crooked seam/image/B_04_106.jpg,Linen,crooked_seam,crooked_seam,0.9230797
+B. Linen-Poly/4. Crooked seam/image/B_04_107.jpg,Linen,crooked_seam,crooked_seam,0.9126103
+B. Linen-Poly/4. Crooked seam/image/B_04_108.jpg,Linen,crooked_seam,crooked_seam,0.91272706
+B. Linen-Poly/4. Crooked seam/image/B_04_109.jpg,Linen,crooked_seam,crooked_seam,0.9150957
+B. Linen-Poly/4. Crooked seam/image/B_04_110.jpg,Linen,crooked_seam,crooked_seam,0.9182772
+B. Linen-Poly/4. Crooked seam/image/B_04_111.jpg,Linen,crooked_seam,crooked_seam,0.9102478
+B. Linen-Poly/4. Crooked seam/image/B_04_112.jpg,Linen,crooked_seam,crooked_seam,0.91256046
+B. Linen-Poly/4. Crooked seam/image/B_04_113.jpg,Linen,crooked_seam,crooked_seam,0.9146769
+B. Linen-Poly/4. Crooked seam/image/B_04_114.jpg,Linen,crooked_seam,crooked_seam,0.91170573
+B. Linen-Poly/4. Crooked seam/image/B_04_115.jpg,Linen,crooked_seam,crooked_seam,0.9127377
+B. Linen-Poly/4. Crooked seam/image/B_04_116.jpg,Linen,crooked_seam,crooked_seam,0.90864146
+B. Linen-Poly/4. Crooked seam/image/B_04_117.jpg,Linen,crooked_seam,crooked_seam,0.9174516
+B. Linen-Poly/4. Crooked seam/image/B_04_118.jpg,Linen,crooked_seam,crooked_seam,0.9182477
+B. Linen-Poly/4. Crooked seam/image/B_04_119.jpg,Linen,crooked_seam,crooked_seam,0.91564846
+B. Linen-Poly/4. Crooked seam/image/B_04_120.jpg,Linen,crooked_seam,crooked_seam,0.9303411
+B. Linen-Poly/4. Crooked seam/image/B_04_121.jpg,Linen,crooked_seam,crooked_seam,0.9150556
+B. Linen-Poly/4. Crooked seam/image/B_04_122.jpg,Linen,crooked_seam,crooked_seam,0.9118433
+B. Linen-Poly/4. Crooked seam/image/B_04_123.jpg,Linen,crooked_seam,crooked_seam,0.9320433
+B. Linen-Poly/4. Crooked seam/image/B_04_124.jpg,Linen,crooked_seam,crooked_seam,0.930729
+B. Linen-Poly/4. Crooked seam/image/B_04_125.jpg,Linen,crooked_seam,crooked_seam,0.9320708
+B. Linen-Poly/4. Crooked seam/image/B_04_126.jpg,Linen,crooked_seam,crooked_seam,0.9355233
+B. Linen-Poly/4. Crooked seam/image/B_04_127.jpg,Linen,crooked_seam,crooked_seam,0.93892086
+B. Linen-Poly/4. Crooked seam/image/B_04_128.jpg,Linen,crooked_seam,crooked_seam,0.9340727
+B. Linen-Poly/4. Crooked seam/image/B_04_129.jpg,Linen,crooked_seam,crooked_seam,0.92665064
+B. Linen-Poly/4. Crooked seam/image/B_04_130.jpg,Linen,crooked_seam,crooked_seam,0.9376829
+B. Linen-Poly/7. Stain and damage/image/B_07_001.jpg,Linen,stain_damage,good,0.7133251
+B. Linen-Poly/7. Stain and damage/image/B_07_002.jpg,Linen,stain_damage,good,0.7666245
+B. Linen-Poly/7. Stain and damage/image/B_07_003.jpg,Linen,stain_damage,stain_damage,0.9048285
+B. Linen-Poly/7. Stain and damage/image/B_07_004.jpg,Linen,stain_damage,stain_damage,0.90485615
+B. Linen-Poly/7. Stain and damage/image/B_07_005.jpg,Linen,stain_damage,stain_damage,0.88779736
+B. Linen-Poly/7. Stain and damage/image/B_07_006.jpg,Linen,stain_damage,stain_damage,0.9084437
+B. Linen-Poly/7. Stain and damage/image/B_07_007.jpg,Linen,stain_damage,skipped_stitch,0.8454856
+B. Linen-Poly/7. Stain and damage/image/B_07_008.jpg,Linen,stain_damage,good,0.7472634
+B. Linen-Poly/7. Stain and damage/image/B_07_009.jpg,Linen,stain_damage,skipped_stitch,0.7616752
+B. Linen-Poly/7. Stain and damage/image/B_07_010.jpg,Linen,stain_damage,stain_damage,0.48227835
+B. Linen-Poly/7. Stain and damage/image/B_07_011.jpg,Linen,stain_damage,stain_damage,0.876489
+B. Linen-Poly/7. Stain and damage/image/B_07_012.jpg,Linen,stain_damage,stain_damage,0.78426206
+B. Linen-Poly/7. Stain and damage/image/B_07_013.jpg,Linen,stain_damage,stain_damage,0.85287553
+B. Linen-Poly/7. Stain and damage/image/B_07_014.jpg,Linen,stain_damage,stain_damage,0.85844046
+B. Linen-Poly/7. Stain and damage/image/B_07_015.jpg,Linen,stain_damage,stain_damage,0.90609115
+B. Linen-Poly/7. Stain and damage/image/B_07_016.jpg,Linen,stain_damage,skipped_stitch,0.5021549
+B. Linen-Poly/7. Stain and damage/image/B_07_017.jpg,Linen,stain_damage,stain_damage,0.91847897
+B. Linen-Poly/7. Stain and damage/image/B_07_018.jpg,Linen,stain_damage,stain_damage,0.88755
+B. Linen-Poly/7. Stain and damage/image/B_07_019.jpg,Linen,stain_damage,stain_damage,0.7712302
+B. Linen-Poly/7. Stain and damage/image/B_07_020.jpg,Linen,stain_damage,stain_damage,0.78494304
+B. Linen-Poly/7. Stain and damage/image/B_07_021.jpg,Linen,stain_damage,stain_damage,0.75855994
+B. Linen-Poly/7. Stain and damage/image/B_07_022.jpg,Linen,stain_damage,stain_damage,0.6236128
+B. Linen-Poly/7. Stain and damage/image/B_07_023.jpg,Linen,stain_damage,stain_damage,0.93249565
+B. Linen-Poly/7. Stain and damage/image/B_07_024.jpg,Linen,stain_damage,stain_damage,0.9408001
+B. Linen-Poly/7. Stain and damage/image/B_07_025.jpg,Linen,stain_damage,good,0.4431211
+B. Linen-Poly/7. Stain and damage/image/B_07_026.jpg,Linen,stain_damage,stain_damage,0.8554004
+B. Linen-Poly/7. Stain and damage/image/B_07_027.jpg,Linen,stain_damage,skipped_stitch,0.924562
+B. Linen-Poly/7. Stain and damage/image/B_07_028.jpg,Linen,stain_damage,stain_damage,0.88677406
+B. Linen-Poly/7. Stain and damage/image/B_07_029.jpg,Linen,stain_damage,stain_damage,0.91148937
+B. Linen-Poly/7. Stain and damage/image/B_07_030.jpg,Linen,stain_damage,stain_damage,0.91653585
+B. Linen-Poly/7. Stain and damage/image/B_07_031.jpg,Linen,stain_damage,stain_damage,0.9132709
+B. Linen-Poly/7. Stain and damage/image/B_07_032.jpg,Linen,stain_damage,stain_damage,0.9160564
+B. Linen-Poly/7. Stain and damage/image/B_07_033.jpg,Linen,stain_damage,stain_damage,0.86354166
+B. Linen-Poly/7. Stain and damage/image/B_07_034.jpg,Linen,stain_damage,stain_damage,0.93063325
+B. Linen-Poly/7. Stain and damage/image/B_07_035.jpg,Linen,stain_damage,stain_damage,0.9325143
+B. Linen-Poly/7. Stain and damage/image/B_07_036.jpg,Linen,stain_damage,stain_damage,0.94332415
+B. Linen-Poly/7. Stain and damage/image/B_07_037.jpg,Linen,stain_damage,stain_damage,0.9448976
+B. Linen-Poly/7. Stain and damage/image/B_07_038.jpg,Linen,stain_damage,skipped_stitch,0.8957687
+B. Linen-Poly/7. Stain and damage/image/B_07_039.jpg,Linen,stain_damage,good,0.5913198
+B. Linen-Poly/7. Stain and damage/image/B_07_040.jpg,Linen,stain_damage,good,0.74628025
+B. Linen-Poly/7. Stain and damage/image/B_07_041.jpg,Linen,stain_damage,good,0.84197676
+B. Linen-Poly/7. Stain and damage/image/B_07_042.jpg,Linen,stain_damage,good,0.5862457
+B. Linen-Poly/7. Stain and damage/image/B_07_043.jpg,Linen,stain_damage,good,0.5668286
+B. Linen-Poly/7. Stain and damage/image/B_07_044.jpg,Linen,stain_damage,good,0.8539102
+B. Linen-Poly/7. Stain and damage/image/B_07_045.jpg,Linen,stain_damage,good,0.86397606
+B. Linen-Poly/7. Stain and damage/image/B_07_046.jpg,Linen,stain_damage,good,0.827544
+B. Linen-Poly/7. Stain and damage/image/B_07_047.jpg,Linen,stain_damage,good,0.8529682
+B. Linen-Poly/7. Stain and damage/image/B_07_048.jpg,Linen,stain_damage,good,0.71837604
+B. Linen-Poly/7. Stain and damage/image/B_07_049.jpg,Linen,stain_damage,skipped_stitch,0.8907485
+B. Linen-Poly/7. Stain and damage/image/B_07_050.jpg,Linen,stain_damage,good,0.801782
+B. Linen-Poly/7. Stain and damage/image/B_07_051.jpg,Linen,stain_damage,good,0.49671334
+B. Linen-Poly/7. Stain and damage/image/B_07_052.jpg,Linen,stain_damage,good,0.7591063
+B. Linen-Poly/7. Stain and damage/image/B_07_053.jpg,Linen,stain_damage,stain_damage,0.8420135
+B. Linen-Poly/7. Stain and damage/image/B_07_054.jpg,Linen,stain_damage,good,0.87473756
+B. Linen-Poly/7. Stain and damage/image/B_07_055.jpg,Linen,stain_damage,stain_damage,0.7990654
+B. Linen-Poly/7. Stain and damage/image/B_07_056.jpg,Linen,stain_damage,good,0.5107505
+B. Linen-Poly/7. Stain and damage/image/B_07_057.jpg,Linen,stain_damage,good,0.76138073
+B. Linen-Poly/7. Stain and damage/image/B_07_058.jpg,Linen,stain_damage,stain_damage,0.8179791
+B. Linen-Poly/7. Stain and damage/image/B_07_059.jpg,Linen,stain_damage,stain_damage,0.5636194
+B. Linen-Poly/7. Stain and damage/image/B_07_060.jpg,Linen,stain_damage,skipped_stitch,0.8990854
+B. Linen-Poly/7. Stain and damage/image/B_07_061.jpg,Linen,stain_damage,stain_damage,0.81108505
+B. Linen-Poly/7. Stain and damage/image/B_07_062.jpg,Linen,stain_damage,good,0.8607781
+B. Linen-Poly/7. Stain and damage/image/B_07_063.jpg,Linen,stain_damage,stain_damage,0.8481936
+B. Linen-Poly/7. Stain and damage/image/B_07_064.jpg,Linen,stain_damage,good,0.66542214
+B. Linen-Poly/7. Stain and damage/image/B_07_065.jpg,Linen,stain_damage,good,0.51958776
+B. Linen-Poly/7. Stain and damage/image/B_07_066.jpg,Linen,stain_damage,skipped_stitch,0.773802
+B. Linen-Poly/7. Stain and damage/image/B_07_067.jpg,Linen,stain_damage,stain_damage,0.8989854
+B. Linen-Poly/7. Stain and damage/image/B_07_068.jpg,Linen,stain_damage,stain_damage,0.91181403
+B. Linen-Poly/7. Stain and damage/image/B_07_069.jpg,Linen,stain_damage,stain_damage,0.91253585
+B. Linen-Poly/7. Stain and damage/image/B_07_070.jpg,Linen,stain_damage,stain_damage,0.88328826
+B. Linen-Poly/7. Stain and damage/image/B_07_071.jpg,Linen,stain_damage,good,0.68523824
+B. Linen-Poly/7. Stain and damage/image/B_07_072.jpg,Linen,stain_damage,stain_damage,0.90094125
+B. Linen-Poly/7. Stain and damage/image/B_07_073.jpg,Linen,stain_damage,stain_damage,0.91768044
+B. Linen-Poly/7. Stain and damage/image/B_07_074.jpg,Linen,stain_damage,stain_damage,0.92081416
+B. Linen-Poly/7. Stain and damage/image/B_07_075.jpg,Linen,stain_damage,stain_damage,0.92358756
+B. Linen-Poly/7. Stain and damage/image/B_07_076.jpg,Linen,stain_damage,stain_damage,0.90465575
+B. Linen-Poly/7. Stain and damage/image/B_07_077.jpg,Linen,stain_damage,stain_damage,0.90661055
+B. Linen-Poly/7. Stain and damage/image/B_07_078.jpg,Linen,stain_damage,stain_damage,0.889708
+B. Linen-Poly/7. Stain and damage/image/B_07_079.jpg,Linen,stain_damage,stain_damage,0.92000216
+B. Linen-Poly/7. Stain and damage/image/B_07_080.jpg,Linen,stain_damage,stain_damage,0.9217002
+B. Linen-Poly/7. Stain and damage/image/B_07_081.jpg,Linen,stain_damage,stain_damage,0.86982787
+B. Linen-Poly/7. Stain and damage/image/B_07_082.jpg,Linen,stain_damage,good,0.79693514
+B. Linen-Poly/7. Stain and damage/image/B_07_083.jpg,Linen,stain_damage,stain_damage,0.8430068
+B. Linen-Poly/7. Stain and damage/image/B_07_084.jpg,Linen,stain_damage,stain_damage,0.83075786
+B. Linen-Poly/7. Stain and damage/image/B_07_085.jpg,Linen,stain_damage,stain_damage,0.83588624
+B. Linen-Poly/7. Stain and damage/image/B_07_086.jpg,Linen,stain_damage,stain_damage,0.8546113
+B. Linen-Poly/7. Stain and damage/image/B_07_087.jpg,Linen,stain_damage,stain_damage,0.90151656
+B. Linen-Poly/7. Stain and damage/image/B_07_088.jpg,Linen,stain_damage,stain_damage,0.90276134
+B. Linen-Poly/7. Stain and damage/image/B_07_089.jpg,Linen,stain_damage,stain_damage,0.7699926
+B. Linen-Poly/7. Stain and damage/image/B_07_090.jpg,Linen,stain_damage,stain_damage,0.5339966
+B. Linen-Poly/7. Stain and damage/image/B_07_091.jpg,Linen,stain_damage,stain_damage,0.76132876
+B. Linen-Poly/7. Stain and damage/image/B_07_092.jpg,Linen,stain_damage,stain_damage,0.57623374
+B. Linen-Poly/7. Stain and damage/image/B_07_093.jpg,Linen,stain_damage,good,0.6121351
+B. Linen-Poly/7. Stain and damage/image/B_07_094.jpg,Linen,stain_damage,stain_damage,0.85208887
+B. Linen-Poly/7. Stain and damage/image/B_07_095.jpg,Linen,stain_damage,stain_damage,0.9044481
+B. Linen-Poly/7. Stain and damage/image/B_07_096.jpg,Linen,stain_damage,stain_damage,0.8426114
+B. Linen-Poly/7. Stain and damage/image/B_07_097.jpg,Linen,stain_damage,stain_damage,0.9036312
+B. Linen-Poly/7. Stain and damage/image/B_07_098.jpg,Linen,stain_damage,stain_damage,0.9114939
+B. Linen-Poly/7. Stain and damage/image/B_07_099.jpg,Linen,stain_damage,stain_damage,0.9027409
+B. Linen-Poly/7. Stain and damage/image/B_07_100.jpg,Linen,stain_damage,stain_damage,0.8320199
+B. Linen-Poly/7. Stain and damage/image/B_07_101.jpg,Linen,stain_damage,stain_damage,0.8826414
+B. Linen-Poly/7. Stain and damage/image/B_07_102.jpg,Linen,stain_damage,stain_damage,0.88437766
+B. Linen-Poly/7. Stain and damage/image/B_07_103.jpg,Linen,stain_damage,stain_damage,0.91739064
