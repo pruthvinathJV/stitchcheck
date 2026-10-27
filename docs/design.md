@@ -16,7 +16,7 @@
 
 **Training fabrics.** Benchmark numbers on StitchingNet come from the classifier trained on 8 fabrics. The demo and the phone test set use it retrained on all 11 fabrics. Every reported number says which one produced it (8 or 11 fabrics).
 
-**Per-fabric difficulty (holdout runs).** The classifier is also trained 8 more times, each time holding out one of the 8 training fabrics as validation and training on the other 7. This gives per-fabric recall without touching the test fabrics. It does not change the main split.
+**Per-fabric difficulty (holdout runs, if compute allows).** The classifier is also trained 8 more times, each time holding out one of the 8 training fabrics as validation and training on the other 7. This gives per-fabric recall without touching the test fabrics. It does not change the main split.
 
 **Phone test set.** Sewn and photographed by a tailor in Kadiri, Andhra Pradesh, on locally bought shirting cotton. Three shirting cottons (white, dark, checks). Seven seam types: good, skipped, broken, crooked, puckering, stain, and open seam (an unseen defect). It is the only puckering test set: pairs `{fabric}-5-1` and `{fabric}-5-2` (6 pairs, 24 photos). Per fabric the tailor sews 5 good pairs, 3 pairs each of skipped stitch, broken stitch and puckering, and 2 pairs each of crooked seam, stain and open seam (20 pairs per fabric; 60 pairs, 240 photos). The last good pair and the last puckering pair of each fabric are reference pairs (below), so the test set is 54 pairs, 216 photos: per fabric 4 good, 3 skipped, 3 broken and 2 of every other type. Each sewn pair is photographed at four chalk marks (10, 25, 40 and 55 cm along the seam), top-down, in daylight. Photos arrive on WhatsApp as Documents: one text tag per pair, `{fabric}-{type}-{pair}` (e.g. `B-3-2`), followed by exactly 4 photos in chalk-mark order. Ingest warns on any tag without exactly 4 photos, duplicate tags, unknown tags and missing tags (`src/stitchcheck/phone/ingest.py`). Pair A-1-1 is sent first as a quality check and can be ingested and reviewed on its own. Broken stitch, crooked seam, stain and open seam are made at every chalk mark. Skipped stitch and puckering run along the whole seam, so a mark may show no visible defect; those photos are reviewed one by one and relabelled as good or rejected. All phone-set confidence intervals come from a bootstrap that resamples whole pairs, not single photos, because photos of the same pair are correlated. The phone set is never used for training or tuning.
 
@@ -65,9 +65,13 @@ Also reported:
 Training settings are chosen without the test fabrics, in two stages:
 
 1. **Screen on Linen.** The classifier is trained with each candidate setting and scored on Linen validation macro-F1 (`scripts/train/sweep_stage1.sh`). Candidates: augmentation (brightness/contrast only; plus colour, grayscale and blur; TrivialAugment), learning rate, a 10x lower backbone learning rate, and architecture (EfficientNet-B0, MobileNetV3-Large, ConvNeXt-Tiny). The baseline is also rerun with a second seed, so a difference smaller than the run-to-run noise is not treated as real.
-2. **Confirm on more fabrics.** The top 3 settings are retrained with 3 training fabrics held out in turn (train on the other 7). The winner has the best mean macro-F1 across Linen and those 3 fabrics, which guards against settings that only suit Linen. Ties go to the smaller, faster model.
+2. **Second seed.** The top 3 settings by their first-seed Linen macro-F1 are trained again with a second seed (the baseline already has one) (`scripts/train/stage2.py`, `stage2.sh`). The winner has the best mean Linen macro-F1 over the two seeds; ties go to the smaller model. The search then stops.
 
-The winning setting is recorded here, then used for the final model, the per-fabric holdout runs and the 11-fabric retrain. The test fabrics are scored once, with that setting. All runs are summarised in `results/classifier/runs_summary.csv`.
+*Amended Oct 27, after Stage 1 had partly run and before any test-set run.* The original Stage 2 retrained the top 3 on three held-out training fabrics. Two runs of the baseline with different seeds scored 0.53 and 0.78 on Linen, so seed noise is larger than most differences between settings, and a second seed per setting was judged a better use of the remaining compute.
+
+**Demo model.** The winning setting is trained on all 11 fabrics (CC BY only, 7,148 images) with no validation fabric; its weights are those after the last epoch. It serves the app and the phone test set. StitchingNet test-fabric numbers come from the 8-fabric model with the same setting, scored once.
+
+**Chosen setting:** recorded here when Stage 2 finishes, before any test-set run (`results/classifier/selection.json`).
 
 ## Muse Spark settings (chosen on validation, before any test-set run)
 
