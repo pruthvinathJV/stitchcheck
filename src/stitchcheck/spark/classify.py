@@ -27,6 +27,21 @@ ZERO_SHOT_PROMPT = (
     "- unknown_defect: a defect that fits none of the above\n"
     'Reply with only JSON: {"label": "<label>", "reason": "<one short sentence>"}'
 )
+# The single prompt revision tested on Linen (docs/design.md): visual definitions for each label.
+VISUAL_PROMPT = (
+    "You are a garment quality inspector. The image is a close-up of a sewn seam.\n"
+    "Classify it with exactly one label:\n"
+    "- good: stitches evenly spaced and the same length along the whole line, thread lying flat in the fabric\n"
+    "- skipped_stitch: one or more stitches visibly longer than their neighbours, the thread floating over the "
+    "fabric where stitches are missing; the line itself stays straight\n"
+    "- broken_stitch: the thread is cut or snapped, the stitch line stops with a gap and loose thread ends\n"
+    "- crooked_seam: the stitch line bends or wanders away from a straight path while stitch lengths stay even\n"
+    "- puckering: the fabric is gathered, rippled or wrinkled along the seam\n"
+    "- stain_damage: a mark, discolouration, dirt, hole or other damage on the fabric near the seam, "
+    "whatever the stitches look like\n"
+    "- unknown_defect: a defect that fits none of the above\n"
+    'Reply with only JSON: {"label": "<label>", "reason": "<one short sentence>"}'
+)
 FEW_SHOT_NOTE = (
     "\nBefore the image to inspect you get labelled reference close-ups of seams. They may be on a different fabric "
     "from the image to inspect. Compare the stitch line against them; classify only the last image."
