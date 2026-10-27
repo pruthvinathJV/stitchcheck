@@ -55,7 +55,7 @@ Also reported:
 ## Systems compared
 
 - **(A)** Zero-shot Muse Spark.
-- **(B)** Few-shot Muse Spark with k=1 and k=3 good-seam references from the same fabric.
+- **(B)** Few-shot Muse Spark with one good-seam reference (k=1; design chosen on Linen, see Muse Spark settings), from the same fabric where possible.
 - **(C)** Fine-tuned classifier (five classes, CC BY data).
 - **(D)** Hybrid: Muse Spark calling the classifier as a tool, and judging puckering itself few-shot (phone set only).
 - **(E, optional)** Muse Spark Open (open weights) on Modal Endpoints, with the same prompts, image size, few-shot references and test subset as the Muse Spark arms. Whether it runs is decided on Day 4. Its results go in the main table only if it runs on the full subset; a partial run is reported separately and labelled as partial.
@@ -100,6 +100,23 @@ Frozen BatchNorm is the base setting for Stage 1 and Stage 2 (`scripts/cloud/job
 An earlier run of this check (150 images) included 25 CC BY-NC puckering images. It was rerun on CC BY images only, before any test-set run, and gave the same choice.
 
 The benchmark and the app use the same setting. Before the few-shot and hybrid arms run on test data, the effort level is rechecked for them on the same validation sample, because comparing against a reference may need more reasoning.
+
+**Few-shot design: one good-seam reference, minimal effort** (chosen Oct 27, before any test-set run). Same 125 Linen images, 448 px, one image to inspect per request (`scripts/val/spark_fewshot.py`, `results/val/spark_fewshot_*.csv`). References come from the training fabrics only: the query's fabric when it is a training fabric, otherwise one training fabric drawn with the seed (Satin for every Linen query). Paired image bootstrap, 95% CIs:
+
+| design | effort | macro-F1 | skipped recall | skipped called good | major recall | median s | input / output tokens |
+|---|---|---|---|---|---|---|---|
+| zero-shot | minimal | 0.582 | 0.00 | 0.40 | 0.707 | 1.10 | 415 / 156 |
+| good reference | minimal | 0.587 | 0.00 | 0.20 | 0.787 | 0.95 | 720 / 129 |
+| good + 1 per defect | minimal | 0.594 | 0.00 | 0.24 | 0.733 | 0.94 | 1,772 / 118 |
+| good + 1 per defect | low | 0.610 | 0.00 | 0.28 | 0.773 | 1.73 | 1,772 / 405 |
+
+- Major-defect recall vs zero-shot: good reference +0.080 (0.026 to 0.143); good + defects minimal +0.027 (-0.049 to 0.101); good + defects low +0.067 (0.000 to 0.137).
+- Good + defects at low effort vs good reference: major recall -0.013 (-0.073 to 0.045), macro-F1 +0.022 (-0.006 to 0.054). Low vs minimal effort for good + defects: macro-F1 +0.015 (-0.019 to 0.055).
+- The good reference is the only design that beats zero-shot on the headline metric with a CI above zero, and the larger designs do not beat it, at up to 1.8 times the latency and 2.5 times the input tokens. Arm B is therefore one good reference (k=1); the earlier k=3 variant is dropped.
+- No design names a skipped stitch: Spark calls them crooked seams or good in every design. Defect examples halve "called good" (0.40 to 0.24) but do not teach the class. Skipped stitches are left to the classifier tool in the hybrid arm, and this is reported as a Spark failure mode.
+- Limits: one validation fabric, 25 images per class, and one fixed reference set; differences of a few points are within noise.
+
+**Puckering** cannot be checked here: there is no CC BY puckering data. The puckering prompt and its few-shot references are finalised only when the Kadiri {F}-5-3 reference pairs arrive, before the phone test pairs are scored.
 
 ## SAM 3.1: garment part and seam localisation
 
