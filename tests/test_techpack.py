@@ -73,3 +73,67 @@ def test_scoring_counts_correct_fields_hallucinated_rows_and_flags():
 def test_wilson():
     lo, hi = wilson(90, 100)
     assert 0.82 < lo < 0.84 and 0.94 < hi < 0.95
+
+
+GT_SEEN = Path(__file__).parents[1] / "data" / "techpack" / "ground_truth_seen.json"
+
+
+def perfect(gt):
+    """The extraction a flawless reader would return for a ground-truth sheet."""
+    import json as _json
+    f = lambda v: field(v, "ok" if v is not None else "missing")
+    op = lambda o: {"part_as_written": o["part"].replace("_", " "), "operation": o["operation"], "stitch_type": o["stitch_type"],
+                    "spi_target": o["spi_target"], "spi_tolerance": o["spi_tolerance"], "seam_allowance_mm": o["seam_allowance_mm"],
+                    "critical": o["critical"], "status": "ok", "source": "row"}
+    sev = lambda r, s: {"text_as_written": r["text"], "meaning_en": r.get("meaning", r["text"]), "defect": r["defect"],
+                        "location": r["location"], "severity": s, "source": "rule"}
+    return {"plan": _json.loads(_json.dumps({
+        "header": {k: f(gt[k]) for k in ["buyer", "style_no", "style_name", "fabric", "color", "thread"]},
+        "operations": [op(o) for o in gt["operations"]],
+        "aql": {"inspection_level": field(f"General Inspection Level {gt['aql']['inspection_level']}"),
+                **{k: field(gt["aql"][k]) for k in ("critical", "major", "minor")}},
+        "severity_rules": [sev(r, r["severity"].split("/")[0].strip()) for r in gt["severity_rules"]],
+        "general_notes": [], "handwritten_changes": [{"field": c, "printed": "", "written": "", "source": ""} for c in gt.get("handwritten_corrections", [])],
+        "out_of_scope": gt["out_of_scope"]}))}
+
+
+def test_a_perfect_extraction_scores_full_marks_on_every_seen_sheet():
+    import json as _json
+    for gt in _json.loads(GT_SEEN.read_text()):
+        df, s = score_sheet(gt, perfect(gt))
+        assert s["correct"] == s["fields"] and s["hallucinations"] == 0, (gt["sheet_id"], df[~df["correct"]])
+        assert s["missing_flagged"] == s["missing"] and s["unsupported_flagged"] == s["unsupported"]
+        assert s["rules_matched"] == s["rules"] and s["handwritten_listed"] == s["handwritten"]
+
+
+def test_values_where_the_sheet_gives_none_are_hallucinations_not_wrong_values():
+    import json as _json
+    gt = next(g for g in _json.loads(GT_SEEN.read_text()) if g["sheet_id"] == "TP-05")  # thread is TBC
+    ext = perfect(gt)
+    ext["plan"]["header"]["thread"] = field("Tex 40")      # invented
+    ext["plan"]["operations"][0]["spi_target"] = 12        # wrong (sheet says 10)
+    ext["plan"]["operations"][1]["seam_allowance_mm"] = None  # omitted
+    gt = _json.loads(_json.dumps(gt))
+    gt["operations"][2]["critical"] = None                 # pretend the sheet leaves this blank
+    _, s = score_sheet(gt, ext)
+    assert (s["hallucinated_fields"], s["wrong"], s["omitted"]) == (2, 1, 1)
+    assert any("header.thread" in h for h in s["hallucination_items"]) and any("critical" in h for h in s["hallucination_items"])
+
+
+def test_cli_takes_an_unseen_truth_file_with_no_code_changes(tmp_path, monkeypatch):
+    import json as _json
+    import score as score_mod
+    seen = _json.loads(GT_SEEN.read_text())
+    unseen = [dict(seen[0], sheet_id="TP-06"), dict(seen[3], sheet_id="TP-07")]  # same shape as the seen file
+    (tmp_path / "ground_truth_unseen.json").write_text(_json.dumps(unseen))
+    ext_dir = tmp_path / "extractions"
+    ext_dir.mkdir()
+    for g in seen + unseen:
+        (ext_dir / f"{g['sheet_id']}.json").write_text(_json.dumps(perfect(g)))
+    monkeypatch.setattr(score_mod, "EXTRACTIONS", ext_dir)
+    monkeypatch.setattr(score_mod, "OUT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["score", "--truth", str(GT_SEEN), str(tmp_path / "ground_truth_unseen.json")])
+    score_mod.main()
+    summary = _json.loads((tmp_path / "score_summary.json").read_text())
+    assert summary["unseen"]["sheets"] == ["TP-06", "TP-07"] and summary["unseen"]["field_accuracy"] == 1.0
+    assert summary["seen"]["hallucinations"] == 0 and summary["unseen"]["hallucinated_values"] == 0

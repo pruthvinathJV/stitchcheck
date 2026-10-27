@@ -63,6 +63,17 @@ def match_operations(gt_ops, ops):
     return pairs, [ops[i] for i in free]
 
 
+def outcome(truth, got, correct):
+    """correct; hallucinated: a value where the sheet gives none; omitted: no value where it gives one; wrong."""
+    if correct:
+        return "correct"
+    if truth is None and got is not None:
+        return "hallucinated"
+    if got is None:
+        return "omitted"
+    return "wrong"
+
+
 def severity_set(text):
     return {s.strip() for s in str(text).split("/")}
 
@@ -75,8 +86,6 @@ def score_sheet(gt, ext):
         got = plan["header"][k]["value"]
         rows.append(dict(field=f"header.{k}", truth=gt.get(gk), got=got, correct=same(gt.get(gk), got),
                          lenient=gt.get(gk) is not None and got is not None and token_f1(gt[gk], got) >= 0.8))
-        if gt.get(gk) is None and got is not None:
-            halluc.append(f"header.{k}={got!r} where the sheet gives none")
     for k in ("inspection_level", "critical", "major", "minor"):
         got = plan["aql"][k]["value"]
         truth = gt["aql"][k]
@@ -90,6 +99,10 @@ def score_sheet(gt, ext):
             got = op[f] if op else None
             rows.append(dict(field=f"{name}.{f}", truth=g[f], got=got, correct=op is not None and same(g[f], got),
                              lenient=op is not None and same(g[f], got)))
+    for r in rows:  # from the raw values, so a None never becomes NaN
+        r["outcome"] = "omitted" if r["field"].endswith(".found") and not r["correct"] else outcome(r["truth"], r["got"], r["correct"])
+    df = pd.DataFrame(rows)
+    halluc += [f"{f}={g!r} where the sheet gives none" for f, g in df.loc[df["outcome"] == "hallucinated", ["field", "got"]].values]
     halluc += [f"operation row not on the sheet: {op['part_as_written']!r} {op['operation']!r}" for op in extra]
     rules, matched = list(plan["severity_rules"]), 0
     for g in gt["severity_rules"]:
@@ -103,8 +116,10 @@ def score_sheet(gt, ext):
     gt_unsup = [u.split(" ")[0] for u in gt.get("unsupported_by_app", [])]
     unsup_flagged = sum(any(u in x for x in v["unsupported"]) for u in gt_unsup)
     hand_truth = gt.get("handwritten_corrections", [])
-    df = pd.DataFrame(rows)
+    n = df["outcome"].value_counts()
     return df, dict(fields=len(df), correct=int(df["correct"].sum()), lenient=int(df["lenient"].sum()),
+                    wrong=int(n.get("wrong", 0)), omitted=int(n.get("omitted", 0)),
+                    hallucinated_fields=int(n.get("hallucinated", 0)), extra_rows=len(extra), extra_rules=len(rules),
                     rules=len(gt["severity_rules"]), rules_matched=matched, hallucinations=len(halluc),
                     hallucination_items=halluc, missing=len(gt_missing), missing_flagged=missing_flagged,
                     unsupported=len(gt_unsup), unsupported_flagged=unsup_flagged,
@@ -146,6 +161,9 @@ def main():
         summary[group] = dict(sheets=list(g["sheet"]), field_accuracy=round(k / n, 3), field_accuracy_ci=wilson(k, n),
                               fields=n, lenient_accuracy=round(int(g["lenient"].sum()) / n, 3),
                               rule_recall=f"{int(g['rules_matched'].sum())}/{int(g['rules'].sum())}",
+                              wrong_values=int(g["wrong"].sum()), omitted_values=int(g["omitted"].sum()),
+                              hallucinated_values=int(g["hallucinated_fields"].sum()),
+                              hallucinated_rows=int(g["extra_rows"].sum()), hallucinated_rules=int(g["extra_rules"].sum()),
                               hallucinations=int(g["hallucinations"].sum()),
                               hallucination_items=[x for items in g["hallucination_items"] for x in items],
                               missing_flagged=f"{int(g['missing_flagged'].sum())}/{int(g['missing'].sum())}",

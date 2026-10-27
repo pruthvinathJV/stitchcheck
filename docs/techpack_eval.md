@@ -45,6 +45,8 @@ A field is correct when it equals the ground truth after normalisation (lower ca
 
 - **Headline 1: field accuracy** on the unseen group, with a 95% Wilson interval. Fields on one sheet are not independent, so the interval is narrower than it should be.
 - **Headline 2: hallucinations**, counted: a value given where the sheet has none, an operation row that is not on the sheet, a severity rule that is not on the sheet. Target: zero.
+- Every scored field also gets one outcome, counted separately per group: correct; **wrong** (the sheet gives a value, a different one came back); **omitted** (the sheet gives a value, none came back); **hallucinated** (the sheet gives none, a value came back).
+- *Scorer fix, Oct 27, before any extraction was run:* the first committed scorer counted a value where the sheet gives none as a hallucination only for header fields; for AQL and operation fields it counted only as a wrong field. It now applies the definition above to every field, as this document already said. Tests: a perfect extraction built from each seen ground-truth sheet scores full marks with no hallucination, and the scorer takes a second truth file (`data/techpack/ground_truth_unseen.json`, same format as the seen file) with no code change.
 - Secondary: severity-rule recall (same defect label and a severity the rule allows); missing fields flagged; unsupported values flagged by validation; handwritten corrections listed; lenient accuracy for text fields (token F1 at least 0.8); unmapped part names; latency and tokens per sheet.
 
 ## Limits
