@@ -1,0 +1,15 @@
+{
+  "setting": "bnf-s6-strong-lr2e-4",
+  "arch": "convnext_tiny",
+  "aug": "strong",
+  "lr": 0.0002,
+  "backbone_lr_mult": 1.0,
+  "freeze_bn": true,
+  "macro_f1_mean": 0.9600500000000001,
+  "best_epochs": [
+    9,
+    9
+  ],
+  "stop_after": 9,
+  "selected_on": "Linen validation, seeds 0 and 1"
+}

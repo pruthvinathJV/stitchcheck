@@ -82,11 +82,19 @@ Frozen BatchNorm is the base setting for Stage 1 and Stage 2 (`scripts/cloud/job
 
 **Final models are 3-seed ensembles** (mean of softmax). The 8-fabric benchmark model is the winning setting with seeds 0, 1 and 2; its report gives each seed's Linen macro-F1 and the ensemble's.
 
-*Fixed epoch count (added Oct 27, before any test-set run).* Picking each run's best epoch on Linen uses Linen twice, and the demo model has no Linen to pick on. So N = the median best epoch over every seed of the winning setting from the search, rounded to the nearest whole epoch (.5 rounds up). Every final model, the 3 benchmark seeds and the 3 demo seeds, is trained from scratch on the usual 12-epoch learning-rate schedule, stopped after epoch N, and the epoch-N weights are kept (`--stop-after N`; `scripts/train/stage2.py final`). Stopping inside the 12-epoch schedule, instead of shortening the schedule to N epochs, keeps the final models the same as the runs whose best epochs set N. The benchmark ensemble's Linen macro-F1 at epoch N is reported as optimistic, because the setting and N were both chosen on Linen. N: recorded here when Stage 2 finishes. The demo model is the winning setting on all 11 fabrics with seeds 0, 1 and 2. Safety check: each demo seed must agree with the benchmark ensemble on at least 90% of Linen predictions (`scripts/train/ensemble.py`). Linen is in the demo model's training data, so this is not a score, only a check that no seed went bad.
+*Fixed epoch count (added Oct 27, before any test-set run).* Picking each run's best epoch on Linen uses Linen twice, and the demo model has no Linen to pick on. So N = the median best epoch over every seed of the winning setting from the search, rounded to the nearest whole epoch (.5 rounds up). Every final model, the 3 benchmark seeds and the 3 demo seeds, is trained from scratch on the usual 12-epoch learning-rate schedule, stopped after epoch N, and the epoch-N weights are kept (`--stop-after N`; `scripts/train/stage2.py final`). Stopping inside the 12-epoch schedule, instead of shortening the schedule to N epochs, keeps the final models the same as the runs whose best epochs set N. The benchmark ensemble's Linen macro-F1 at epoch N is reported as optimistic, because the setting and N were both chosen on Linen. **N = 9**: the winning setting's two search runs both had their best Linen epoch at 9. The demo model is the winning setting on all 11 fabrics with seeds 0, 1 and 2. Safety check: each demo seed must agree with the benchmark ensemble on at least 90% of Linen predictions (`scripts/train/ensemble.py`). Linen is in the demo model's training data, so this is not a score, only a check that no seed went bad.
 
 **Demo model.** The winning setting is trained on all 11 fabrics (CC BY only, 7,148 images) with no validation fabric; its weights are those after the last epoch. It serves the app and the phone test set. StitchingNet test-fabric numbers come from the 8-fabric model with the same setting, scored once.
 
-**Chosen setting:** recorded here when Stage 2 finishes, before any test-set run (`results/classifier/selection.json`).
+**Chosen setting** (Stage 2, Oct 27, before any test-set run; `results/classifier/stage2_selection.csv`, `selection.json`): **ConvNeXt-Tiny, strong augmentation, lr 2e-4**, 12-epoch schedule, label smoothing 0.1. Linen macro-F1 by seed, best epoch:
+
+| setting | seed 0 | seed 1 | mean |
+|---|---|---|---|
+| ConvNeXt-Tiny, strong aug, lr 2e-4 | 0.958 | 0.962 | **0.960** |
+| EfficientNet-B0, strong aug, lr 2e-4 | 0.894 | 0.881 | 0.888 |
+| EfficientNet-B0, strong aug, lr 5e-4 | 0.881 | 0.892 | 0.886 |
+
+Stage 1 seed-0 scores for the other settings: EfficientNet-B0 with TrivialAugment 0.877, baseline 0.862, MobileNetV3-Large with strong aug 0.832, EfficientNet-B0 with a 10x lower backbone lr 0.819. ConvNeXt-Tiny uses LayerNorm, so frozen BatchNorm does not apply to it; its lead comes from the architecture and learning rate. It is the largest candidate (28.6M parameters vs 5.3M); latency on CPU is measured at export.
 
 ## Muse Spark settings (chosen on validation, before any test-set run)
 

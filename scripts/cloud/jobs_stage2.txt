@@ -1,0 +1,4 @@
+# Stage 2: second seed for the top 3 Stage 1 settings (printed by scripts/train/stage2.py top3).
+--variant clean --arch convnext_tiny --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --seed 1 --tag bnf-s6-strong-lr2e-4-seed1 --workers 8
+--variant clean --arch efficientnet_b0 --aug strong --lr 0.0002 --backbone-lr-mult 1.0 --freeze-bn --seed 1 --tag bnf-s3-strong-lr2e-4-seed1 --workers 8
+--variant clean --arch efficientnet_b0 --aug strong --lr 0.0005 --backbone-lr-mult 1.0 --freeze-bn --seed 1 --tag bnf-s1-strong-seed1 --workers 8

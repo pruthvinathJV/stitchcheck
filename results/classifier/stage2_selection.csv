@@ -1,0 +1,4 @@
+setting,arch,aug,lr,backbone_lr_mult,freeze_bn,seeds,macro_f1_mean,macro_f1_runs,best_epochs,params_m,stop_after
+bnf-s6-strong-lr2e-4,convnext_tiny,strong,0.0002,1.0,True,"[0, 1]",0.9600500000000001,"[0.9579, 0.9622]","[9, 9]",28.6,9
+bnf-s3-strong-lr2e-4,efficientnet_b0,strong,0.0002,1.0,True,"[0, 1]",0.88765,"[0.8939, 0.8814]","[9, 9]",5.3,9
+bnf-s1-strong,efficientnet_b0,strong,0.0005,1.0,True,"[0, 1]",0.8863000000000001,"[0.8806, 0.892]","[5, 10]",5.3,8
