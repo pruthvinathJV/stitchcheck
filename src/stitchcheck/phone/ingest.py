@@ -1,13 +1,13 @@
 """Ingest the tailor's phone photos into a labelled manifest.
 
-Capture protocol (final): 3 shirting cottons (A white, B dark, C checks) x 7 seam types. Per fabric: 4 good pairs,
-3 skipped, 3 broken, 2 each of crooked, puckering, stain and open seam = 18 test pairs; 54 pairs, 216 photos.
+Capture protocol (final): 3 shirting cottons (A white, B dark, C checks) x 7 seam types. Per fabric: 5 good pairs,
+3 skipped, 3 broken, 3 puckering, 2 each of crooked, stain and open seam = 20 pairs; 60 pairs, 240 photos.
 Each pair is announced by one WhatsApp text tag "<fabric>-<type>-<pair>" (e.g. "B-3-2"), followed by exactly
 4 photos sent as Documents, in chalk-mark order (10, 25, 40, 55 cm along the seam).
 
-Reference pairs come last, tagged "<fabric>-1-REF" (good) and "<fabric>-5-REF" (puckering): 6 pairs, 24 photos.
-They are used for few-shot references and seam-threshold calibration, never for test metrics, so they go to
-their own folder and manifest: <out>/ref/.
+The last good pair and the last puckering pair of each fabric ("<fabric>-1-5", "<fabric>-5-3") are reference
+pairs: 6 pairs, 24 photos. They are used for few-shot references and seam-threshold calibration, never for test
+metrics, so they go to their own folder and manifest: <out>/ref/. The other 54 pairs (216 photos) are the test set.
 
 Inputs (either):
   WhatsApp "Export chat" with media, unzipped or as .zip (iOS `_chat.txt` or Android `WhatsApp Chat with *.txt`)
@@ -37,8 +37,8 @@ from PIL import Image, ImageOps
 FABRICS = {"A": "white", "B": "dark", "C": "checks"}
 TYPES = {1: "good", 2: "skipped_stitch", 3: "broken_stitch", 4: "crooked_seam",
          5: "puckering", 6: "stain_damage", 7: "open_seam"}  # 7 is the unseen-defect probe
-PAIRS_PER_TYPE = {1: 4, 2: 3, 3: 3, 4: 2, 5: 2, 6: 2, 7: 2}
-REF_TYPES = (1, 5)  # one reference pair per fabric: good, puckering
+PAIRS_PER_TYPE = {1: 5, 2: 3, 3: 3, 4: 2, 5: 3, 6: 2, 7: 2}
+REF_PAIR = {1: 5, 5: 3}  # per fabric, these pairs of good and puckering are references, never test
 # Skipped stitch and puckering run along the whole seam, so a given chalk mark may not show them.
 # The other defects are made at every chalk mark.
 WHOLE_SEAM_TYPES = {2, 5}
@@ -47,12 +47,12 @@ PHOTOS_PER_PAIR = len(CHALK_MARKS_CM)
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".heic", ".webp"}
 
 
-TEST_TAGS = [f"{f}-{t}-{p}" for f in FABRICS for t in TYPES for p in range(1, PAIRS_PER_TYPE[t] + 1)]
-REF_TAGS = [f"{f}-{t}-REF" for f in FABRICS for t in REF_TYPES]
-EXPECTED_TAGS = TEST_TAGS + REF_TAGS  # in the order the tailor sends them
+EXPECTED_TAGS = [f"{f}-{t}-{p}" for f in FABRICS for t in TYPES for p in range(1, PAIRS_PER_TYPE[t] + 1)]
+REF_TAGS = [t for t in EXPECTED_TAGS if REF_PAIR.get(int(t.split("-")[1])) == int(t.split("-")[2])]
+TEST_TAGS = [t for t in EXPECTED_TAGS if t not in REF_TAGS]
 
 # Anything that looks like a tag (letter-number[-suffix]); checked against EXPECTED_TAGS afterwards,
-# so typos like "A-1" or "A-5-REFX" are reported as unknown rather than silently matched.
+# so typos like "A-1" or "A-1-REF" are reported as unknown rather than silently matched.
 TAG_LIKE = re.compile(r"(?<![A-Za-z0-9])([A-Za-z])\s*[-–]\s*(\d{1,2})(?:\s*[-–]\s*([A-Za-z0-9]+))?(?![A-Za-z0-9])")
 # iOS:     [28/10/26, 7:12:03 PM] Name: text        attachment: <attached: 00000012-IMG_1234.jpg>
 # Android: 28/10/26, 7:12 pm - Name: text           attachment: IMG_1234.jpg (file attached)
@@ -161,8 +161,8 @@ def label_photos(photos, expected=EXPECTED_TAGS):
         if len(items) != PHOTOS_PER_PAIR:
             warnings.append(f"{tag}: {len(items)} photos, expected {PHOTOS_PER_PAIR}; chalk marks may be off")
         fabric, type_id, pair = tag.split("-")
-        type_id, ref = int(type_id), pair == "REF"
-        pair_id = f"{fabric}{type_id}-REF" if ref else f"{fabric}{type_id}-p{pair}"
+        type_id, ref = int(type_id), tag in REF_TAGS
+        pair_id = f"{fabric}{type_id}-p{pair}"
         for i, (p, digest) in enumerate(items):
             mark = i + 1
             rows.append(dict(

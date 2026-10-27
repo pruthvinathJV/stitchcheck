@@ -31,6 +31,8 @@ def _ios_export(tmp_path, tags=None):
 def test_spec_counts():
     assert len(ingest.TEST_TAGS) == 54 and len(ingest.REF_TAGS) == 6
     assert ingest.TEST_TAGS[:5] == ["A-1-1", "A-1-2", "A-1-3", "A-1-4", "A-2-1"]
+    assert ingest.REF_TAGS == ["A-1-5", "A-5-3", "B-1-5", "B-5-3", "C-1-5", "C-5-3"]
+    assert len(ingest.EXPECTED_TAGS) == 60
 
 
 def test_full_ios_export(tmp_path):
@@ -54,7 +56,8 @@ def test_full_ios_export(tmp_path):
     ref = pd.read_csv(out / "ref" / "manifest.csv")
     assert len(ref) == 24 and ref["ref"].eq(1).all()
     assert ref.groupby("label").size().to_dict() == {"good": 12, "puckering": 12}
-    assert sorted(ref["pair_id"].unique())[:2] == ["A1-REF", "A5-REF"]
+    assert sorted(ref["pair_id"].unique())[:2] == ["A1-p5", "A5-p3"]
+    assert not set(ref["tag"]) & set(test["tag"])
     assert not set(ref["photo_id"]) & {p.stem for p in (out / "images").iterdir()}
 
     first = Image.open(out / "images" / "A1-p1-m1.jpg")
@@ -72,7 +75,7 @@ def test_single_pair_pilot(tmp_path):
     _, warnings = ingest.ingest(src, tmp_path / "all")  # without --pairs, the other 59 tags are reported missing
     assert any("59 expected tags with no photos" in w for w in warnings)
     with pytest.raises(ValueError):
-        ingest.ingest(src, out, pairs=["A-1-5"])   # good has only 4 pairs
+        ingest.ingest(src, out, pairs=["A-1-6"])   # good has only 5 pairs
 
 
 def test_android_warnings(tmp_path):
@@ -85,7 +88,7 @@ def test_android_warnings(tmp_path):
         att(1), att(2), att(3), att(3),            # exact re-send of photo 3 is dropped
         "28/10/26, 7:30 pm - Ravi: A-2",           # old type-level tag: unknown
         att(4),
-        "28/10/26, 7:31 pm - Ravi: A-5-REFX",      # typo: unknown, never falls back to A-5
+        "28/10/26, 7:31 pm - Ravi: A-1-REF",       # REF tags are not in the spec: unknown, never falls back to A-1
         att(5),
         "28/10/26, 7:32 pm - Ravi: B-3-2",         # first attempt, 2 photos
         att(6), att(7),
@@ -98,7 +101,7 @@ def test_android_warnings(tmp_path):
     assert df.groupby("tag")["source_file"].apply(list).to_dict() == {
         "C-6-1": names[0:4], "B-3-2": names[8:11]}
     text = "\n".join(warnings)
-    for expected in ["duplicate file", "unknown tag 'A-2'", "unknown tag 'A-5-REFX'", "photo without a valid tag",
+    for expected in ["duplicate file", "unknown tag 'A-2'", "unknown tag 'A-1-REF'", "photo without a valid tag",
                      "B-3-2: tag sent 2 times", "B-3-2: 3 photos, expected 4", "media missing",
                      "58 expected tags with no photos"]:
         assert expected in text, expected
