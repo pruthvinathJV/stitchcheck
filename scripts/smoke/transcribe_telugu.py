@@ -3,7 +3,7 @@
 python scripts/smoke/transcribe_telugu.py CLIP [--reference "what was actually said"]
 
 Converts CLIP (any format ffmpeg reads, e.g. a WhatsApp .opus or .m4a) to 16 kHz mono WAV and transcribes it
-three ways: no language hint, languageBias=[Telugu, English], and the same plus QC keywords.
+three ways (the first only for comparison; the app always uses the last): no language hint, languageBias=[Telugu, English], and the same plus QC keywords.
 Writes results/smoke/transcribe_<clip name>.json. The audio itself is never committed.
 """
 import argparse
@@ -12,10 +12,7 @@ import time
 from pathlib import Path
 
 from stitchcheck.meta_api import TRANSCRIBE_MODEL, to_wav_16k, transcribe
-
-KEYWORDS = ["machine", "bundle", "operator", "collar", "pocket", "hem", "seam", "skipped stitch",
-            "broken stitch", "puckering", "crooked seam", "stain", "open seam", "major", "minor", "defect",
-            "agree", "reject"]
+from stitchcheck.voice import KEYWORDS, LANGUAGE_BIAS
 
 
 def main():
@@ -27,8 +24,8 @@ def main():
     wav = to_wav_16k(args.clip, Path("data/audio") / f"{args.clip.stem}_16k.wav")
     variants = {
         "auto": dict(),
-        "bias": dict(language_bias=["Telugu", "English"]),
-        "bias+keywords": dict(language_bias=["Telugu", "English"], keywords=KEYWORDS),
+        "bias": dict(language_bias=LANGUAGE_BIAS),
+        "bias+keywords": dict(language_bias=LANGUAGE_BIAS, keywords=KEYWORDS),
     }
     runs = []
     for name, kwargs in variants.items():
