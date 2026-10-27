@@ -34,7 +34,7 @@ from stitchcheck.spark.classify import FEW_SHOT_NOTE, ZERO_SHOT_PROMPT, classify
 OUT = Path("results/test")
 LOCK = OUT / "lock.json"
 EFFORT = "minimal"
-TAG = "test-lock"
+TAG = "test-lock-2"  # test-lock ran the Spark arms on 2 images by mistake; see docs/design.md
 
 
 def sha(data):
@@ -96,7 +96,8 @@ def main():
     arm_c.to_csv(OUT / "arm_C.csv", index=False)
     print(f"arm C: {len(arm_c)} images", flush=True)
 
-    sub = test.index[test["spark_subset"]].tolist()
+    sub = test.index[test["spark_subset"].astype(bool)].tolist()  # the column is 0/1, not a position
+    assert len(sub) == json.loads(LOCK.read_text())["n_spark_subset"], len(sub)
     refs = {f: image_path(pick_refs(split, f)[1]["good"]) for f in test["fabric"].unique()}
     client = spark_client()
 

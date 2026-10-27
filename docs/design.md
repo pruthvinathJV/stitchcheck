@@ -189,6 +189,8 @@ Tested on two 10-second clips of mixed Telugu and English ("machine ఏడు, b
 
 Before any test-set run, everything above is committed and tagged `test-lock`: prompts (by hash), image size, effort, few-shot design and reference paths, t, the routing and severity rules, the three benchmark classifier runs, the subset file, the metrics and the bootstrap settings (`results/test/lock.json`). The test runner (`scripts/test/run_arms.py`) refuses to start if the working tree has changes or HEAD is not the tagged commit. Arms A, B, C and D run on the StitchingNet test in one go. The only change allowed after the lock is the puckering definition and its references, decided on the `{F}-5-3` reference pairs before any phone test pair is scored. Arm E, if run, uses the locked prompts and references.
 
+*First run, Oct 27: void.* The run from `test-lock` selected the Spark subset with a 0/1 column used as row positions, so arms A, B and D ran on the same 2 images, 2,095 times. Its outputs were deleted without computing any metric. The fix changes only row selection and adds a check that the subset has 480 rows; no setting, prompt, threshold or weight changed (`lock.json` is unchanged). All four arms were rerun from the commit tagged `test-lock-2`.
+
 ## Day 5 decision rule
 
 If hybrid recall on major defects on the phone set is below 60% (pair-bootstrap point estimate), the product switches to suggestion mode: the AI proposes, the checker confirms every photo, and the README reports it.
