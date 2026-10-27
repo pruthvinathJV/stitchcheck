@@ -1,6 +1,6 @@
 """Smoke test: Muse Spark Open on Modal's shared endpoint (image input, latency, tokens per call).
 
-python scripts/smoke/spark_open_modal.py [--n 10]
+python scripts/smoke/spark_open_modal.py [--n 10] [--model meta-models/Muse-Spark-Open-816B-A42B]
 
 Needs MODAL_PROXY_TOKEN_ID and MODAL_PROXY_TOKEN_SECRET in .env (Modal dashboard, Settings, Proxy tokens).
 Lists the models the token can reach, picks the Muse Spark Open endpoint, and sends n Linen validation images
@@ -21,20 +21,20 @@ from stitchcheck.data.stitchingnet import image_path, load_split
 from stitchcheck.spark.classify import classify
 
 BASE_URL = "https://inference.us-west.modal.direct/v1"
+MODEL = "meta-models/Muse-Spark-Open-816B-A42B"  # from the Modal dashboard example request
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=10)
+    ap.add_argument("--model", default=MODEL)
     args = ap.parse_args()
     load_dotenv()
     token = f"{os.environ['MODAL_PROXY_TOKEN_ID']}.{os.environ['MODAL_PROXY_TOKEN_SECRET']}"
     models = requests.get(f"{BASE_URL}/models", headers={"Authorization": f"Bearer {token}"}, timeout=30).json()
     ids = [m["id"] for m in models.get("data", [])]
     print("models:", ids)
-    model = next((m for m in ids if "spark" in m.lower() and "open" in m.lower()), None)
-    if model is None:
-        raise SystemExit("no Muse Spark Open endpoint reachable with this token")
+    model = next((m for m in ids if "spark" in m.lower() and "open" in m.lower()), args.model)
 
     client = OpenAI(base_url=BASE_URL, api_key=token)
     val = load_split().query("split == 'val'")

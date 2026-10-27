@@ -1,0 +1,132 @@
+{
+  "model": "jvpnath--ep-muse-spark-open-816b-a42b-server.us-west.modal.direct",
+  "base_url": "https://inference.us-west.modal.direct/v1",
+  "n": 10,
+  "errors": 0,
+  "median_s": 1.04,
+  "mean_prompt_tokens": 551.0,
+  "mean_completion_tokens": 278.3,
+  "correct": 5,
+  "runs": [
+    {
+      "path": "B. Linen-Poly/2. Broken stitch/image/B_02_045.jpg",
+      "label": "broken_stitch",
+      "wall_s": 1.56,
+      "pred": "crooked_seam",
+      "raw": "{\"label\": \"crooked_seam\", \"reason\": \"Stitch line is not straight and curves sharply upward on the left end.\"}",
+      "seconds": 1.55,
+      "prompt_tokens": 551,
+      "completion_tokens": 322,
+      "reasoning_tokens": null,
+      "cached": false
+    },
+    {
+      "path": "B. Linen-Poly/2. Broken stitch/image/B_02_005.jpg",
+      "label": "broken_stitch",
+      "wall_s": 0.79,
+      "pred": "skipped_stitch",
+      "raw": "{\"label\": \"skipped_stitch\", \"reason\": \"A clear gap in the middle of the red stitch line shows missing stitches.\"}",
+      "seconds": 0.79,
+      "prompt_tokens": 551,
+      "completion_tokens": 237,
+      "reasoning_tokens": null,
+      "cached": false
+    },
+    {
+      "path": "B. Linen-Poly/4. Crooked seam/image/B_04_010.jpg",
+      "label": "crooked_seam",
+      "wall_s": 0.79,
+      "pred": "crooked_seam",
+      "raw": "{\"label\": \"crooked_seam\", \"reason\": \"Stitch line clearly wanders and dips on the left side instead of being straight.\"}",
+      "seconds": 0.78,
+      "prompt_tokens": 551,
+      "completion_tokens": 243,
+      "reasoning_tokens": null,
+      "cached": false
+    },
+    {
+      "path": "B. Linen-Poly/4. Crooked seam/image/B_04_053.jpg",
+      "label": "crooked_seam",
+      "wall_s": 0.75,
+      "pred": "crooked_seam",
+      "raw": "{\"label\": \"crooked_seam\", \"reason\": \"Red stitch line is not straight and dips noticeably in the center.\"}",
+      "seconds": 0.75,
+      "prompt_tokens": 551,
+      "completion_tokens": 244,
+      "reasoning_tokens": null,
+      "cached": false
+    },
+    {
+      "path": "B. Linen-Poly/0. Normal/image/B_00_010.jpg",
+      "label": "good",
+      "wall_s": 1.33,
+      "pred": "good",
+      "raw": "{\"label\": \"good\", \"reason\": \"Stitch line is straight, even and continuous with no visible defects.\"}",
+      "seconds": 1.33,
+      "prompt_tokens": 551,
+      "completion_tokens": 432,
+      "reasoning_tokens": null,
+      "cached": false
+    },
+    {
+      "path": "B. Linen-Poly/0. Normal/image/B_00_031.jpg",
+      "label": "good",
+      "wall_s": 0.67,
+      "pred": "good",
+      "raw": "{\"label\": \"good\", \"reason\": \"Stitches are even, continuous and straight with no visible defects.\"}",
+      "seconds": 0.66,
+      "prompt_tokens": 551,
+      "completion_tokens": 211,
+      "reasoning_tokens": null,
+      "cached": false
+    },
+    {
+      "path": "B. Linen-Poly/1. Skipped stitch/image/B_01_079.jpg",
+      "label": "skipped_stitch",
+      "wall_s": 0.62,
+      "pred": "crooked_seam",
+      "raw": "{\"label\": \"crooked_seam\", \"reason\": \"Red stitch line wanders unevenly and is not straight across the fabric.\"}",
+      "seconds": 0.61,
+      "prompt_tokens": 551,
+      "completion_tokens": 157,
+      "reasoning_tokens": null,
+      "cached": false
+    },
+    {
+      "path": "B. Linen-Poly/1. Skipped stitch/image/B_01_071.jpg",
+      "label": "skipped_stitch",
+      "wall_s": 1.25,
+      "pred": "crooked_seam",
+      "raw": "{\"label\": \"crooked_seam\", \"reason\": \"Red stitch line is wavy and wanders instead of being straight across the fabric.\"}",
+      "seconds": 1.24,
+      "prompt_tokens": 551,
+      "completion_tokens": 343,
+      "reasoning_tokens": null,
+      "cached": false
+    },
+    {
+      "path": "B. Linen-Poly/7. Stain and damage/image/B_07_021.jpg",
+      "label": "stain_damage",
+      "wall_s": 1.05,
+      "pred": "stain_damage",
+      "raw": "{\"label\": \"stain_damage\", \"reason\": \"Dark stain and discoloration visible on fabric below the seam.\"}",
+      "seconds": 1.04,
+      "prompt_tokens": 551,
+      "completion_tokens": 240,
+      "reasoning_tokens": null,
+      "cached": false
+    },
+    {
+      "path": "B. Linen-Poly/7. Stain and damage/image/B_07_054.jpg",
+      "label": "stain_damage",
+      "wall_s": 1.24,
+      "pred": "crooked_seam",
+      "raw": "{\"label\": \"crooked_seam\", \"reason\": \"Red stitch line is wavy and not straight across the fabric.\"}",
+      "seconds": 1.23,
+      "prompt_tokens": 551,
+      "completion_tokens": 354,
+      "reasoning_tokens": null,
+      "cached": false
+    }
+  ]
+}
