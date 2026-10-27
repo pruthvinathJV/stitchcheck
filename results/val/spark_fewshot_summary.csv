@@ -1,0 +1,5 @@
+design,effort,n,macro_f1,recall_good,recall_skipped_stitch,recall_broken_stitch,recall_crooked_seam,recall_stain_damage,skipped_called_good,major_recall,api_errors,parse_errors,median_s,p90_s,mean_input_tokens,mean_output_tokens,macro_f1_vs_zero_shot,skipped_recall_vs_zero_shot,macro_f1_low_vs_minimal
+zero_shot,minimal,125,0.582,1.0,0.0,0.68,1.0,0.48,0.4,0.707,0,0,1.1,1.83,415,156,,,
+good_ref,minimal,125,0.587,0.96,0.0,0.72,1.0,0.52,0.2,0.787,0,0,0.95,1.5,720,129,"(np.float64(0.005), -0.023, 0.038)","(np.float64(0.0), 0.0, 0.0)",
+good_plus_defects,minimal,125,0.594,1.0,0.0,0.8,1.0,0.44,0.24,0.733,0,0,0.94,1.28,1772,118,"(np.float64(0.012), -0.018, 0.042)","(np.float64(0.0), 0.0, 0.0)",
+good_plus_defects,low,125,0.61,1.0,0.0,0.72,1.0,0.56,0.28,0.773,0,0,1.73,2.96,1772,405,"(np.float64(0.028), 0.002, 0.06)","(np.float64(0.0), 0.0, 0.0)","(np.float64(0.015), -0.019, 0.055)"

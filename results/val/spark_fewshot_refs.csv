@@ -1,0 +1,6 @@
+query_fabric,ref_fabric,ref_label,path
+Linen,Satin,good,F. Satin-Core/0. Normal/image/F_00_131.jpg
+Linen,Satin,skipped_stitch,F. Satin-Core/1. Skipped stitch/image/F_01_085.jpg
+Linen,Satin,broken_stitch,F. Satin-Core/2. Broken stitch/image/F_02_085.jpg
+Linen,Satin,crooked_seam,F. Satin-Core/4. Crooked seam/image/F_04_085.jpg
+Linen,Satin,stain_damage,F. Satin-Core/7. Stain and damage/image/F_07_100.jpg
