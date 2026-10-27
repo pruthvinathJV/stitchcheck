@@ -101,13 +101,16 @@ def ensemble(argv):
 
 
 def fetch(prefixes=("models", "results")):
-    """Copy every file from the runs volume into the repo (models/ is gitignored)."""
+    """Copy run outputs from the volume into the repo (models/ is gitignored)."""
     n = 0
     for prefix in prefixes:
         for entry in runs.listdir(prefix, recursive=True):
             if entry.type != modal.volume.FileEntryType.FILE:
                 continue
             dst = Path(entry.path)
+            # last.pt only holds resume state (runs never resume); weights already here are not copied again
+            if dst.name == "last.pt" or (prefix == "models" and dst.exists() and dst.stat().st_size == entry.size):
+                continue
             dst.parent.mkdir(parents=True, exist_ok=True)
             with dst.open("wb") as f:
                 for chunk in runs.read_file(entry.path):
