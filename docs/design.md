@@ -61,6 +61,15 @@ Also reported:
 - **(D)** Hybrid: Muse Spark calling the classifier as a tool, and judging puckering itself few-shot.
 - **(E, optional)** Hybrid with Muse Spark Open, if Baseten credits arrive.
 
+## Classifier selection (fixed before the search runs)
+
+Training settings are chosen without the test fabrics, in two stages:
+
+1. **Screen on Linen.** The clean model is trained with each candidate setting and scored on Linen validation macro-F1 (`scripts/train/sweep_stage1.sh`). Candidates: augmentation (brightness/contrast only; plus colour, grayscale and blur; TrivialAugment), learning rate, a 10x lower backbone learning rate, and architecture (EfficientNet-B0, MobileNetV3-Large, ConvNeXt-Tiny). The baseline is also rerun with a second seed, so a difference smaller than the run-to-run noise is not treated as real.
+2. **Confirm on more fabrics.** The top 3 settings are retrained with 3 training fabrics held out in turn (train on the other 7). The winner has the best mean macro-F1 across Linen and those 3 fabrics, which guards against settings that only suit Linen. Ties go to the smaller, faster model.
+
+The winning setting is recorded here, then used for both the clean and the full model, the per-fabric puckering holdout runs, and the 11-fabric retrains. The test fabrics are scored once, with that setting. All runs are summarised in `results/classifier/runs_summary.csv`.
+
 ## Muse Spark settings (chosen on validation, before any test-set run)
 
 **One test image per request**, as in the product, plus the reference image(s) for few-shot. Test images are never batched, because answers could then depend on the other images and their order. Batching is used only outside evaluation.
