@@ -7,7 +7,7 @@ The backend turns the evaluated models into the product used on the line and in 
 1. **AI drafts, checker decides.** Nothing is logged as a defect until the checker confirms it. Voice corrections are shown as a parsed entry and confirmed with a tap.
 2. **Muse Spark is the inspector's brain.** Every photo verdict and every report is a Muse Spark call with tool use. The classifier, SAM, DHU and AQL are tools Spark calls or reads.
 3. **Verifiable agent.** Reports never contain a number or ID that Spark typed itself: Spark writes placeholders that point at tool results, and the server fills them in. A validator rejects any bare number or ID outside a placeholder. Every agent call is stored with its tool calls and outputs (`agent_run`).
-4. **The product runs the evaluated configuration.** 448 px, minimal reasoning effort, one good-seam reference (few-shot design (a)), the frozen hybrid rule and threshold, and the same `inspect()` function that arm D of the benchmark uses. One difference, stated in the README: the app's classifier is the same recipe retrained on all 11 fabrics (3-seed ensemble); each seed agrees with the 8-fabric benchmark ensemble on at least 90% of validation images.
+4. **The product runs the evaluated configuration.** 448 px, minimal reasoning effort, one good-seam reference (few-shot design (a)), the frozen hybrid rule and threshold, and the same `inspect()` function that arm D of the benchmark uses. One difference, stated in the README: the app's classifier is the same recipe retrained on all 11 fabrics (3-seed ensemble); its test is the Kadiri phone set.
 5. **API keys stay on the server.** The browser never sees `MODEL_API_KEY`.
 
 ## 1. Domain model (SQLite)
