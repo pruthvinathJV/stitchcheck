@@ -60,6 +60,7 @@ def test_photo_review_decision_dhu_and_trace(client):
     assert (insp["operator_id"], insp["machine_id"], insp["final_part"]) == ("OP01", "M01", "collar")
     assert insp["part_chip"] == "pocket"  # SAM disagrees with the sequence: chip only, the part stays collar
     assert "step1" in insp["timings"] and "step2" in insp["timings"]
+    assert insp["crop_url"].startswith("/media/") and client.get(insp["crop_url"]).status_code == 200
 
     trace = client.get(f"/agent-runs/{insp['agent_run_id']}").json()
     assert trace["steps"][0]["call"]["name"] == "classify_stitch" and trace["steps"][0]["output"]["top2"][0][0] == "skipped_stitch"

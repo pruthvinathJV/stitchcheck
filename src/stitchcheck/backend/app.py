@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Callable
 
 from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from stitchcheck.backend import db
@@ -82,6 +83,15 @@ def create_app(deps: Deps):
     con = db.connect(deps.db_path)
     lock = threading.Lock()  # one writer
     storage = Path(deps.storage)
+    storage.mkdir(parents=True, exist_ok=True)
+    app.mount("/media", StaticFiles(directory=storage), name="media")
+
+    def url(path):
+        """A stored file's URL under /media, or None."""
+        try:
+            return "/media/" + Path(path).resolve().relative_to(storage.resolve()).as_posix() if path else None
+        except ValueError:
+            return None
 
     def write(fn, *a, **k):
         with lock:
@@ -167,7 +177,7 @@ def create_app(deps: Deps):
                     classifier_top2=s1["classifier_top2"], final_part=None, config_hash=s1["config_hash"],
                     timings={"step1": s1["step1_seconds"], "tile_side": s1["tile_side"], "stitch_pitch": s1["stitch_pitch"]})
         background.add_task(review, iid, s1, im, part, sess)
-        return {"inspection_id": iid, "review_status": "reviewing", "crop_path": s1["crop_path"],
+        return {"inspection_id": iid, "review_status": "reviewing", "crop_url": url(s1["crop_path"]),
                 "classifier_label": s1["classifier_top2"][0][0], "classifier_top2": s1["classifier_top2"],
                 "scale_path": s1["scale_path"], "step1_seconds": s1["step1_seconds"]}
 
@@ -198,7 +208,8 @@ def create_app(deps: Deps):
 
     @app.get("/inspections/{iid}")
     def get_inspection(iid: int):
-        return one("SELECT * FROM inspection WHERE id = ?", iid)
+        row = one("SELECT * FROM inspection WHERE id = ?", iid)
+        return row | {"crop_url": url(row["crop_path"]), "photo_url": url(row["photo_path"])}
 
     @app.post("/inspections/{iid}/decision")
     def decide(iid: int, d: Decision):
