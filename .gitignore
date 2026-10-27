@@ -12,6 +12,7 @@ data/raw/
 data/phone/
 data/audio/
 data/cache/
+data/smoke/
 results/**/*.jpg
 results/**/*.png
 
