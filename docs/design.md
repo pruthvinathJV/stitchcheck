@@ -70,6 +70,15 @@ Also reported:
 
 The benchmark and the app use the same setting. Before the few-shot and hybrid arms run on test data, the effort level is rechecked for them on the same validation sample, because comparing against a reference may need more reasoning.
 
+## SAM 3.1: garment part and seam localisation
+
+Tested on StitchingNet swatches and on four photos of one shirt: full shot, collar, pocket and hem close-ups (`scripts/smoke/sam_seam.py`, `results/smoke/sam_seam*.json`). SAM is used only for garment parts and stitch lines, never to name defects.
+
+- **Part suggestion.** SAM runs "collar", "pocket" and "hem" on every photo, close-up or full shot. The app pre-selects the highest-scoring part above the part threshold, and the checker confirms or changes it with one tap. If no part clears the threshold, the checker picks it. On the full shot all three parts were found (0.75 to 0.96); on the collar and pocket close-ups the right part scored 0.89 and 0.98; the hem close-up found no hem.
+- **Seam localisation.** On close-ups, the prompt "seam" finds the stitch lines, and the crop tiles around them go to the classifier and Muse Spark. On the pocket close-up it traced the topstitching closely. "seam" scored higher than "stitch line" on swatches (0.81 vs 0.69).
+- **Retake.** If "seam" returns nothing above the seam threshold, the app asks: "Move closer to the stitching." (The hem close-up returned nothing.)
+- **Thresholds.** Part threshold: 0.7 (source: shirt photos; the one false part, a "pocket" at the edge of the hem close-up, scored 0.66). Seam threshold: to be set on the tailor's REF pairs plus the shirt photos, never on the tailor's test photos. Chosen values and their source are recorded here before the phone set is evaluated.
+
 ## Telugu voice corrections
 
 Tested on two 10-second clips of mixed Telugu and English ("machine ఏడు, bundle ముప్పై నాలుగు, collar దగ్గర కుట్లు జారాయి, ఇది major defect"), one quiet and one with background noise (`scripts/smoke/`, `results/smoke/`). Each takes about 2.3 seconds to transcribe.
