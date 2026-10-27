@@ -32,6 +32,21 @@ def ensemble_probs(df, runs=BENCH_RUNS, dev=None):
     return sum(predict(load_model(run, dev), dl, dev) for run in runs) / len(runs)
 
 
+class Ensemble:
+    """The models loaded once, for in-memory crops (PIL images): ensemble(images) -> mean softmax per image."""
+
+    def __init__(self, runs=DEMO_RUNS, dev=None):
+        self.dev = dev or device()
+        self.models = [load_model(run, self.dev).eval() for run in runs]
+        self.transform = eval_transform()
+        self.runs = list(runs)
+
+    @torch.no_grad()
+    def __call__(self, images):
+        x = torch.stack([self.transform(im.convert("RGB")) for im in images]).to(self.dev)
+        return sum(torch.softmax(m(x), 1) for m in self.models).cpu().numpy() / len(self.models)
+
+
 def top2(probs):
     classes = CLASSES["clean"]
     order = np.argsort(-probs)[:2]

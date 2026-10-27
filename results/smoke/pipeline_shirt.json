@@ -1,0 +1,220 @@
+{
+  "seam_threshold": 0.5,
+  "seam_threshold_status": "provisional",
+  "reference": "training-fabric fallback (Satin)",
+  "runs": [
+    {
+      "seam_found": true,
+      "seam_conf": 0.6521739363670349,
+      "sam_part": "pocket",
+      "sam_part_conf": 0.9024390578269958,
+      "part": "pocket",
+      "classifier_top2": [
+        [
+          "broken_stitch",
+          0.6008562445640564
+        ],
+        [
+          "stain_damage",
+          0.2900993227958679
+        ]
+      ],
+      "tile_probs": [
+        [
+          0.04280000180006027,
+          0.08630000054836273,
+          0.5737000107765198,
+          0.03660000115633011,
+          0.2606000006198883
+        ],
+        [
+          0.031099999323487282,
+          0.05350000038743019,
+          0.7627999782562256,
+          0.031300000846385956,
+          0.12139999866485596
+        ],
+        [
+          0.021199999377131462,
+          0.0575999990105629,
+          0.6008999943733215,
+          0.03020000085234642,
+          0.29010000824928284
+        ]
+      ],
+      "proposed_label": "broken_stitch",
+      "proposed_severity": "major",
+      "needs_checker": true,
+      "reason": "Image is dark and low-detail so stitch line cannot be verified against reference.",
+      "spark_verdict": {
+        "spark_verdict": "ask_checker",
+        "spark_label": "good",
+        "confidence": 0.35,
+        "protected": true,
+        "pred": "ask_checker",
+        "tool_called": true,
+        "spark_error": null
+      },
+      "tokens": [
+        2992,
+        425
+      ],
+      "operator_id": "OP06",
+      "machine_id": "M06",
+      "config_hash": "bace66889f8e",
+      "timings": {
+        "prepare": 0.01,
+        "sam": 5.56,
+        "classifier": 0.26,
+        "spark": 4.43,
+        "total": 10.26
+      },
+      "photo": "collar.jpeg"
+    },
+    {
+      "seam_found": true,
+      "seam_conf": 0.5704697966575623,
+      "sam_part": "pocket",
+      "sam_part_conf": 0.9569892287254333,
+      "part": "pocket",
+      "classifier_top2": [
+        [
+          "broken_stitch",
+          0.8663813471794128
+        ],
+        [
+          "stain_damage",
+          0.052210334688425064
+        ]
+      ],
+      "tile_probs": [
+        [
+          0.016499999910593033,
+          0.031599998474121094,
+          0.8162999749183655,
+          0.06930000334978104,
+          0.06629999727010727
+        ],
+        [
+          0.02280000038444996,
+          0.030300000682473183,
+          0.8428000211715698,
+          0.04839999973773956,
+          0.05570000037550926
+        ],
+        [
+          0.014499999582767487,
+          0.028200000524520874,
+          0.8664000034332275,
+          0.03869999945163727,
+          0.05220000073313713
+        ]
+      ],
+      "proposed_label": "broken_stitch",
+      "proposed_severity": "major",
+      "needs_checker": true,
+      "reason": "Image is too far and blurry to see stitch line clearly.",
+      "spark_verdict": {
+        "spark_verdict": "ask_checker",
+        "spark_label": "broken_stitch",
+        "confidence": 0.2,
+        "protected": true,
+        "pred": "ask_checker",
+        "tool_called": true,
+        "spark_error": null
+      },
+      "tokens": [
+        2991,
+        340
+      ],
+      "operator_id": "OP06",
+      "machine_id": "M06",
+      "config_hash": "bace66889f8e",
+      "timings": {
+        "prepare": 0.02,
+        "sam": 3.25,
+        "classifier": 0.12,
+        "spark": 2.54,
+        "total": 5.93
+      },
+      "photo": "full.jpeg"
+    },
+    {
+      "retake": "Move closer to the stitching",
+      "seam_found": false,
+      "timings": {
+        "prepare": 0.02,
+        "sam": 2.32
+      },
+      "photo": "hem.jpeg"
+    },
+    {
+      "seam_found": true,
+      "seam_conf": 0.6878048777580261,
+      "sam_part": "pocket",
+      "sam_part_conf": 0.976608157157898,
+      "part": "pocket",
+      "classifier_top2": [
+        [
+          "crooked_seam",
+          0.6116001009941101
+        ],
+        [
+          "broken_stitch",
+          0.2534284293651581
+        ]
+      ],
+      "tile_probs": [
+        [
+          0.026599999517202377,
+          0.03359999880194664,
+          0.2533999979496002,
+          0.6115999817848206,
+          0.0746999979019165
+        ],
+        [
+          0.030300000682473183,
+          0.03620000183582306,
+          0.18279999494552612,
+          0.6995999813079834,
+          0.050999999046325684
+        ],
+        [
+          0.029999999329447746,
+          0.039500001817941666,
+          0.34220001101493835,
+          0.5396000146865845,
+          0.04879999905824661
+        ]
+      ],
+      "proposed_label": "good",
+      "proposed_severity": "none",
+      "needs_checker": true,
+      "reason": "Pocket stitch line is even and continuous with no wander or defect.",
+      "spark_verdict": {
+        "spark_verdict": "override",
+        "spark_label": "good",
+        "confidence": 0.9,
+        "protected": false,
+        "pred": "ask_checker",
+        "tool_called": true,
+        "spark_error": null
+      },
+      "tokens": [
+        2992,
+        258
+      ],
+      "operator_id": "OP06",
+      "machine_id": "M06",
+      "config_hash": "bace66889f8e",
+      "timings": {
+        "prepare": 0.01,
+        "sam": 4.32,
+        "classifier": 0.15,
+        "spark": 2.08,
+        "total": 6.57
+      },
+      "photo": "pocket.jpeg"
+    }
+  ]
+}

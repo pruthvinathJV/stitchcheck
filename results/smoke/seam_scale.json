@@ -1,0 +1,91 @@
+{
+  "prompt": "seam",
+  "images": "8 training fabrics x 3 good seams, seed 0",
+  "rows": [
+    {
+      "path": "G. Chiffon-Poly/0. Normal/image/G_00_038.jpg",
+      "conf": 0.66,
+      "length": 224,
+      "thickness": 6.22,
+      "ratio": 36.0
+    },
+    {
+      "path": "I. Jacquard-Poly/0. Normal/image/I_00_065.jpg",
+      "conf": 0.601,
+      "length": 224,
+      "thickness": 5.72,
+      "ratio": 39.1
+    },
+    {
+      "path": "H. Nylon-Core/0. Normal/image/H_00_140.jpg",
+      "conf": 0.566,
+      "length": 224,
+      "thickness": 4.84,
+      "ratio": 46.3
+    },
+    {
+      "path": "E. Polyester-Poly/0. Normal/image/E_00_152.jpg",
+      "conf": 0.84,
+      "length": 224,
+      "thickness": 4.13,
+      "ratio": 54.3
+    },
+    {
+      "path": "E. Polyester-Poly/0. Normal/image/E_00_147.jpg",
+      "conf": 0.801,
+      "length": 224,
+      "thickness": 4.33,
+      "ratio": 51.8
+    },
+    {
+      "path": "E. Polyester-Poly/0. Normal/image/E_00_218.jpg",
+      "conf": 0.852,
+      "length": 223,
+      "thickness": 4.23,
+      "ratio": 52.9
+    },
+    {
+      "path": "K. Polyester (coated)-Core/0. Normal/image/K_00_019.jpg",
+      "conf": 0.762,
+      "length": 224,
+      "thickness": 4.49,
+      "ratio": 49.9
+    },
+    {
+      "path": "K. Polyester (coated)-Core/0. Normal/image/K_00_183.jpg",
+      "conf": 0.739,
+      "length": 224,
+      "thickness": 4.58,
+      "ratio": 48.9
+    },
+    {
+      "path": "K. Polyester (coated)-Core/0. Normal/image/K_00_168.jpg",
+      "conf": 0.785,
+      "length": 224,
+      "thickness": 4.65,
+      "ratio": 48.2
+    },
+    {
+      "path": "F. Satin-Core/0. Normal/image/F_00_032.jpg",
+      "conf": 0.801,
+      "length": 224,
+      "thickness": 4.13,
+      "ratio": 54.3
+    },
+    {
+      "path": "F. Satin-Core/0. Normal/image/F_00_007.jpg",
+      "conf": 0.726,
+      "length": 224,
+      "thickness": 4.13,
+      "ratio": 54.2
+    },
+    {
+      "path": "F. Satin-Core/0. Normal/image/F_00_179.jpg",
+      "conf": 0.782,
+      "length": 224,
+      "thickness": 4.11,
+      "ratio": 54.5
+    }
+  ],
+  "median_ratio": 50.849999999999994
+}

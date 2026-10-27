@@ -167,6 +167,10 @@ The benchmark and the app use the same setting. Before the few-shot and hybrid a
 
 **Phone set runs the product path.** On the Kadiri photos, arms C and D use the app's SAM seam crop and tiling, the same code as the per-photo pipeline, so the phone-set numbers describe the product as built.
 
+**Product-path settings still provisional** (`src/stitchcheck/backend/pipeline.py`). Both are set on the Kadiri reference pairs (and the shirt photos), never on the phone test pairs, and recorded here before the phone set is scored:
+- *Seam threshold* (provisional 0.5).
+- *Tile scale.* Tiles are cut along the best "seam" mask, rotated so the seam runs horizontally as in StitchingNet, and the tile most likely to be a defect goes to the hybrid. On StitchingNet training images the tile side is 51 times SAM's seam-mask thickness (IQR 48 to 54, 12 seams; `results/smoke/seam_scale.json`), and that ratio is the provisional scale rule. On the four shirt photos it fails: SAM's "seam" mask covers the whole folded edge rather than the thread line, so tiles come out too large and include background (`results/smoke/pipeline_shirt.json`). Splitting the seam length into three tiles was also too coarse: each tile showed about 20 stitches, against a handful in StitchingNet, and the classifier called good shirt seams stain or broken.
+
 ## SAM 3.1: garment part and seam localisation
 
 Tested on StitchingNet swatches and on four photos of one shirt: full shot, collar, pocket and hem close-ups (`scripts/smoke/sam_seam.py`, `results/smoke/sam_seam*.json`). SAM is used only for garment parts and stitch lines, never to name defects.
