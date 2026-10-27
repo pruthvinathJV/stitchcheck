@@ -47,7 +47,7 @@ Top bar: bundle number, garment counter ("Garment 12"), DHU so far.
 - Poll `GET /inspections/{inspection_id}` every second until `review_status == "done"` (stop after 30 s and show "Review slow, you can still decide").
 
 **Result card** (when done), from the inspection:
-- Crop image (`crop_url`); tap to see the full photo (`photo_url`).
+- Crop image (`crop_url`); tap to see the photo with the seam SAM found tinted green (`overlay_url`, also returned in step 1), and the original (`photo_url`).
 - Proposed label (`proposed_label`) and severity (`proposed_severity`), the one-line reason (`spark_verdict.reason`).
 - Which brain answered: `spark_verdict.brain` ("Muse Spark" or "Muse Spark Open"); if `spark_verdict.fell_back` is true, a small note "Muse Spark was unavailable; Muse Spark Open answered". If `brain` is null, no AI review was possible and the card says "Classifier only: your call".
 - If `needs_checker` is 1: a clear "Your call" badge (the AI and the classifier disagree, or the AI was unsure).

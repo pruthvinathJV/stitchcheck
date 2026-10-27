@@ -243,11 +243,12 @@ def create_app(deps: Deps):
         if not s1["seam_found"]:
             return {"retake": s1["retake"], "step1_seconds": s1["step1_seconds"]}
         iid = write(db.insert, "inspection", garment_id=gid, reason=reason, photo_path=s1["photo_path"],
-                    crop_path=s1["crop_path"], seam_found=1, scale_path=s1["scale_path"],
+                    crop_path=s1["crop_path"], overlay_path=s1["overlay_path"], seam_found=1, scale_path=s1["scale_path"],
                     classifier_top2=s1["classifier_top2"], final_part=None, config_hash=s1["config_hash"],
                     timings={"step1": s1["step1_seconds"], "tile_side": s1["tile_side"], "stitch_pitch": s1["stitch_pitch"]})
         background.add_task(review, iid, s1, im, part, sess)
         return {"inspection_id": iid, "review_status": "reviewing", "crop_url": url(s1["crop_path"]),
+                "overlay_url": url(s1["overlay_path"]),
                 "classifier_label": s1["classifier_top2"][0][0], "classifier_top2": s1["classifier_top2"],
                 "scale_path": s1["scale_path"], "step1_seconds": s1["step1_seconds"]}
 
@@ -281,7 +282,8 @@ def create_app(deps: Deps):
     @app.get("/inspections/{iid}")
     def get_inspection(iid: int):
         row = one("SELECT * FROM inspection WHERE id = ?", iid)
-        return row | {"crop_url": url(row["crop_path"]), "photo_url": url(row["photo_path"])}
+        return row | {"crop_url": url(row["crop_path"]), "photo_url": url(row["photo_path"]),
+                      "overlay_url": url(row["overlay_path"])}
 
     @app.post("/inspections/{iid}/decision")
     def decide(iid: int, d: Decision):

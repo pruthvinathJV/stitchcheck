@@ -117,6 +117,15 @@ def tile_side(im, mask, meta=None, calibration=None):
     return int(FALLBACK_FRAC * min(im.size)), None, "provisional"
 
 
+def seam_overlay(im, mask, max_side=1024):
+    """The photo with SAM's seam mask tinted green, for the result card (shows the checker what SAM found)."""
+    small = im.copy()
+    small.thumbnail((max_side, max_side))
+    m = Image.fromarray((mask * 255).astype(np.uint8)).resize(small.size, Image.NEAREST)
+    green = Image.new("RGB", small.size, (40, 220, 90))
+    return Image.composite(Image.blend(small, green, 0.55), small, m)
+
+
 def config_hash():
     """Identifies the evaluated configuration a row was produced with."""
     lock = Path("results/test/lock.json")
@@ -145,7 +154,9 @@ def step1(data, *, sam, ensemble, out_dir, classes):
     worst = int(np.argmax(1 - probs[:, classes.index(GOOD)]))
     crop_path = out_dir / f"{key}_tile{worst}.jpg"
     tiles[worst].save(crop_path, quality=92)
-    return dict(photo_path=str(photo_path), crop_path=str(crop_path), seam_found=True, seam_conf=seam["confidence"],
+    overlay_path = out_dir / f"{key}_seam.jpg"
+    seam_overlay(im, seam["mask"]).save(overlay_path, quality=88)
+    return dict(photo_path=str(photo_path), crop_path=str(crop_path), overlay_path=str(overlay_path), seam_found=True, seam_conf=seam["confidence"],
                 tile_side=side, stitch_pitch=pitch, scale_path=scale_path, focal_35mm=meta["focal_35mm"],
                 classifier_top2=top2(probs[worst]),
                 tile_probs=probs.round(4).tolist(), config_hash=config_hash(),

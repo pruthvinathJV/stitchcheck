@@ -60,6 +60,7 @@ CREATE TABLE IF NOT EXISTS inspection (
     reason TEXT NOT NULL CHECK (reason IN ('critical', 'suspicious', 'spot_check', 'audit')),
     photo_path TEXT NOT NULL,
     crop_path TEXT,
+    overlay_path TEXT,
     review_status TEXT NOT NULL DEFAULT 'reviewing' CHECK (review_status IN ('reviewing', 'done')),
     scale_path TEXT CHECK (scale_path IN ('pitch', 'fixed', 'provisional') OR scale_path IS NULL),
     part_chip TEXT,
