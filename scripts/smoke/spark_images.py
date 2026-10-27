@@ -1,6 +1,6 @@
 """Measure how many images Muse Spark accepts per request and what each image costs in tokens.
 
-python scripts/smoke/spark_images.py [--counts 1 5 20] [--big]
+python scripts/smoke/spark_images.py [--counts 1 5] [--big]
 
 Sends n held-out StitchingNet test images (224 px) in one chat request and asks for one label per image.
 --big also sends one image upscaled to 1280 px, to estimate the cost of a phone-resolution photo.
@@ -41,7 +41,7 @@ def run(client, images, prompt):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--counts", type=int, nargs="+", default=[1, 5, 20])
+    ap.add_argument("--counts", type=int, nargs="+", default=[1, 5])
     ap.add_argument("--big", action="store_true")
     args = ap.parse_args()
     splits = load_split()

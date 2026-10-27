@@ -23,16 +23,6 @@
       "answers_parsed": true
     },
     {
-      "n_images": 20,
-      "size": 224,
-      "ok": true,
-      "seconds": 20.36,
-      "prompt_tokens": 1385,
-      "completion_tokens": 5733,
-      "answer": "[\"broken_stitch\",\"broken_stitch\",\"good\",\"broken_stitch\",\"crooked_seam\",\"good\",\"puckering\",\"crooked_seam\",\"skipped_stitch\",\"puckering\",\"skipped_stitch\",\"good\",\"good\",\"stain_damage\",\"good\",\"good\",\"stain_damage\",\"puckering\",\"crooked_seam\",\"good\"]",
-      "answers_parsed": true
-    },
-    {
       "n_images": 1,
       "size": 1280,
       "ok": true,
@@ -43,5 +33,6 @@
       "answers_parsed": true
     }
   ],
-  "tokens_per_224px_image": 66.0
+  "tokens_per_224px_image": 66.0,
+  "note": "The 20-image request was removed: it included 3 CC BY-NC images (positions 10, 14, 17). The other requests used CC BY images only."
 }
