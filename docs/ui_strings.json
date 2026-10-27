@@ -1,0 +1,129 @@
+{
+  "_note": "UI strings for every screen in app/SPEC.md. Telugu is shown first with English below. The Telugu is a draft for review by the builder before the demo; edit freely. Keep numbers as Western digits. Status: draft, not reviewed.",
+  "common": {
+    "app_name": {"te": "స్టిచ్‌చెక్", "en": "StitchCheck"},
+    "demo_badge": {"te": "డెమో డేటా", "en": "Demo data"},
+    "back": {"te": "వెనక్కి", "en": "Back"},
+    "next": {"te": "తర్వాత", "en": "Next"},
+    "save": {"te": "సేవ్ చేయండి", "en": "Save"},
+    "cancel": {"te": "రద్దు", "en": "Cancel"},
+    "loading": {"te": "లోడ్ అవుతోంది...", "en": "Loading..."},
+    "error_generic": {"te": "ఏదో తప్పు జరిగింది. మళ్ళీ ప్రయత్నించండి.", "en": "Something went wrong. Please try again."},
+    "too_many_requests": {"te": "కొన్ని నిమిషాలు ఆగండి", "en": "Please wait a few minutes"},
+    "ai_unavailable": {"te": "AI ఇప్పుడు అందుబాటులో లేదు, తర్వాత ప్రయత్నించండి", "en": "AI unavailable, try later"}
+  },
+  "labels": {
+    "good": {"te": "సరిగా ఉంది", "en": "Good"},
+    "skipped_stitch": {"te": "కుట్లు జారాయి", "en": "Skipped stitch"},
+    "broken_stitch": {"te": "కుట్టు తెగింది", "en": "Broken stitch"},
+    "crooked_seam": {"te": "వంకర కుట్టు", "en": "Crooked seam"},
+    "puckering": {"te": "ముడతలు", "en": "Puckering"},
+    "stain_damage": {"te": "మరక / దెబ్బ", "en": "Stain or damage"},
+    "open_seam": {"te": "కుట్టు విడిపోయింది", "en": "Open seam"},
+    "unknown_defect": {"te": "తెలియని లోపం", "en": "Unknown defect"}
+  },
+  "parts": {
+    "collar": {"te": "కాలర్", "en": "Collar"},
+    "pocket": {"te": "జేబు", "en": "Pocket"},
+    "hem": {"te": "అంచు (హెమ్)", "en": "Hem"},
+    "side_seam": {"te": "పక్క కుట్టు", "en": "Side seam"},
+    "sleeve": {"te": "చేయి (స్లీవ్)", "en": "Sleeve"},
+    "placket": {"te": "ముందు పట్టీ (ప్లాకెట్)", "en": "Placket"},
+    "cuff": {"te": "కఫ్", "en": "Cuff"},
+    "shoulder": {"te": "భుజం", "en": "Shoulder"}
+  },
+  "severity": {
+    "critical": {"te": "తీవ్రమైనది", "en": "Critical"},
+    "major": {"te": "మేజర్", "en": "Major"},
+    "minor": {"te": "మైనర్", "en": "Minor"},
+    "none": {"te": "లోపం లేదు", "en": "No defect"}
+  },
+  "start_day": {
+    "title": {"te": "రోజు ప్రారంభం", "en": "Start day"},
+    "date": {"te": "తేదీ", "en": "Date"},
+    "style": {"te": "స్టైల్", "en": "Style"},
+    "fabric": {"te": "బట్ట", "en": "Fabric"},
+    "lot_size": {"te": "లాట్ సైజు (మొత్తం పీసులు)", "en": "Lot size (total pieces)"},
+    "critical_parts": {"te": "ప్రతి పీసులో ఫోటో తీయాల్సిన భాగాలు", "en": "Seams to photograph on every piece"},
+    "line_plan": {"te": "లైన్ ప్లాన్ (భాగం, ఆపరేటర్, మెషిన్)", "en": "Line plan (part, operator, machine)"},
+    "ai_mode": {"te": "AI మోడ్", "en": "AI mode"},
+    "mode_spark": {"te": "తక్కువ తప్పుడు హెచ్చరికలు (Muse Spark)", "en": "Low false alarm (Muse Spark)"},
+    "mode_open": {"te": "ఎక్కువ సున్నితత్వం (Muse Spark Open)", "en": "High sensitivity (Muse Spark Open)"},
+    "mode_figures": {"te": "మేజర్ లోపాలలో {recall}% పట్టుకుంటుంది, మంచి కుట్లలో {flagged}% ను అనుమానిస్తుంది", "en": "Catches {recall}% of major defects, flags {flagged}% of good seams"},
+    "mode_footnote": {"te": "పబ్లిక్ స్టిచ్ డేటాసెట్‌పై కొలిచినవి. Muse Spark అందుబాటులో లేకపోతే Muse Spark Open ఆటోమేటిక్‌గా సమాధానం ఇస్తుంది.", "en": "Measured on a public stitch dataset; if Muse Spark is unavailable, Muse Spark Open answers automatically."},
+    "start": {"te": "ప్రారంభించండి", "en": "Start"}
+  },
+  "inspect": {
+    "bundle": {"te": "బండిల్", "en": "Bundle"},
+    "garment": {"te": "పీసు {n}", "en": "Garment {n}"},
+    "dhu_so_far": {"te": "ఇప్పటివరకు DHU", "en": "DHU so far"},
+    "next_garment": {"te": "తర్వాతి పీసు", "en": "Next garment"},
+    "garment_done": {"te": "పీసు పూర్తయింది", "en": "Garment done"},
+    "photograph_list": {"te": "ఈ కుట్లను ఫోటో తీయండి", "en": "Photograph these seams"},
+    "spot_check": {"te": "అదనపు తనిఖీ", "en": "Spot check"},
+    "add_suspicious": {"te": "అనుమానం ఉన్న కుట్టు జోడించండి", "en": "Add a suspicious seam"},
+    "camera_guide": {"te": "కుట్టును అడ్డంగా ఉంచి, సుమారు 15 సెం.మీ. దూరం నుండి తీయండి", "en": "Hold the seam level, about 15 cm away"},
+    "retake_move_closer": {"te": "కుట్టుకు దగ్గరగా వెళ్ళండి", "en": "Move closer to the stitching"},
+    "classifier_says": {"te": "క్లాసిఫైయర్: {label}", "en": "Classifier: {label}"},
+    "reviewing": {"te": "AI పరిశీలిస్తోంది...", "en": "Reviewing..."},
+    "review_slow": {"te": "పరిశీలన ఆలస్యం అవుతోంది, మీరే నిర్ణయించవచ్చు", "en": "Review slow, you can still decide"},
+    "your_call": {"te": "మీ నిర్ణయం", "en": "Your call"},
+    "your_call_why": {"te": "AI మరియు క్లాసిఫైయర్ ఏకీభవించలేదు, లేదా AI కి ఖచ్చితంగా తెలియదు", "en": "The AI and the classifier disagree, or the AI was unsure"},
+    "sam_sees": {"te": "SAM చూసింది: {part}", "en": "SAM sees: {part}"},
+    "seam_found": {"te": "SAM కనుగొన్న కుట్టు (ఆకుపచ్చ)", "en": "Seam SAM found (green)"},
+    "brain_spark": {"te": "Muse Spark", "en": "Muse Spark"},
+    "brain_open": {"te": "Muse Spark Open", "en": "Muse Spark Open"},
+    "fell_back": {"te": "Muse Spark అందుబాటులో లేదు; Muse Spark Open సమాధానం ఇచ్చింది", "en": "Muse Spark was unavailable; Muse Spark Open answered"},
+    "classifier_only": {"te": "క్లాసిఫైయర్ మాత్రమే: మీ నిర్ణయం", "en": "Classifier only: your call"},
+    "agree": {"te": "సరే", "en": "Agree"},
+    "change": {"te": "మార్చండి", "en": "Change"},
+    "not_a_defect": {"te": "లోపం కాదు", "en": "Not a defect"},
+    "retake": {"te": "మళ్ళీ తీయండి", "en": "Retake"},
+    "operator": {"te": "ఆపరేటర్", "en": "Operator"},
+    "machine": {"te": "మెషిన్", "en": "Machine"},
+    "how_ai_decided": {"te": "AI ఎలా నిర్ణయించింది", "en": "How the AI decided"}
+  },
+  "voice": {
+    "hold_to_speak": {"te": "నొక్కి పట్టి మాట్లాడండి", "en": "Hold to speak"},
+    "transcript": {"te": "మీరు చెప్పింది", "en": "What you said"},
+    "check_fields": {"te": "ఈ వివరాలు సరిచూడండి", "en": "Check these details"},
+    "pick_defect": {"te": "లోపాన్ని ఎంచుకోండి", "en": "Pick the defect"},
+    "confirm": {"te": "నిర్ధారించండి", "en": "Confirm"}
+  },
+  "dashboard": {
+    "title": {"te": "డాష్‌బోర్డ్", "en": "Dashboard"},
+    "dhu": {"te": "DHU (100 పీసులకు లోపాలు)", "en": "DHU (defects per 100 garments)"},
+    "defective_pct": {"te": "లోపం ఉన్న పీసులు %", "en": "Defective garments %"},
+    "by_machine": {"te": "మెషిన్ వారీగా", "en": "By machine"},
+    "by_part": {"te": "ఆపరేషన్ వారీగా", "en": "By operation"},
+    "by_defect": {"te": "లోపం వారీగా", "en": "By defect"},
+    "top_issues": {"te": "ముఖ్యమైన సమస్యలు", "en": "Top issues"},
+    "alerts": {"te": "హెచ్చరికలు", "en": "Alerts"},
+    "alert_text": {"te": "మెషిన్ {machine}: చివరి {window} పీసులలో {count} సార్లు {defect}", "en": "Machine {machine}: {defect} on {count} of the last {window} garments"},
+    "work_order": {"te": "మెకానిక్ కోసం పని ఆదేశం", "en": "Work order for the mechanic"},
+    "audit_pass_chance": {"te": "బయ్యర్ AQL ఆడిట్ పాస్ అయ్యే అవకాశం (జాగ్రత్తగా అంచనా)", "en": "Chance the buyer's AQL audit passes (cautious estimate)"},
+    "ai_vs_checker": {"te": "AI సూచన vs చెకర్ నిర్ణయం", "en": "AI suggestion vs checker decision"},
+    "supervisor_view": {"te": "సూపర్‌వైజర్ మాత్రమే: శిక్షణ కోసం", "en": "Supervisor only: for training"}
+  },
+  "audit": {
+    "title": {"te": "AQL ఆడిట్", "en": "AQL audit"},
+    "start": {"te": "ఆడిట్ ప్రారంభించండి", "en": "Start audit"},
+    "sample": {"te": "తనిఖీ చేయాల్సిన పీసు నంబర్లు", "en": "Garment numbers to inspect"},
+    "progress": {"te": "{n} లో {done} తనిఖీ అయ్యాయి", "en": "{done} of {n} inspected"},
+    "in_progress": {"te": "కొనసాగుతోంది", "en": "In progress"},
+    "accept": {"te": "ఆమోదం", "en": "Accept"},
+    "reject": {"te": "తిరస్కరణ", "en": "Reject"}
+  },
+  "report": {
+    "generate": {"te": "ఈ రోజు రిపోర్ట్ తయారు చేయండి", "en": "Generate today's report"},
+    "validator_warning": {"te": "కొన్ని సంఖ్యలను తనిఖీ చేయలేకపోయాం; పంపే ముందు చూడండి", "en": "Some numbers could not be checked; review before sending"},
+    "how_written": {"te": "AI దీన్ని ఎలా రాసింది", "en": "How the AI wrote this"},
+    "print": {"te": "ప్రింట్ / PDF సేవ్", "en": "Print / Save PDF"}
+  },
+  "demo": {
+    "title": {"te": "డెమో", "en": "Demo"},
+    "gallery": {"te": "ఒక ఫోటో ప్రయత్నించండి", "en": "Try a photo"},
+    "upload": {"te": "మీ ఫోన్ నుండి ఫోటో", "en": "Photo from your phone"},
+    "reset": {"te": "డెమో రీసెట్", "en": "Reset demo"}
+  }
+}
