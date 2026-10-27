@@ -177,6 +177,18 @@ def label_photos(photos, expected=EXPECTED_TAGS):
     return pd.DataFrame(rows), warnings
 
 
+MIN_LONG_SIDE = 2000  # WhatsApp "Photo" (not "Document") sends about 1600 px on the long side
+
+
+def size_warnings(df):
+    """Photos whose long side is under MIN_LONG_SIDE: probably sent as a WhatsApp Photo, which is compressed."""
+    small = [(r.photo_id, r.size) for r in df.itertuples() if max(map(int, r.size.split("x"))) < MIN_LONG_SIDE]
+    if not small:
+        return []
+    return [f"{len(small)} photos under {MIN_LONG_SIDE} px on the long side (sent as WhatsApp Photo, not Document?); "
+            f"stitches may be too small to see. First: " + ", ".join(f"{i} {s}" for i, s in small[:5])]
+
+
 def export_images(df, sources, out_dir):
     """Copy as clean JPEGs: apply EXIF rotation, strip all metadata (GPS)."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -227,6 +239,7 @@ def ingest(src, out, folders=False, pairs=None):
                 continue
             part = part.assign(size=export_images(part, [by_name[n] for n in part["source_file"]], folder / "images"))
             part.to_csv(folder / "manifest.csv", index=False)
+            warnings += size_warnings(part)
     return df, warnings
 
 

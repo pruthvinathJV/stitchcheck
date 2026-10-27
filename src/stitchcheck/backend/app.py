@@ -236,13 +236,14 @@ def create_app(deps: Deps):
         transcript = deps.transcribe(path)
         parsed = parse_correction(deps.spark, transcript, line_plan(sess["session_id"]))
         run_id = write(db.insert, "agent_run", kind="voice", request={"transcript": transcript}, tool_calls=[],
-                       tool_outputs=[], final={"proposed": parsed["proposed"], "ambiguous": parsed["ambiguous"]},
+                       tool_outputs=[], final={"proposed": parsed["proposed"], "ambiguous": parsed["ambiguous"],
+                                               "label_candidates": parsed["label_candidates"]},
                        latency_ms=int(parsed["seconds"] * 1000), tokens_in=parsed["prompt_tokens"],
                        tokens_out=parsed["completion_tokens"], cost_usd=cost(parsed["prompt_tokens"], parsed["completion_tokens"]))
         vid = write(db.insert, "voice_note", inspection_id=iid, audio_path=str(path), transcript=transcript,
                     parsed={"proposed": parsed["proposed"], "ambiguous": parsed["ambiguous"], "agent_run_id": run_id})
         return {"voice_note_id": vid, "transcript": transcript, "proposed": parsed["proposed"],
-                "ambiguous": parsed["ambiguous"], "agent_run_id": run_id}
+                "ambiguous": parsed["ambiguous"], "label_candidates": parsed["label_candidates"], "agent_run_id": run_id}
 
     @app.get("/sessions/{sid}/dashboard")
     def dashboard(sid: int):

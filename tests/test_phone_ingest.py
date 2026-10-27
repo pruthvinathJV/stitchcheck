@@ -35,7 +35,8 @@ def test_spec_counts():
     assert len(ingest.EXPECTED_TAGS) == 60
 
 
-def test_full_ios_export(tmp_path):
+def test_full_ios_export(tmp_path, monkeypatch):
+    monkeypatch.setattr(ingest, "MIN_LONG_SIDE", 10)  # fixture photos are tiny
     src, out = tmp_path / "src", tmp_path / "out"
     src.mkdir()
     assert _ios_export(src) == 240
@@ -65,7 +66,8 @@ def test_full_ios_export(tmp_path):
     assert 0x8825 not in first.getexif()        # GPS stripped
 
 
-def test_single_pair_pilot(tmp_path):
+def test_single_pair_pilot(tmp_path, monkeypatch):
+    monkeypatch.setattr(ingest, "MIN_LONG_SIDE", 10)
     src, out = tmp_path / "src", tmp_path / "pilot"
     src.mkdir()
     _ios_export(src, tags=["A-1-1"])
@@ -132,3 +134,11 @@ def test_review_export_keeps_accepted_with_reviewed_label(tmp_path):
     review.export(out, tmp_path / "labels.csv")
     rows = list(csv.DictReader((tmp_path / "labels.csv").open()))
     assert [(r["photo_id"], r["label_reviewed"]) for r in rows] == [("A1-p1-m1", "good"), ("A2-p1-m2", "good")]
+
+
+def test_warns_when_photos_look_whatsapp_compressed(tmp_path):
+    src, out = tmp_path / "src", tmp_path / "pilot"
+    src.mkdir()
+    _ios_export(src, tags=["A-1-1"])  # 40 x 20 px photos
+    _, warnings = ingest.ingest(src, out, pairs=["A-1-1"])
+    assert len(warnings) == 1 and "4 photos under 2000 px" in warnings[0] and "Document" in warnings[0]
