@@ -108,3 +108,18 @@ def test_trend_alert_after_three_skipped_on_one_machine(client):
     assert out["new_alerts"] == [{"id": 1, "machine_id": "M01", "defect": "skipped_stitch", "garment_ids": [g["id"] for g in gs[:3]]}]
     client.post(f"/garments/{gs[3]['id']}/complete")
     assert len(client.get(f"/sessions/{s['id']}/dashboard").json()["alerts"]) == 1  # no repeat alert
+
+
+def test_report_endpoint_stores_report_and_trace(tmp_path, monkeypatch):
+    from test_report import ScriptedSpark
+    monkeypatch.setattr("stitchcheck.spark.inspect.CACHE_DIR", tmp_path / "cache")
+    spark = ScriptedSpark(["## Buyer summary\nDHU {{dhu.session.dhu}} on {{dhu.session.garments}} garments."])
+    deps = Deps(db_path=str(tmp_path / "t.db"), storage=str(tmp_path / "p"), sam=fake_sam(), ensemble=FakeEnsemble(SKIPPED),
+                spark=spark, transcribe=lambda p: "", reference=lambda f: None)
+    c = TestClient(create_app(deps))
+    s, (g,) = start(c)
+    c.post(f"/garments/{g['id']}/complete")
+    r = c.post(f"/sessions/{s['id']}/report").json()
+    assert r["validator_ok"] == 1 and r["body_md"].endswith("DHU 0.0 on 1 garments.")
+    trace = c.get(f"/agent-runs/{r['agent_run_id']}").json()
+    assert trace["kind"] == "report" and trace["steps"][0]["call"]["name"] == "get_dhu"

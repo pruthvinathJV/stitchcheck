@@ -15,7 +15,8 @@ from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadF
 from pydantic import BaseModel
 
 from stitchcheck.backend import db
-from stitchcheck.backend.pipeline import clean_photo, part_chip, step1, step2
+from stitchcheck.backend.pipeline import part_chip, step1, step2
+from stitchcheck.backend.report import run_report
 from stitchcheck.backend.voice_parse import parse_correction
 from stitchcheck.classifier.train import CLASSES
 from stitchcheck.qc import counts
@@ -263,6 +264,23 @@ def create_app(deps: Deps):
                 "sent_to_checker": sum(1 for i in insp if i["needs_checker"]),
             },
         }
+
+    @app.post("/sessions/{sid}/report")
+    def report(sid: int):
+        one("SELECT id FROM session WHERE id = ?", sid)
+        with lock:  # the report reads a consistent snapshot of the session
+            r = run_report(deps.spark, con, sid)
+        tin, tout = r["tokens"]
+        run_id = write(db.insert, "agent_run", kind="report", request={"session_id": sid}, tool_calls=r["trace"]["tool_calls"],
+                       tool_outputs=r["trace"]["tool_outputs"], final={"template": r["template"], "errors": r["errors"]},
+                       latency_ms=int(r["seconds"] * 1000), tokens_in=tin, tokens_out=tout, cost_usd=cost(tin, tout))
+        rid = write(db.insert, "report", session_id=sid, kind="daily", body_template=r["template"], body_md=r["body_md"],
+                    validator_ok=int(r["validator_ok"]), agent_run_id=run_id)
+        return get_report(rid) | {"errors": r["errors"]}
+
+    @app.get("/reports/{rid}")
+    def get_report(rid: int):
+        return one("SELECT * FROM report WHERE id = ?", rid)
 
     @app.get("/agent-runs/{rid}")
     def agent_run(rid: int):
