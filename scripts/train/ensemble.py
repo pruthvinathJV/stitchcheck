@@ -2,7 +2,8 @@
 
 python scripts/train/ensemble.py --bench RUN RUN RUN [--demo RUN RUN RUN]
 
---bench: the 8-fabric runs. Reports each seed's Linen macro-F1 and the ensemble's.
+--bench: the 8-fabric runs, each stopped after the same fixed epoch N. Reports each seed's Linen macro-F1 and the
+         ensemble's at epoch N, labelled optimistic: the setting and N were both chosen on Linen.
 --demo:  the 11-fabric runs. Linen is in their training data, so this is not a score: each seed must agree with
          the benchmark ensemble on at least 90% of Linen predictions, as a check that no seed went bad.
 Writes results/classifier/ensemble.json.
@@ -32,7 +33,7 @@ def main():
     ap.add_argument("--bench", nargs=3, required=True)
     ap.add_argument("--demo", nargs=3)
     args = ap.parse_args()
-    device = "mps" if torch.backends.mps.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     classes = CLASSES["clean"]
     _, val = select("clean")
     dl = DataLoader(Images(val, classes, eval_transform()), batch_size=64, num_workers=0)
@@ -41,7 +42,10 @@ def main():
 
     bench = {run: predict(load(run, device), dl, device) for run in args.bench}
     ens = sum(bench.values()) / len(bench)
-    out = dict(val="Linen", n=len(val), bench={run: round(macro(p), 4) for run, p in bench.items()},
+    epochs = {json.loads((Path("results/classifier") / run / "metrics.json").read_text())["best_epoch"] for run in args.bench}
+    assert len(epochs) == 1, f"benchmark seeds stopped at different epochs: {epochs}"
+    out = dict(val="Linen", n=len(val), epoch=epochs.pop(),
+               note="optimistic: the setting and the epoch were chosen on Linen", bench={run: round(macro(p), 4) for run, p in bench.items()},
                bench_ensemble=round(macro(ens), 4))
     if args.demo:
         agree = {run: round(float((predict(load(run, device), dl, device).argmax(1) == ens.argmax(1)).mean()), 4)
