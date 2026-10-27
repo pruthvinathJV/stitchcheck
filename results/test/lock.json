@@ -1,0 +1,43 @@
+{
+  "spark_model": "muse-spark-1.3",
+  "size": 448,
+  "effort": "minimal",
+  "seed": 0,
+  "prompts": {
+    "zero_shot": "f09498c19739e55f",
+    "few_shot_note": "5226f99f95aa6e8d",
+    "inspect": "25835669af9ae954"
+  },
+  "few_shot_design": "one good reference (a)",
+  "references": {
+    "Cotton": "F. Satin-Core/0. Normal/image/F_00_131.jpg",
+    "Oxford": "F. Satin-Core/0. Normal/image/F_00_131.jpg"
+  },
+  "hybrid": {
+    "protect_t": 0.6,
+    "major": [
+      "skipped_stitch",
+      "broken_stitch",
+      "stain_damage"
+    ],
+    "no_downgrade": [
+      "good",
+      "crooked_seam"
+    ]
+  },
+  "classifier_runs": {
+    "clean_convnext_tiny_8fab_final12-seed0": "f67b9ba976cb71fe",
+    "clean_convnext_tiny_8fab_final12-seed1": "0073e5f95c994a7f",
+    "clean_convnext_tiny_8fab_final12-seed2": "ad1a126fb61f0bcd"
+  },
+  "split_file": "data/splits/stitchingnet_v2.csv",
+  "split_sha": "fc237082ee5fbf37",
+  "n_test": 1428,
+  "n_unseen": 667,
+  "n_spark_subset": 480,
+  "metrics": "docs/design.md, Metrics; src/stitchcheck/eval/metrics.py",
+  "bootstrap": {
+    "n_boot": 2000,
+    "seed": 0
+  }
+}
