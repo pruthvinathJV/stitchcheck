@@ -19,7 +19,7 @@ from stitchcheck.backend import db
 from stitchcheck.backend.pipeline import part_chip, step1, step2
 from stitchcheck.backend.report import run_report
 from stitchcheck.backend.voice_parse import parse_correction
-from stitchcheck.classifier.train import CLASSES
+from stitchcheck.data.stitchingnet import LABELS
 from stitchcheck.qc import counts
 from stitchcheck.qc.aql import aql_plan, audit_status
 from stitchcheck.spark import inspect as hybrid
@@ -37,7 +37,7 @@ class Deps:
     spark: object
     transcribe: Callable
     reference: Callable  # fabric -> path of a good-seam reference crop
-    classes: list = field(default_factory=lambda: list(CLASSES["clean"]))
+    classes: list = field(default_factory=lambda: list(LABELS))
 
 
 class LinePlanRow(BaseModel):
@@ -340,23 +340,34 @@ def create_app(deps: Deps):
 
 
 def default_app():
-    """The real dependencies (API keys from .env, the 11-fabric demo ensemble: the exported ONNX graph when present,
-    which matches PyTorch exactly, results/export/demo_ensemble.json)."""
-    from stitchcheck.classifier.ensemble import ONNX_DEMO, Ensemble, OnnxEnsemble
-    from stitchcheck.data.stitchingnet import image_path, load_split
+    """The real dependencies. Paths come from the environment so the same code runs locally and hosted:
+    STITCHCHECK_DB, STITCHCHECK_STORAGE, STITCHCHECK_ONNX, STITCHCHECK_REFS (per-fabric reference crops) and
+    STITCHCHECK_FALLBACK_REF (the locked training-fabric reference used on StitchingNet). The demo day is seeded on
+    first start."""
+    import os
+
+    from stitchcheck.backend.demo import seed_demo
+    from stitchcheck.classifier.ensemble import ONNX_DEMO, OnnxEnsemble
     from stitchcheck.meta_api import sam_segment, spark_client
     from stitchcheck.voice import transcribe_correction
 
-    split = load_split()
-    fallback = image_path(split.query("split == 'train' and fabric == 'Satin' and label == 'good'")
-                          .sample(1, random_state=0)["path"].item())
+    env = lambda k, d: Path(os.environ.get(k, d))
+    onnx, refs = env("STITCHCHECK_ONNX", str(ONNX_DEMO)), env("STITCHCHECK_REFS", "data/phone/ref_tiles")
+    fallback = env("STITCHCHECK_FALLBACK_REF", "data/raw/stitchingnet_seg/extracted/dataset/F. Satin-Core/0. Normal/image/F_00_131.jpg")
 
     def reference(fabric):
         # The session fabric's good reference: a crop cut by step 1 from its {F}-1-5 reference pair, once the pairs
-        # arrive; otherwise the training-fabric fallback used on StitchingNet.
-        crop = Path("data/phone/ref_tiles") / f"{fabric}-good.jpg"
+        # arrive; otherwise the locked training-fabric reference (results/test/lock.json).
+        crop = refs / f"{fabric}-good.jpg"
         return crop if crop.exists() else fallback
 
-    return create_app(Deps(db_path="data/app/stitchcheck.db", storage="data/app/photos", sam=sam_segment,
-                           ensemble=OnnxEnsemble() if ONNX_DEMO.exists() else Ensemble(), spark=spark_client(), transcribe=transcribe_correction,
-                           reference=reference))
+    if onnx.exists():
+        ensemble = OnnxEnsemble(onnx)
+    else:  # local development without the export
+        from stitchcheck.classifier.ensemble import Ensemble
+        ensemble = Ensemble()
+    app = create_app(Deps(db_path=str(env("STITCHCHECK_DB", "data/app/stitchcheck.db")),
+                          storage=str(env("STITCHCHECK_STORAGE", "data/app/photos")), sam=sam_segment, ensemble=ensemble,
+                          spark=spark_client(), transcribe=transcribe_correction, reference=reference))
+    seed_demo(app.state.con)
+    return app

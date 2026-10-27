@@ -59,6 +59,7 @@ Also reported:
 - **(C)** Fine-tuned classifier (five classes, CC BY data): the 3-seed 8-fabric ensemble, epoch 12. Reported on the full test split (1,428 + 667 unseen) and on the Spark subset (420 + 60), so comparisons with the Spark arms are paired.
 - **(D)** Hybrid: `inspect()` in `src/stitchcheck/spark/inspect.py`, the same function the app runs. Muse Spark with one good reference calls the classifier as a tool, and judges puckering itself few-shot (phone set only). Two views are reported: the auto label (disagreements count as ask_checker) and the label shown to the checker.
 - **(E, optional)** Muse Spark Open (open weights) on Modal Endpoints, with the same prompts, image size, few-shot references and test subset as the Muse Spark arms. Whether it runs is decided on Day 4. Its results go in the main table only if it runs on the full subset; a partial run is reported separately and labelled as partial.
+  *Arm E settings, fixed Oct 27 before any arm E call:* endpoint `meta-models/Muse-Spark-Open-816B-A42B` on Modal; the locked prompts, references, classifier probabilities and threshold, checked against `results/test/lock.json` by the runner (`scripts/test/run_arm_e.py`). One deviation: reasoning effort `low`, the lowest the endpoint accepts (it rejects `minimal`, which arms A, B and D used); not tuned on any data.
 
 ## Classifier selection (fixed before the search runs)
 

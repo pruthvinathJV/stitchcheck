@@ -145,3 +145,16 @@ def test_audit_draws_a_sample_counts_only_sampled_garments_and_stays_out_of_dhu(
     assert st["status"] == "reject" and st["rejected_by"] == ["major"] and st["inspected_garment_nos"] == first4
     dash = client.get(f"/sessions/{s['id']}/dashboard").json()
     assert dash["completed_garments"] == 0 and dash["inspections"] == 0  # audit garments are not end-line units
+
+
+def test_demo_day_is_seeded_once_with_a_trend_alert(tmp_path):
+    from stitchcheck.backend.db import connect
+    from stitchcheck.backend.demo import seed_demo
+    con = connect(tmp_path / "d.db")
+    sid = seed_demo(con)
+    assert seed_demo(con) == sid  # idempotent
+    deps = Deps(db_path=str(tmp_path / "d.db"), storage=str(tmp_path / "p"), sam=fake_sam(), ensemble=FakeEnsemble(SKIPPED),
+                spark=FakeSpark(), transcribe=lambda p: "", reference=lambda f: None)
+    dash = TestClient(create_app(deps)).get(f"/sessions/{sid}/dashboard").json()
+    assert dash["completed_garments"] == 42 and dash["dhu"] > 0
+    assert any(a["machine_id"] == "7" and a["defect"] == "skipped_stitch" for a in dash["alerts"])
