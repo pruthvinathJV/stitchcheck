@@ -21,6 +21,7 @@ from stitchcheck.backend.report import run_report
 from stitchcheck.backend.voice_parse import parse_correction
 from stitchcheck.classifier.train import CLASSES
 from stitchcheck.qc import counts
+from stitchcheck.qc.aql import aql_plan, audit_status
 from stitchcheck.spark import inspect as hybrid
 
 PRICE_IN, PRICE_OUT = 1.25 / 1e6, 4.25 / 1e6  # muse-spark-1.3 standard, USD per token
@@ -134,6 +135,8 @@ def create_app(deps: Deps):
     @app.post("/sessions/{sid}/bundles")
     def new_bundle(sid: int, b: NewBundle):
         one("SELECT id FROM session WHERE id = ?", sid)
+        if b.bundle_no == db.AUDIT_BUNDLE:
+            raise HTTPException(422, f"bundle {db.AUDIT_BUNDLE} is reserved for the audit")
         return {"id": write(db.insert, "bundle", session_id=sid, bundle_no=b.bundle_no), "bundle_no": b.bundle_no}
 
     @app.post("/bundles/{bid}/garments")
@@ -275,6 +278,37 @@ def create_app(deps: Deps):
                 "sent_to_checker": sum(1 for i in insp if i["needs_checker"]),
             },
         }
+
+    @app.post("/sessions/{sid}/audit")
+    def start_audit(sid: int):
+        s = one("SELECT * FROM session WHERE id = ?", sid)
+        plan = aql_plan(s["lot_size"])
+        sample = counts.audit_sample(s["lot_size"], plan["critical"]["sample_size"], seed=f"audit:{sid}")
+        bundle = con.execute("SELECT id FROM bundle WHERE session_id = ? AND bundle_no = ?", (sid, db.AUDIT_BUNDLE)).fetchone()
+        bid = bundle["id"] if bundle else write(db.insert, "bundle", session_id=sid, bundle_no=db.AUDIT_BUNDLE)
+        write(db.insert, "audit", session_id=sid, lot_size=s["lot_size"], plan=plan, sampled_garment_nos=sample)
+        return get_audit(sid) | {"audit_bundle_id": bid}
+
+    @app.get("/sessions/{sid}/audit")
+    def get_audit(sid: int):
+        a = one("SELECT * FROM audit WHERE session_id = ? ORDER BY id DESC", sid)
+        insp = db.session_inspections(con, sid, audit=True)
+        by_no = {}
+        for i in counts.confirmed_defects(insp, db.completed_garments(con, sid, audit=True)):
+            sev = i["final_severity"] if i["final_severity"] in ("critical", "major", "minor") else "major"
+            by_no.setdefault(i["garment_no"], {"critical": 0, "major": 0, "minor": 0})[sev] += 1
+        completed_nos = {r["garment_no"] for r in con.execute(
+            "SELECT g.garment_no FROM garment g JOIN bundle b ON b.id = g.bundle_id WHERE b.session_id = ? "
+            "AND b.bundle_no = ? AND g.status = 'complete'", (sid, db.AUDIT_BUNDLE)).fetchall()}
+        # Findings in draw order, for the sampled garments inspected so far
+        findings = [by_no.get(n, {}) for n in a["sampled_garment_nos"] if n in completed_nos]
+        status = audit_status(a["plan"], findings)
+        if status["status"] != a["status"]:
+            write(db.update, "audit", a["id"], status=status["status"])
+        bundle = con.execute("SELECT id FROM bundle WHERE session_id = ? AND bundle_no = ?", (sid, db.AUDIT_BUNDLE)).fetchone()
+        return {"id": a["id"], "plan": a["plan"], "sampled_garment_nos": a["sampled_garment_nos"],
+                "inspected_garment_nos": [n for n in a["sampled_garment_nos"] if n in completed_nos],
+                "audit_bundle_id": bundle["id"] if bundle else None} | status
 
     @app.post("/sessions/{sid}/report")
     def report(sid: int):

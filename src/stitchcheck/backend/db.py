@@ -157,17 +157,22 @@ def update(con, table, row_id, **fields):
     con.commit()
 
 
-def session_inspections(con, session_id):
-    """Every inspection of a session, with its garment and bundle numbers."""
+AUDIT_BUNDLE = 0  # audit garments live in bundle 0, apart from the end-line count
+
+
+def session_inspections(con, session_id, audit=False):
+    """Inspections of a session with their garment and bundle numbers: end-line ones by default, or the audit's."""
+    op = "=" if audit else "!="
     return con.execute(
         "SELECT i.*, g.garment_no, g.status AS garment_status, b.bundle_no FROM inspection i "
-        "JOIN garment g ON g.id = i.garment_id JOIN bundle b ON b.id = g.bundle_id WHERE b.session_id = ? "
-        "ORDER BY i.id", (session_id,)).fetchall()
+        "JOIN garment g ON g.id = i.garment_id JOIN bundle b ON b.id = g.bundle_id "
+        f"WHERE b.session_id = ? AND b.bundle_no {op} ? ORDER BY i.id", (session_id, AUDIT_BUNDLE)).fetchall()
 
 
-def completed_garments(con, session_id):
-    """Completed garment ids of a session, oldest completion first."""
+def completed_garments(con, session_id, audit=False):
+    """Completed garment ids of a session (end-line by default, or the audit's), oldest completion first."""
+    op = "=" if audit else "!="
     rows = con.execute(
         "SELECT g.id FROM garment g JOIN bundle b ON b.id = g.bundle_id WHERE b.session_id = ? AND g.status = 'complete' "
-        "ORDER BY g.completed_at, g.id", (session_id,)).fetchall()
+        f"AND b.bundle_no {op} ? ORDER BY g.completed_at, g.id", (session_id, AUDIT_BUNDLE)).fetchall()
     return [r["id"] for r in rows]

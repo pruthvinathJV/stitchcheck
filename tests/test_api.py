@@ -124,3 +124,22 @@ def test_report_endpoint_stores_report_and_trace(tmp_path, monkeypatch):
     assert r["validator_ok"] == 1 and r["body_md"].endswith("DHU 0.0 on 1 garments.")
     trace = c.get(f"/agent-runs/{r['agent_run_id']}").json()
     assert trace["kind"] == "report" and trace["steps"][0]["call"]["name"] == "get_dhu"
+
+
+def test_audit_draws_a_sample_counts_only_sampled_garments_and_stays_out_of_dhu(client):
+    s, (g,) = start(client)  # lot 500: code H, major n=50 (3/4), minor n=50 (5/6)
+    a = client.post(f"/sessions/{s['id']}/audit").json()
+    assert a["plan"]["code"] == "H" and len(a["sampled_garment_nos"]) == 50 and a["status"] == "in_progress"
+    assert client.post(f"/sessions/{s['id']}/bundles", json={"bundle_no": 0}).status_code == 422
+    first4 = a["sampled_garment_nos"][:4]
+    for n in first4:  # 4 sampled garments, each with a confirmed major (skipped stitch): Re = 4 -> reject
+        ag = client.post(f"/bundles/{a['audit_bundle_id']}/garments", json={"garment_no": n}).json()
+        iid = shoot(client, ag)["inspection_id"]
+        client.post(f"/inspections/{iid}/decision", json={"action": "agree"})
+        client.post(f"/garments/{ag['id']}/complete")
+        if n == first4[2]:
+            assert client.get(f"/sessions/{s['id']}/audit").json()["status"] == "in_progress"
+    st = client.get(f"/sessions/{s['id']}/audit").json()
+    assert st["status"] == "reject" and st["rejected_by"] == ["major"] and st["inspected_garment_nos"] == first4
+    dash = client.get(f"/sessions/{s['id']}/dashboard").json()
+    assert dash["completed_garments"] == 0 and dash["inspections"] == 0  # audit garments are not end-line units
