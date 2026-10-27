@@ -24,7 +24,7 @@ from stitchcheck.backend.report import run_report
 from stitchcheck.backend.voice_parse import parse_correction
 from stitchcheck.data.stitchingnet import LABELS
 from stitchcheck.qc import counts
-from stitchcheck.qc.aql import aql_plan, audit_status
+from stitchcheck.qc.aql import aql_plan, audit_status, pass_chance
 from stitchcheck.spark import inspect as hybrid
 
 PER_IP_PER_HOUR = 60  # requests that call a model (photos, voice, reports) per visitor IP
@@ -317,9 +317,10 @@ def create_app(deps: Deps):
 
     @app.get("/sessions/{sid}/dashboard")
     def dashboard(sid: int):
-        one("SELECT id FROM session WHERE id = ?", sid)
+        s = one("SELECT * FROM session WHERE id = ?", sid)
         insp, done = db.session_inspections(con, sid), db.completed_garments(con, sid)
         pending = sum(1 for i in insp if i["decision"] == "pending")
+        plan = aql_plan(s["lot_size"])
         return {
             "completed_garments": len(done), "inspections": len(insp), "pending_decisions": pending,
             "dhu": round(counts.dhu(insp, done), 2), "defective_pct": round(counts.defective_pct(insp, done), 2),
@@ -328,6 +329,9 @@ def create_app(deps: Deps):
             "top_issues": counts.process_issues(insp, done, n=3),
             "supervisor_only": {"by_operator": counts.dhu_by(insp, done, "operator")},
             "alerts": con.execute("SELECT * FROM alert WHERE session_id = ? ORDER BY id DESC", (sid,)).fetchall(),
+            # cautious: at the end-line defect rate before repairs
+            "audit_pass_chance": pass_chance(plan, *counts.defects_per_unit(insp, done)) | {
+                "sample_size": plan["major"]["sample_size"], "major_ac": plan["major"]["ac"], "minor_ac": plan["minor"]["ac"]},
             "ai_vs_checker": {
                 "agreed": sum(1 for i in insp if i["decision"] == "agree"),
                 "changed": sum(1 for i in insp if i["decision"] == "changed"),

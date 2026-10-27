@@ -101,3 +101,13 @@ def trend_alerts(inspections, garment_order, threshold=3, window=10):
                 hits[i["final_label"]].add(i["garment_id"])
         alerts += [(m, d, sorted(gs)) for d, gs in hits.items() if len(gs) >= threshold]
     return alerts
+
+
+def defects_per_unit(inspections, completed):
+    """Confirmed major and minor defects per completed garment (critical counted as major for this rate)."""
+    completed = set(completed)
+    d = confirmed_defects(inspections, completed)
+    n = len(completed) or 1
+    major = sum(1 for i in d if i.get("final_severity") in ("major", "critical"))
+    minor = sum(1 for i in d if i.get("final_severity") == "minor")
+    return major / n, minor / n

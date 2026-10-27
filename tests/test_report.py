@@ -34,7 +34,7 @@ def session(tmp_path):
         if label:
             i = insert(con, "inspection", garment_id=g, reason="critical", photo_path="p", seam_found=1, config_hash="x")
             update(con, "inspection", i, decision="agree", final_label=label, final_part="collar", operator_id="OP07",
-                   machine_id="12")
+                   machine_id="12", final_severity="none" if label == "good" else "major")
         update(con, "garment", g, status="complete", completed_at=f"2026-10-28T10:0{n}:00")
     return con, s
 
@@ -53,6 +53,8 @@ def test_tools_expose_facts_from_the_database(session):
     assert t.get_audit_status()["facts"] == {"audit.status": "no audit run"}
     assert t.get_checklist("skipped_stitch")["checks"]
     assert t.get_ai_vs_checker()["facts"]["ai.agreed"] == "3"  # the good seam was agreed too
+    pc = t.get_audit_pass_chance()["facts"]  # lot 500: n=50, major Ac 3; 2 majors on 4 garments = 0.5 per garment
+    assert pc["pass.sample_size"] == "50" and float(pc["pass.major_pct"]) < 1.0
 
 
 class ScriptedSpark:

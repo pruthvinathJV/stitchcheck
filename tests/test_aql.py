@@ -80,3 +80,12 @@ def test_each_severity_counts_only_its_own_sample():
     findings = [{}] * 5 + [{"major": 1}] + [{}] * 7  # a major on garment 6 is outside the major sample
     s = audit_status(p, findings)
     assert s["counts"]["major"] == 0 and s["status"] == "accept"
+
+
+def test_pass_chance():
+    from stitchcheck.qc.aql import pass_chance
+    p = aql_plan(2400)  # major n=125 Ac 7, minor n=125 Ac 10
+    assert pass_chance(p, 0.0, 0.0) == {"major": 1.0, "minor": 1.0, "both": 1.0}
+    c = pass_chance(p, 0.04, 0.05)  # mean 5 majors (Ac 7), 6.25 minors (Ac 10)
+    assert abs(c["major"] - 0.867) < 0.002 and abs(c["minor"] - 0.946) < 0.002 and c["both"] < c["major"]
+    assert pass_chance(p, 0.12, 0.0)["major"] == 0.018  # P(X <= 7) for Poisson mean 15

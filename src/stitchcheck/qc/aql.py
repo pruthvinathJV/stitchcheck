@@ -73,3 +73,24 @@ def audit_status(plan, findings):
     status = "reject" if rejected else "accept" if done else "in_progress"
     return dict(status=status, counts=counts, rejected_by=rejected, inspected=len(findings),
                 sample_size=plan["critical"]["sample_size"])
+
+
+def _poisson_cdf(k, mean):
+    import math
+    term = total = math.exp(-mean)
+    for i in range(1, k + 1):
+        term *= mean / i
+        total += term
+    return min(total, 1.0)
+
+
+def pass_chance(plan, major_per_unit, minor_per_unit):
+    """Chance that an audit of this plan accepts the lot, if defects occur at these rates per garment: the defects
+    in each severity's sample are taken as Poisson (defects are counted, not defective garments), and the lot passes
+    when both stay at or under Ac. Critical defects are not modelled (any one rejects)."""
+    out = {}
+    for sev, rate in (("major", major_per_unit), ("minor", minor_per_unit)):
+        p = plan[sev]
+        out[sev] = round(_poisson_cdf(p["ac"], p["sample_size"] * rate), 3)
+    out["both"] = round(out["major"] * out["minor"], 3)
+    return out

@@ -13,6 +13,7 @@ import time
 from stitchcheck.backend import db
 from stitchcheck.meta_api import SPARK_MODEL
 from stitchcheck.qc import counts
+from stitchcheck.qc.aql import aql_plan, pass_chance
 
 # Draft checks per defect, phrased as checks, never blame. To be replaced by the unit's own table.
 CHECKLIST = {
@@ -35,14 +36,15 @@ MAX_ROUNDS = 8
 
 SYSTEM = (
     "You write the end-of-day quality report for a garment stitching unit, from tool results only.\n"
-    "Call the tools you need (get_dhu, get_top_issues, get_audit_status, get_examples, get_ai_vs_checker, get_checklist). Each result "
+    "Call the tools you need (get_dhu, get_top_issues, get_audit_status, get_audit_pass_chance, get_examples, get_ai_vs_checker, get_checklist). Each result "
     "lists 'facts': paths and their values. Wherever the report needs a number, ID or count, write the placeholder "
     "{{path}} with a path from those facts. Never type a digit or an ID yourself; the server fills placeholders in. "
     "Allowed without placeholders: ISO 2859-1, AQL 2.5, AQL 4.0.\n"
     "Defects are about the process, not the person: never name, rank or address any worker, and never write 'worst'. "
     "Talk about machines and operations.\n"
     "Write markdown with three sections:\n"
-    "## Buyer summary (English): garments inspected, DHU, defective %, audit result if any, top defects with counts, "
+    "## Buyer summary (English): garments inspected, DHU, defective %, audit result if any, the chance an AQL audit "
+    "would pass at today's rate (say it is cautious), top defects with counts, "
     "photo evidence references.\n"
     "## Supervisor actions (Telugu, then English): for the machines and operations with the most defects, the defect "
     "pattern and the checks from get_checklist (needle, tension, feed, handling), as checks for the mechanic or the "
@@ -61,6 +63,8 @@ TOOLS = [
      "parameters": {"type": "object", "properties": {}}}},
     {"type": "function", "function": {"name": "get_examples", "description": "Checker-confirmed photo IDs for a defect, for evidence links.",
      "parameters": {"type": "object", "properties": {"defect": {"type": "string"}, "n": {"type": "integer"}}, "required": ["defect", "n"]}}},
+    {"type": "function", "function": {"name": "get_audit_pass_chance", "description": "Chance a buyer's AQL audit would accept the lot at today's defect rate (cautious: before repairs).",
+     "parameters": {"type": "object", "properties": {}}}},
     {"type": "function", "function": {"name": "get_ai_vs_checker", "description": "How the AI proposals fared: photos, agreed, changed, not a defect, sent to the checker, pending.",
      "parameters": {"type": "object", "properties": {}}}},
     {"type": "function", "function": {"name": "get_checklist", "description": "Practical machine and handling checks for a defect.",
@@ -123,6 +127,17 @@ class Tools:
         defect = _label(defect)
         ids = [i["id"] for i in counts.confirmed_defects(self.insp, self.done) if i["final_label"] == defect][:n]
         return self._add({f"examples.{defect}.{k}": f"photo {i}" for k, i in enumerate(ids, 1)})
+
+    def get_audit_pass_chance(self):
+        lot = self.con.execute("SELECT lot_size FROM session WHERE id = ?", (self.sid,)).fetchone()["lot_size"]
+        plan = aql_plan(lot)
+        major, minor = counts.defects_per_unit(self.insp, self.done)
+        c = pass_chance(plan, major, minor)
+        out = self._add({"pass.major_pct": 100.0 * c["major"], "pass.minor_pct": 100.0 * c["minor"],
+                         "pass.both_pct": 100.0 * c["both"], "pass.sample_size": plan["major"]["sample_size"],
+                         "pass.major_ac": plan["major"]["ac"]})
+        return out | {"note": "Chance that a buyer's AQL 2.5 / 4.0 audit of this lot would accept it at today's end-line "
+                              "defect rate, before any repair, so it is a cautious figure."}
 
     def get_ai_vs_checker(self):
         n = lambda pred: sum(1 for i in self.insp if pred(i))
