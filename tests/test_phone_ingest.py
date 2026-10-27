@@ -16,14 +16,14 @@ def _img(path, seed, exif_rotate=False):
 
 
 def _tags():
-    return [f"{f}-{t}" for f in "ABC" for t in range(1, 8)]
+    return [f"{f}-{t}" for f in "ABC" for t in range(1, 8)] + [f"{f}-{t}-REF" for f in "ABC" for t in (1, 5)]
 
 
 def _ios_export(tmp_path):
     lines, n = [], 0
     for tag in _tags():
         lines.append(f"[28/10/26, 7:12:03 PM] Ravi Tailor: {tag}")
-        for _ in range(ingest.expected_count(int(tag[-1]))):
+        for _ in range(ingest.expected_count(int(tag[2]), tag.endswith("REF"))):
             name = f"{n:08d}-IMG_{n}.jpg"
             _img(tmp_path / name, n, exif_rotate=(n == 0))
             lines.append(f"‎[28/10/26, 7:12:05 PM] Ravi Tailor: ‎<attached: {name}>")
@@ -37,10 +37,18 @@ def test_ios_export_maps_tag_order_to_labels(tmp_path):
     src.mkdir()
     n = _ios_export(src)
     df, warnings = ingest.ingest(src, out)
-    assert n == 216 and len(df) == 216 and warnings == []
-    assert df.groupby("label").size().to_dict() == {
+    assert n == 240 and len(df) == 240 and warnings == []
+    test = pd.read_csv(out / "manifest.csv")
+    assert len(test) == 216 and test["ref"].eq(0).all()
+    assert test.groupby("label").size().to_dict() == {
         "good": 48, "skipped_stitch": 36, "broken_stitch": 36, "crooked_seam": 24,
         "puckering": 24, "stain_damage": 24, "open_seam": 24}
+    ref = pd.read_csv(out / "ref" / "manifest.csv")
+    assert len(ref) == 24 and ref["ref"].eq(1).all()
+    assert ref.groupby("label").size().to_dict() == {"good": 12, "puckering": 12}
+    assert sorted(ref["pair_id"].unique())[:2] == ["A1-REF-p1", "A5-REF-p1"]
+    assert (out / "ref" / "images" / "C5-REF-p1-m4.jpg").exists()
+    assert not set(ref["photo_id"]) & {p.stem for p in (out / "images").iterdir()}
     b3 = df[df["tag"] == "B-3"].sort_values("order_in_tag")
     assert list(b3["photo_id"])[:5] == ["B3-p1-m1", "B3-p1-m2", "B3-p1-m3", "B3-p1-m4", "B3-p2-m1"]
     assert set(df[df["type_id"] == 7]["unseen"]) == {1}
