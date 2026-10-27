@@ -2,7 +2,7 @@
 
 A phone app that turns any worker into a reliable stitch inspector, so a new 25-machine garment unit in rural Andhra Pradesh can prove factory-grade quality and win orders.
 
-A checker photographs a seam close-up. SAM 3.1 finds the seam, a classifier fine-tuned on StitchingNet flags likely defects, and Muse Spark acts as the inspector's brain: it calls the classifier as a tool, compares the seam with a known-good reference, confirms or overrides the call, assigns AQL severity and explains it in one line. When confidence is low, the checker decides, with one tap or a Telugu voice correction. A Muse Spark agent logs every defect by operator, machine and bundle, tracks DHU live and drafts the daily QC report and AQL 2.5 summary.
+A checker photographs a seam close-up. SAM 3.1 finds the seam, a classifier fine-tuned on StitchingNet-Seg flags likely defects, and Muse Spark acts as the inspector's brain: it calls the classifier as a tool, compares the seam with a known-good reference, confirms or overrides the call, assigns AQL severity and explains it in one line. When confidence is low, the checker decides, with one tap or a Telugu voice correction. A Muse Spark agent logs every defect by operator, machine and bundle, tracks DHU live and drafts the daily QC report and AQL 2.5 summary.
 
 > Status: in progress (Meta Global AI Developer Hackathon, Oct 26 to Nov 4, 2026).
 
@@ -43,13 +43,16 @@ TODO. Every number here will trace to a script and a file under `results/`.
 
 ## Data and licences
 
+The StitchingNet authors declined use beyond the non-commercial license, so the classifier is trained only on CC BY data and covers four defects. Puckering is detected by Muse Spark using reference seams we sewed ourselves.
+
 | Dataset | Licence | Use |
 |---|---|---|
-| [StitchingNet](https://www.kaggle.com/datasets/hyungjung/stitchingnet-dataset) (Kim et al.) | CC BY-NC 4.0 | Training and held-out-fabric test |
-| [StitchingNet-Seg](https://doi.org/10.6084/m9.figshare.31222708) (Park, Jung and Kim, 2026) | CC BY 4.0 | Same images for 8 classes; used to track which training images are available under CC BY |
-| Phone test set (ours) | Not redistributed | Real out-of-distribution test: shirting cottons sewn with deliberate defects, photographed on a phone |
+| [StitchingNet-Seg](https://doi.org/10.6084/m9.figshare.31222708) (Park, Jung and Kim, 2026) | CC BY 4.0 | The only image source for training and evaluation: good seams, four defect classes (skipped, broken, crooked, stain) and three unseen defect classes |
+| Phone test set (ours) | Not redistributed | Real out-of-distribution test, and the only puckering test: shirting cottons sewn with deliberate defects, photographed on a phone |
 
-Dataset images and phone photos are not redistributed in this repository. The repo contains only download scripts, manifests (file names and hashes), split files, labels and metrics. `data/manifests/stitchingnet.csv` records the licence of every image.
+The CC BY-NC release of [StitchingNet](https://www.kaggle.com/datasets/hyungjung/stitchingnet-dataset) (Kim et al.) was used once, before training, to check licence coverage (`results/audit/`). No model is trained or evaluated on it, and every split row is checked to be CC BY when it is loaded.
+
+Dataset images and phone photos are not redistributed in this repository. The repo contains only download scripts, manifests (file names and hashes), split files, labels and metrics. `data/manifests/stitchingnet_seg.csv` lists every image used.
 
 ## How to run
 
@@ -57,9 +60,9 @@ Dataset images and phone photos are not redistributed in this repository. The re
 python3 -m venv .venv && .venv/bin/pip install -e '.[data,api,dev]'
 cp .env.example .env                        # add MODEL_API_KEY
 
-.venv/bin/python -m stitchcheck.data.download   # StitchingNet + StitchingNet-Seg into data/raw/
-.venv/bin/python -m stitchcheck.data.audit      # results/audit/
-.venv/bin/python -m stitchcheck.data.splits     # data/splits/stitchingnet_v1.csv
+.venv/bin/python -m stitchcheck.data.download   # StitchingNet-Seg (CC BY) into data/raw/
+.venv/bin/python -m stitchcheck.data.manifest   # data/manifests/stitchingnet_seg.csv
+.venv/bin/python -m stitchcheck.data.splits     # data/splits/stitchingnet_v2.csv
 
 # Phone test set
 .venv/bin/python -m stitchcheck.phone.ingest path/to/whatsapp_export.zip

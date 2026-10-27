@@ -2,34 +2,33 @@
 
 ## Evaluation data
 
+**Image source: CC BY only.** Every training and evaluation image comes from StitchingNet-Seg (figshare, CC BY 4.0), which republishes StitchingNet images for good seams and seven defect classes. The split loader asserts that every row is CC BY (`load_split` in `src/stitchcheck/data/stitchingnet.py`). Nothing from the CC BY-NC release is used to train or evaluate anything (see "Licensing and puckering").
+
 **Leave-2-fabrics-out.** StitchingNet has 11 fabrics, and each one uses a single thread type. The test set holds out Cotton (poly thread) and Oxford (core thread), both shirting fabrics; Linen is the validation fabric; the other 8 are for training. Validation is also by fabric because the images are sequential frames: the same physical defect often appears several times with small shifts, so a random image split would leak.
 
-**Exact duplicates are removed before splitting** (147 images, all within one fabric and class).
+**Exact duplicates are removed before splitting** (134 images, all within one fabric and class). Split file: `data/splits/stitchingnet_v2.csv`.
 
-**Classifier classes.** The clean classifier has five: good, skipped_stitch, broken_stitch, crooked_seam, stain_damage. The full classifier adds puckering (see "Puckering and licensing"). The other five StitchingNet defect classes (pinched fabric, needle mark, thread sagging, overlapped stitch, bobbin thread pulling up) are never trained on. Those images from the held-out fabrics form an "unseen defect" test. It measures (1) how often each system calls them good, and (2) how often Muse Spark flags them as an unknown defect.
+**Classifier classes.** Five: good, skipped_stitch, broken_stitch, crooked_seam, stain_damage. The other three defect classes in StitchingNet-Seg (pinched fabric, thread sagging, overlapped stitch) are never trained on. Those images from the held-out fabrics form an "unseen defect" test (667 images). It measures (1) how often each system calls them good, and (2) how often Muse Spark flags them as an unknown defect.
 
-**Muse Spark subset.** The Spark arms run on a fixed, seeded sample: 42 images per class per test fabric (504), plus 10 per unseen class per test fabric (100).
+**Set sizes.** Train 5,047, Linen validation 673, test 1,428 (5 classes on Cotton and Oxford), unseen-defect test 667.
 
-**Training fabrics.** Benchmark numbers on StitchingNet come from models trained on 8 fabrics. The demo and the phone test set use models retrained on all 11 fabrics. Every reported number says which model produced it (clean or full, 8 or 11 fabrics).
+**Muse Spark subset.** The Spark arms run on a fixed, seeded sample: 42 images per class per test fabric (420), plus 10 per unseen class per test fabric (60).
 
-**Per-fabric difficulty (holdout runs).** The full classifier is also trained 8 more times, each time holding out one of the 8 training fabrics as validation and training on the other 7. This gives per-fabric recall (including puckering) without touching the test fabrics. It does not change the main split.
+**Training fabrics.** Benchmark numbers on StitchingNet come from the classifier trained on 8 fabrics. The demo and the phone test set use it retrained on all 11 fabrics. Every reported number says which one produced it (8 or 11 fabrics).
 
-**Phone test set.** Sewn and photographed by a tailor in Kadiri, Andhra Pradesh, on locally bought shirting cotton. Three shirting cottons (white, dark, checks). Seven seam types: good, skipped, broken, crooked, puckering, stain, and open seam (an unseen defect). Per fabric: 4 good pairs, 3 pairs each of skipped and broken stitch, and 2 pairs of every other type (18 pairs per fabric; 54 pairs, 216 photos in all). Each sewn pair is photographed at four chalk marks (10, 25, 40 and 55 cm along the seam), top-down, in daylight. Photos arrive on WhatsApp as Documents: one text tag per pair, `{fabric}-{type}-{pair}` (e.g. `B-3-2`), followed by exactly 4 photos in chalk-mark order. Ingest warns on any tag without exactly 4 photos, duplicate tags, unknown tags and missing tags (`src/stitchcheck/phone/ingest.py`). Pair A-1-1 is sent first as a quality check and can be ingested and reviewed on its own. Broken stitch, crooked seam, stain and open seam are made at every chalk mark. Skipped stitch and puckering run along the whole seam, so a mark may show no visible defect; those photos are reviewed one by one and relabelled as good or rejected. All phone-set confidence intervals come from a bootstrap that resamples whole pairs, not single photos, because photos of the same pair are correlated. The phone set is never used for training or tuning.
+**Per-fabric difficulty (holdout runs).** The classifier is also trained 8 more times, each time holding out one of the 8 training fabrics as validation and training on the other 7. This gives per-fabric recall without touching the test fabrics. It does not change the main split.
 
-**Reference pairs (separate from the test set).** Per fabric the tailor also sews 1 good pair and 1 puckering pair, tagged `{fabric}-1-REF` and `{fabric}-5-REF` and sent after all test pairs (6 pairs, 24 photos, same four chalk marks). They are separate sewn pairs, ingested into their own folder and manifest (`data/phone/ref/`), and never counted in test metrics. Uses: good-seam references for few-shot Muse Spark on the Kadiri photos, puckering few-shot examples, and calibrating the SAM seam threshold together with the shirt photos.
+**Phone test set.** Sewn and photographed by a tailor in Kadiri, Andhra Pradesh, on locally bought shirting cotton. Three shirting cottons (white, dark, checks). Seven seam types: good, skipped, broken, crooked, puckering, stain, and open seam (an unseen defect). It is the only puckering test set: pairs `{fabric}-5-1` and `{fabric}-5-2` (6 pairs, 24 photos). Per fabric: 4 good pairs, 3 pairs each of skipped and broken stitch, and 2 pairs of every other type (18 pairs per fabric; 54 pairs, 216 photos in all). Each sewn pair is photographed at four chalk marks (10, 25, 40 and 55 cm along the seam), top-down, in daylight. Photos arrive on WhatsApp as Documents: one text tag per pair, `{fabric}-{type}-{pair}` (e.g. `B-3-2`), followed by exactly 4 photos in chalk-mark order. Ingest warns on any tag without exactly 4 photos, duplicate tags, unknown tags and missing tags (`src/stitchcheck/phone/ingest.py`). Pair A-1-1 is sent first as a quality check and can be ingested and reviewed on its own. Broken stitch, crooked seam, stain and open seam are made at every chalk mark. Skipped stitch and puckering run along the whole seam, so a mark may show no visible defect; those photos are reviewed one by one and relabelled as good or rejected. All phone-set confidence intervals come from a bootstrap that resamples whole pairs, not single photos, because photos of the same pair are correlated. The phone set is never used for training or tuning.
 
-## Puckering and licensing (fixed before training)
+**Reference pairs (separate from the test set).** Per fabric the tailor also sews 1 good pair and 1 puckering pair, tagged `{fabric}-1-REF` and `{fabric}-5-REF` and sent after all test pairs (6 pairs, 24 photos, same four chalk marks). They are separate sewn pairs, ingested into their own folder and manifest (`data/phone/ref/`), and never counted in test metrics. Uses: good-seam references for few-shot Muse Spark on the Kadiri photos, the puckering few-shot examples (`{fabric}-5-REF`, same fabric as the test photo), and calibrating the SAM seam threshold together with the shirt photos.
 
-Two classifiers are trained:
+## Licensing and puckering
 
-- **Clean (default):** five classes (good, skipped_stitch, broken_stitch, crooked_seam, stain_damage), trained only on images that StitchingNet-Seg publishes under CC BY 4.0. Selected by the `licence` column of the split file.
-- **Full:** six classes, adding puckering from the CC BY-NC 4.0 release. It is trained and evaluated but not shipped.
+The StitchingNet authors declined use beyond the non-commercial license, so the classifier is trained only on CC BY data and covers four defects. Puckering is detected by Muse Spark using reference seams we sewed ourselves.
 
-In the product, puckering is handled by Muse Spark: few-shot, with a good-seam reference from the same fabric. The QC agent still logs it, assigns severity and reports it like any other defect.
-
-**Switch rule.** If the StitchingNet authors grant permission by Day 5 (Fri Oct 30), the demo and final results switch to the full classifier. Otherwise the clean classifier is final. The README records which one shipped. Without permission it says: "The classifier covers four defects using CC BY data only. Puckering is detected by Muse Spark."
-
-**Evaluation.** Puckering results are reported for Muse Spark alone, on both the StitchingNet test subset and the Kadiri phone set. The full classifier's puckering numbers are a side comparison, labelled as such. The tailor's puckering pairs stay in the phone set: they are the only real-world test of Muse Spark on puckering.
+- **Classifier:** five classes (good, skipped_stitch, broken_stitch, crooked_seam, stain_damage), trained only on StitchingNet-Seg images (CC BY 4.0). An earlier six-class model that added puckering from the CC BY-NC release was trained on Oct 26 and deleted, with its results, when permission was declined. Its numbers are not reported.
+- **Evaluation sets are CC BY only.** Puckering is removed from validation and from the Muse Spark subset. Needle mark and bobbin thread pulling up (not in StitchingNet-Seg) are removed from the unseen-defect test.
+- **Puckering in the product and the benchmark:** Muse Spark alone, few-shot, with the tailor's puckering reference pair from the same fabric (`{fabric}-5-REF`) and a good reference. It is evaluated only on the Kadiri phone pairs `{fabric}-5-1` and `{fabric}-5-2`. The QC agent logs it, assigns severity and reports it like any other defect.
 
 ## Metrics (fixed before results)
 
@@ -57,27 +56,29 @@ Also reported:
 
 - **(A)** Zero-shot Muse Spark.
 - **(B)** Few-shot Muse Spark with k=1 and k=3 good-seam references from the same fabric.
-- **(C)** Fine-tuned classifier (clean; full as a side comparison).
-- **(D)** Hybrid: Muse Spark calling the classifier as a tool, and judging puckering itself few-shot.
+- **(C)** Fine-tuned classifier (five classes, CC BY data).
+- **(D)** Hybrid: Muse Spark calling the classifier as a tool, and judging puckering itself few-shot (phone set only).
 - **(E, optional)** Hybrid with Muse Spark Open, if Baseten credits arrive.
 
 ## Classifier selection (fixed before the search runs)
 
 Training settings are chosen without the test fabrics, in two stages:
 
-1. **Screen on Linen.** The clean model is trained with each candidate setting and scored on Linen validation macro-F1 (`scripts/train/sweep_stage1.sh`). Candidates: augmentation (brightness/contrast only; plus colour, grayscale and blur; TrivialAugment), learning rate, a 10x lower backbone learning rate, and architecture (EfficientNet-B0, MobileNetV3-Large, ConvNeXt-Tiny). The baseline is also rerun with a second seed, so a difference smaller than the run-to-run noise is not treated as real.
+1. **Screen on Linen.** The classifier is trained with each candidate setting and scored on Linen validation macro-F1 (`scripts/train/sweep_stage1.sh`). Candidates: augmentation (brightness/contrast only; plus colour, grayscale and blur; TrivialAugment), learning rate, a 10x lower backbone learning rate, and architecture (EfficientNet-B0, MobileNetV3-Large, ConvNeXt-Tiny). The baseline is also rerun with a second seed, so a difference smaller than the run-to-run noise is not treated as real.
 2. **Confirm on more fabrics.** The top 3 settings are retrained with 3 training fabrics held out in turn (train on the other 7). The winner has the best mean macro-F1 across Linen and those 3 fabrics, which guards against settings that only suit Linen. Ties go to the smaller, faster model.
 
-The winning setting is recorded here, then used for both the clean and the full model, the per-fabric puckering holdout runs, and the 11-fabric retrains. The test fabrics are scored once, with that setting. All runs are summarised in `results/classifier/runs_summary.csv`.
+The winning setting is recorded here, then used for the final model, the per-fabric holdout runs and the 11-fabric retrain. The test fabrics are scored once, with that setting. All runs are summarised in `results/classifier/runs_summary.csv`.
 
 ## Muse Spark settings (chosen on validation, before any test-set run)
 
 **One test image per request**, as in the product, plus the reference image(s) for few-shot. Test images are never batched, because answers could then depend on the other images and their order. Batching is used only outside evaluation.
 
-**448 px input, `reasoning_effort: minimal`.** Chosen on 150 Linen validation images (25 per class), zero-shot, comparing default, low and minimal effort at 224 and 448 px (`scripts/val/spark_settings.py`, `results/val/`):
+**448 px input, `reasoning_effort: minimal`.** Chosen on CC BY Linen validation images only: 125 images, 25 per class, zero-shot, comparing default, low and minimal effort at 224 and 448 px (`scripts/val/spark_settings.py`, `results/val/`). Paired image bootstrap, 95% CIs:
 
-- 448 px beat 224 px at every effort level, by 5 to 9 points of exact-class accuracy (paired image bootstrap CIs exclude zero). StitchingNet images are 224 px, so this is upsampling: the model gets more image tokens, not more detail. Phone crops are sent at 448 px from real pixels.
-- At 448 px, more reasoning did not help: minimal effort matched default (difference +0.000, CI -0.027 to +0.027) with about 4 times fewer output tokens and less than half the latency (median 1.2 s vs 3.2 s).
+- 448 px beat 224 px at every effort level on exact-class accuracy: default +0.048 (0.008 to 0.096), low +0.064 (0.016 to 0.120), minimal +0.112 (0.064 to 0.168). StitchingNet images are 224 px, so this is upsampling: the model gets more image tokens, not more detail. Phone crops are sent at 448 px from real pixels.
+- At 448 px, more reasoning did not help: minimal vs default +0.016 (-0.016 to 0.048), minimal vs low +0.008 (-0.016 to 0.032), with about 4 times fewer output tokens than default and about a third of the latency (median 1.1 s vs 3.1 s).
+
+An earlier run of this check (150 images) included 25 CC BY-NC puckering images. It was rerun on CC BY images only, before any test-set run, and gave the same choice.
 
 The benchmark and the app use the same setting. Before the few-shot and hybrid arms run on test data, the effort level is rechecked for them on the same validation sample, because comparing against a reference may need more reasoning.
 
@@ -105,4 +106,4 @@ If hybrid recall on major defects on the phone set is below 60% (pair-bootstrap 
 
 ## Licence coverage
 
-StitchingNet is CC BY-NC 4.0. StitchingNet-Seg republishes the same images for 8 classes under CC BY 4.0 (verified by file hash). Every good, skipped, broken, crooked and stain image is covered by CC BY, so the clean classifier needs nothing from the CC BY-NC release. Only puckering relies solely on it.
+StitchingNet is CC BY-NC 4.0. StitchingNet-Seg republishes the same images for 8 classes under CC BY 4.0 (verified by file hash, Oct 25, `results/audit/`). Every image in train, validation and test is byte-identical to the CC BY rows of the earlier split, so the change of source did not change any set. Puckering, needle mark and bobbin thread pulling up exist only in the CC BY-NC release and are not used.
