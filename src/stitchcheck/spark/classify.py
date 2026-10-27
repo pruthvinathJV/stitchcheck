@@ -1,7 +1,7 @@
-"""Muse Spark as a single-image stitch inspector (zero-shot).
+"""Muse Spark as a single-image stitch inspector, zero-shot or with labelled reference images (few-shot).
 
-One test image per request, as in the product: no batching, so answers cannot depend on other images
-or their order. Responses are cached on disk (data/cache/spark/) keyed by everything that affects them.
+One test image per request, as in the product: no batching, so answers cannot depend on other test images
+or their order. Reference images, if any, come first, each with its label. Responses are cached on disk (data/cache/spark/) keyed by everything that affects them.
 """
 import hashlib
 import json
@@ -27,6 +27,10 @@ ZERO_SHOT_PROMPT = (
     "- unknown_defect: a defect that fits none of the above\n"
     'Reply with only JSON: {"label": "<label>", "reason": "<one short sentence>"}'
 )
+FEW_SHOT_NOTE = (
+    "\nBefore the image to inspect you get labelled reference close-ups of seams. They may be on a different fabric "
+    "from the image to inspect. Compare the stitch line against them; classify only the last image."
+)
 CACHE_DIR = Path("data/cache/spark")
 _JSON = re.compile(r"\{.*\}", re.DOTALL)
 
@@ -45,23 +49,34 @@ def parse_label(text):
     return hits[0] if len(set(hits)) == 1 else None
 
 
-def classify(client, image_path, size=224, effort=None, prompt=ZERO_SHOT_PROMPT, model=SPARK_MODEL, cache=True):
-    """Classify one seam image. size: longest side sent to the API (StitchingNet images are 224 px, so
-    larger sizes are upsampled). effort: reasoning_effort, or None for the API default."""
+def _url(image_path, size):
     im = Image.open(image_path).convert("RGB")
     if max(im.size) != size:
         scale = size / max(im.size)
         im = im.resize((round(im.width * scale), round(im.height * scale)), Image.BICUBIC)
-    url = image_data_url(im)
-    key = hashlib.sha256(json.dumps([model, prompt, effort, url]).encode()).hexdigest()[:32]
+    return image_data_url(im)
+
+
+def classify(client, image_path, size=224, effort=None, prompt=ZERO_SHOT_PROMPT, model=SPARK_MODEL, cache=True,
+             refs=()):
+    """Classify one seam image. size: longest side sent to the API, for the query and references (StitchingNet
+    images are 224 px, so larger sizes are upsampled). effort: reasoning_effort, or None for the API default.
+    refs: (label, image_path) reference pairs shown before the query; the prompt gets FEW_SHOT_NOTE."""
+    url = _url(image_path, size)
+    content = [{"type": "text", "text": prompt + (FEW_SHOT_NOTE if refs else "")}]
+    for label, ref_path in refs:
+        content += [{"type": "text", "text": f"Reference: {label}"},
+                    {"type": "image_url", "image_url": {"url": _url(ref_path, size)}}]
+    content += ([{"type": "text", "text": "Image to inspect:"}] if refs else []) + [{"type": "image_url", "image_url": {"url": url}}]
+    parts = [model, prompt, effort, url] + ([[c.get("text") or c["image_url"]["url"] for c in content]] if refs else [])
+    key = hashlib.sha256(json.dumps(parts).encode()).hexdigest()[:32]
     path = CACHE_DIR / f"{key}.json"
     if cache and path.exists():
         return json.loads(path.read_text()) | {"cached": True}
 
     kwargs = {"reasoning_effort": effort} if effort else {}
     t0 = time.time()
-    r = client.chat.completions.create(model=model, messages=[{"role": "user", "content": [
-        {"type": "text", "text": prompt}, {"type": "image_url", "image_url": {"url": url}}]}], **kwargs)
+    r = client.chat.completions.create(model=model, messages=[{"role": "user", "content": content}], **kwargs)
     text = r.choices[0].message.content or ""
     details = getattr(r.usage, "completion_tokens_details", None)
     out = dict(pred=parse_label(text) or "parse_error", raw=text[:500], seconds=round(time.time() - t0, 2),
