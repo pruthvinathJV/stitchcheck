@@ -49,6 +49,12 @@ def systems():
     yield "B Spark + good reference", arms["B"]
     yield "D hybrid, auto label", arms["D"]
     yield "D hybrid, shown to checker", arms["D"].assign(pred=arms["D"]["proposed"])
+    if (OUT / "arm_ED.csv").exists():  # arm E: Muse Spark Open on Modal, same locked settings (effort low)
+        e = {a: pd.read_csv(OUT / f"arm_E{a}.csv").sort_values("path").reset_index(drop=True) for a in "ABD"}
+        yield "EA Spark Open zero-shot", e["A"]
+        yield "EB Spark Open + good reference", e["B"]
+        yield "ED Spark Open hybrid, auto label", e["D"]
+        yield "ED Spark Open hybrid, shown to checker", e["D"].assign(pred=e["D"]["proposed"])
 
 
 def main():
@@ -87,6 +93,15 @@ def main():
     b = frames["B Spark + good reference"][frames["B Spark + good reference"]["split"] == "test"].reset_index(drop=True)
     pairs.append(dict(comparison="B minus A", major_recall=boot(a, major_recall, b),
                       checker_workload=boot(a, checker_workload, b), macro_f1=boot(a, macro_f1, b)))
+    for e_name, s_name in (("EA Spark Open zero-shot", "A zero-shot Spark"), ("EB Spark Open + good reference", "B Spark + good reference"),
+                           ("ED Spark Open hybrid, auto label", "D hybrid, auto label"),
+                           ("ED Spark Open hybrid, shown to checker", "D hybrid, shown to checker")):
+        if e_name in frames:
+            a = frames[s_name][frames[s_name]["split"] == "test"].reset_index(drop=True)
+            b = frames[e_name][frames[e_name]["split"] == "test"].reset_index(drop=True)
+            assert (a["path"] == b["path"]).all()
+            pairs.append(dict(comparison=f"{e_name} minus {s_name}", major_recall=boot(a, major_recall, b),
+                              checker_workload=boot(a, checker_workload, b), macro_f1=boot(a, macro_f1, b)))
     paired = pd.DataFrame(pairs)
     paired.to_csv(OUT / "paired.csv", index=False)
 

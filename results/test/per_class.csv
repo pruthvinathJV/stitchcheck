@@ -35,3 +35,27 @@ broken_stitch,0.9868,0.8929,0.9375,84,"D hybrid, shown to checker"
 crooked_seam,0.9756,0.9524,0.9639,84,"D hybrid, shown to checker"
 stain_damage,0.9419,0.9643,0.9529,84,"D hybrid, shown to checker"
 macro,0.9027,0.8929,0.8915,420,"D hybrid, shown to checker"
+good,0.4637,0.9881,0.6312,84,EA Spark Open zero-shot
+skipped_stitch,0.1,0.0119,0.0213,84,EA Spark Open zero-shot
+broken_stitch,0.9571,0.7976,0.8701,84,EA Spark Open zero-shot
+crooked_seam,0.7767,0.9524,0.8556,84,EA Spark Open zero-shot
+stain_damage,0.875,0.5833,0.7,84,EA Spark Open zero-shot
+macro,0.6345,0.6667,0.6156,420,EA Spark Open zero-shot
+good,0.5034,0.881,0.6407,84,EB Spark Open + good reference
+skipped_stitch,0.3636,0.0476,0.0842,84,EB Spark Open + good reference
+broken_stitch,1.0,0.8333,0.9091,84,EB Spark Open + good reference
+crooked_seam,0.7232,0.9643,0.8265,84,EB Spark Open + good reference
+stain_damage,0.871,0.6429,0.7397,84,EB Spark Open + good reference
+macro,0.6922,0.6738,0.6401,420,EB Spark Open + good reference
+good,0.8171,0.7976,0.8072,84,"ED Spark Open hybrid, auto label"
+skipped_stitch,1.0,0.1905,0.32,84,"ED Spark Open hybrid, auto label"
+broken_stitch,1.0,0.8452,0.9161,84,"ED Spark Open hybrid, auto label"
+crooked_seam,0.9873,0.9286,0.9571,84,"ED Spark Open hybrid, auto label"
+stain_damage,0.9688,0.7381,0.8378,84,"ED Spark Open hybrid, auto label"
+macro,0.9546,0.7,0.7677,420,"ED Spark Open hybrid, auto label"
+good,0.7778,0.8333,0.8046,84,"ED Spark Open hybrid, shown to checker"
+skipped_stitch,0.8,0.5238,0.6331,84,"ED Spark Open hybrid, shown to checker"
+broken_stitch,0.9868,0.8929,0.9375,84,"ED Spark Open hybrid, shown to checker"
+crooked_seam,0.9634,0.9405,0.9518,84,"ED Spark Open hybrid, shown to checker"
+stain_damage,0.9259,0.8929,0.9091,84,"ED Spark Open hybrid, shown to checker"
+macro,0.8908,0.8167,0.8472,420,"ED Spark Open hybrid, shown to checker"

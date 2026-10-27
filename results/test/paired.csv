@@ -4,3 +4,7 @@ B Spark + good reference minus C,"(-0.325, -0.387, -0.267)","(-0.083, -0.145, -0
 "D hybrid, auto label minus C","(0.008, 0.0, 0.02)","(0.012, 0.0, 0.039)","(-0.13, -0.157, -0.102)"
 "D hybrid, shown to checker minus C","(-0.028, -0.049, -0.008)","(-0.071, -0.133, -0.023)","(0.004, -0.013, 0.022)"
 B minus A,"(0.063, 0.024, 0.104)","(0.0, 0.0, 0.0)","(0.038, 0.013, 0.063)"
+EA Spark Open zero-shot minus A zero-shot Spark,"(0.091, 0.05, 0.136)","(0.012, 0.0, 0.038)","(0.036, 0.01, 0.064)"
+EB Spark Open + good reference minus B Spark + good reference,"(0.119, 0.073, 0.167)","(0.119, 0.056, 0.192)","(0.022, -0.007, 0.056)"
+"ED Spark Open hybrid, auto label minus D hybrid, auto label","(0.016, 0.0, 0.037)","(0.107, 0.043, 0.181)","(0.01, -0.023, 0.041)"
+"ED Spark Open hybrid, shown to checker minus D hybrid, shown to checker","(0.032, 0.008, 0.058)","(0.155, 0.081, 0.233)","(-0.044, -0.067, -0.023)"
