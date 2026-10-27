@@ -88,3 +88,8 @@ def test_invented_number_gets_one_retry_then_is_flagged(session):
     assert fixed["validator_ok"] and fixed["body_md"] == "DHU 50.0 today."
     still_bad = run_report(ScriptedSpark(["DHU was 50 today.", "DHU was 50.0 today."]), con, s)
     assert not still_bad["validator_ok"] and any("number typed" in e for e in still_bad["errors"])
+
+
+def test_rendered_text_has_no_em_or_en_dashes():
+    from stitchcheck.backend.report import no_dashes
+    assert no_dashes("Check the needle \u2014\nTension \u2014 feed \u2013 handling") == "Check the needle\nTension, feed, handling"

@@ -22,6 +22,7 @@ from stitchcheck.backend.brains import MODES, OPEN, SPARK, Brains
 from stitchcheck.backend.pipeline import part_chip, step1, step2
 from stitchcheck.backend.report import run_report
 from stitchcheck.backend.voice_parse import parse_correction
+from stitchcheck.backend.work_order import draft_work_order
 from stitchcheck.data.stitchingnet import LABELS
 from stitchcheck.qc import counts
 from stitchcheck.qc.aql import aql_plan, audit_status, pass_chance
@@ -198,8 +199,23 @@ def create_app(deps: Deps):
         to_photograph = [p for p in s["critical_parts"] if p in {r["part"] for r in plan}] + ([spot] if spot else [])
         return {"id": gid, "garment_no": g.garment_no, "spot_check_part": spot, "photograph": to_photograph}
 
+    def work_order(alert_id, machine, defect, garments, mode):
+        """Background: Spark drafts the mechanic's work order for a new trend alert (logged as an agent run)."""
+        try:
+            w, brain, fell_back = brains.call(mode, lambda b: draft_work_order(
+                b.client, machine, defect, len(garments), counts.TREND_WINDOW, model=b.model, effort=b.effort))
+        except Exception as ex:
+            print("work order not drafted:", ex, flush=True)
+            return
+        tin, tout = w["tokens"]
+        run_id = write(db.insert, "agent_run", kind="alert", brain=brain.name, fell_back=int(fell_back),
+                       request={"alert_id": alert_id, "facts": w["facts"]}, tool_calls=[], tool_outputs=[],
+                       final={"template": w["template"], "errors": w["errors"]}, latency_ms=int(w["seconds"] * 1000),
+                       tokens_in=tin, tokens_out=tout, cost_usd=brain.cost(tin, tout))
+        write(db.update, "alert", alert_id, body_md=w["body_md"] if w["validator_ok"] else None, agent_run_id=run_id)
+
     @app.post("/garments/{gid}/complete")
-    def complete(gid: int):
+    def complete(gid: int, background: BackgroundTasks):
         sess = session_of_garment(gid)
         write(db.update, "garment", gid, status="complete", completed_at=datetime.now().isoformat(timespec="seconds"))
         new = []
@@ -212,6 +228,7 @@ def create_app(deps: Deps):
             aid = write(db.insert, "alert", session_id=sess["session_id"], machine_id=machine, defect=defect,
                         garment_ids=garments)
             new.append({"id": aid, "machine_id": machine, "defect": defect, "garment_ids": garments})
+            background.add_task(work_order, aid, machine, defect, garments, sess["brain"])
         return {"id": gid, "status": "complete", "new_alerts": new}
 
     @app.post("/garments/{gid}/photos")

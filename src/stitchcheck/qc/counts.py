@@ -79,7 +79,10 @@ def process_issues(inspections, completed, n=3):
     return [(*k, v) for k, v in c.most_common(n)]
 
 
-def trend_alerts(inspections, garment_order, threshold=3, window=10):
+TREND_THRESHOLD, TREND_WINDOW = 3, 10
+
+
+def trend_alerts(inspections, garment_order, threshold=TREND_THRESHOLD, window=TREND_WINDOW):
     """Machines with the same confirmed defect on at least `threshold` of the last `window` completed garments in
     which that machine's work was inspected. garment_order: completed garment ids, oldest first.
     Returns [(machine_id, defect, [garment_ids])]."""

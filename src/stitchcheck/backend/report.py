@@ -50,7 +50,7 @@ SYSTEM = (
     "pattern and the checks from get_checklist (needle, tension, feed, handling), as checks for the mechanic or the "
     "line, never as blame.\n"
     "## Data notes (English): AI-proposed vs checker-confirmed counts, from get_ai_vs_checker.\n"
-    "Reply with only the markdown when done."
+    "Do not use dashes as punctuation. Reply with only the markdown when done."
 )
 
 TOOLS = [
@@ -172,8 +172,14 @@ def validate(template, facts):
     return errors
 
 
+def no_dashes(text):
+    """User-facing text has no em or en dashes: a dash ending a line goes, one inside a line becomes a comma."""
+    text = re.sub(r"[ \t]*[\u2014\u2013][ \t]*$", "", text, flags=re.MULTILINE)
+    return re.sub(r"\s*[\u2014\u2013]\s*", ", ", text)
+
+
 def render(template, facts):
-    return PLACEHOLDER.sub(lambda m: facts.get(m.group(1), m.group(0)), template)
+    return no_dashes(PLACEHOLDER.sub(lambda m: facts.get(m.group(1), m.group(0)), template))
 
 
 def run_report(client, con, session_id, model=SPARK_MODEL, effort="minimal"):
