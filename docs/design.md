@@ -59,6 +59,17 @@ Also reported:
 - **(D)** Hybrid: Muse Spark calling the classifier as a tool, and judging puckering itself few-shot.
 - **(E, optional)** Hybrid with Muse Spark Open, if Baseten credits arrive.
 
+## Muse Spark settings (chosen on validation, before any test-set run)
+
+**One test image per request**, as in the product, plus the reference image(s) for few-shot. Test images are never batched, because answers could then depend on the other images and their order. Batching is used only outside evaluation.
+
+**448 px input, `reasoning_effort: minimal`.** Chosen on 150 Linen validation images (25 per class), zero-shot, comparing default, low and minimal effort at 224 and 448 px (`scripts/val/spark_settings.py`, `results/val/`):
+
+- 448 px beat 224 px at every effort level, by 5 to 9 points of exact-class accuracy (paired image bootstrap CIs exclude zero). StitchingNet images are 224 px, so this is upsampling: the model gets more image tokens, not more detail. Phone crops are sent at 448 px from real pixels.
+- At 448 px, more reasoning did not help: minimal effort matched default (difference +0.000, CI -0.027 to +0.027) with about 4 times fewer output tokens and less than half the latency (median 1.2 s vs 3.2 s).
+
+The benchmark and the app use the same setting. Before the few-shot and hybrid arms run on test data, the effort level is rechecked for them on the same validation sample, because comparing against a reference may need more reasoning.
+
 ## Day 5 decision rule
 
 If hybrid recall on major defects on the phone set is below 60% (pair-bootstrap point estimate), the product switches to suggestion mode: the AI proposes, the checker confirms every photo, and the README reports it.
