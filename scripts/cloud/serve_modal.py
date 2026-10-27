@@ -3,7 +3,8 @@
 One container at most (SQLite has a single writer), scaling to zero when idle. The ONNX ensemble lives in the
 "stitchcheck-models" volume (upload once: modal volume put stitchcheck-models models/demo_ensemble.onnx
 demo_ensemble.onnx); the database and photos live in "stitchcheck-app". MODEL_API_KEY comes from the Modal secret
-"stitchcheck-meta". The URL needs Modal proxy auth (Modal-Key / Modal-Secret headers) until the demo goes public.
+"stitchcheck-meta" (MODEL_API_KEY, plus MODAL_PROXY_TOKEN_ID and MODAL_PROXY_TOKEN_SECRET for the Muse Spark Open
+fallback). The URL is public; spend is bounded by the per-IP limit and the daily caps per brain (backend/brains.py).
 """
 from pathlib import Path
 
@@ -33,7 +34,7 @@ appdata = modal.Volume.from_name("stitchcheck-app", create_if_missing=True)
 @app.function(image=image, secrets=[modal.Secret.from_name("stitchcheck-meta")], volumes={"/models": models, "/vol": appdata},
               cpu=2, memory=2048, min_containers=0, max_containers=1, scaledown_window=300, timeout=600)
 @modal.concurrent(max_inputs=8)
-@modal.asgi_app(requires_proxy_auth=True)
+@modal.asgi_app()
 def web():
     import os
 
