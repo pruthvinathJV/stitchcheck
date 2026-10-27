@@ -4,7 +4,9 @@ import json
 import numpy as np
 from PIL import Image
 
-from stitchcheck.backend.pipeline import inspect_photo, localize, seam_tiles
+from stitchcheck.backend.pipeline import find_seam, inspect_photo, part_chip, seam_tiles, tile_side
+from stitchcheck.backend.stitch import stitch_pitch
+from stitchcheck.classifier.train import CLASSES
 
 PLAN = [dict(part="collar", operator_id="OP01", machine_id="M01"), dict(part="pocket", operator_id="OP06", machine_id="M06")]
 
@@ -61,11 +63,51 @@ class FakeSpark:
         return type("R", (), dict(choices=[type("C", (), dict(message=msg))()], usage=usage))()
 
 
-def test_localize_thresholds():
-    loc = localize(Image.new("RGB", (100, 100)), fake_sam(seam_conf=0.4, parts={"collar": 0.69}))
-    assert loc["seam"] is None and loc["part"] is None
-    loc = localize(Image.new("RGB", (100, 100)), fake_sam(seam_conf=0.6, parts={"collar": 0.9, "pocket": 0.75}))
-    assert loc["seam"]["confidence"] == 0.6 and (loc["part"], loc["part_conf"]) == ("collar", 0.9)
+def test_seam_threshold_and_part_chip_only_on_disagreement():
+    im = Image.new("RGB", (100, 100))
+    assert find_seam(im, fake_sam(seam_conf=0.4)) is None
+    assert find_seam(im, fake_sam(seam_conf=0.6))["confidence"] == 0.6
+    sam = fake_sam(parts={"collar": 0.9, "pocket": 0.75})
+    assert part_chip(im, sam, "collar")["part_chip"] is None
+    assert part_chip(im, sam, "placket") == dict(sam_part="collar", sam_part_conf=0.9, part_chip="collar")
+    assert part_chip(im, fake_sam(parts={"collar": 0.69}), "placket")["part_chip"] is None
+
+
+def stitched(w=900, h=600, pitch=30, angle_deg=0.0):
+    """A plain fabric with a dashed seam line: one stitch per `pitch` px."""
+    yy, xx = np.mgrid[0:h, 0:w]
+    a = np.radians(angle_deg)
+    along = (xx - w / 2) * np.cos(a) + (yy - h / 2) * np.sin(a)
+    dist = np.abs(-(xx - w / 2) * np.sin(a) + (yy - h / 2) * np.cos(a))
+    seam = (dist <= 3) & (np.abs(along) <= 350)
+    arr = np.full((h, w, 3), (180, 60, 60), np.uint8)
+    arr[seam & ((along % pitch) < pitch * 0.6)] = (240, 240, 240)
+    return Image.fromarray(arr), seam
+
+
+def test_stitch_pitch_on_a_horizontal_seam():
+    im, _ = stitched(pitch=24)
+    r = stitch_pitch(np.array(im.crop((150, 200, 750, 400))))
+    assert r["found"] and abs(r["pitch"] - 24) <= 1
+
+
+def test_tile_side_holds_the_training_number_of_stitches_on_a_diagonal_seam():
+    im, seam = stitched(pitch=20, angle_deg=25)
+    side, pitch, path = tile_side(im, seam)
+    assert path == "pitch" and abs(pitch - 20) <= 1.5
+    assert abs(side - 10.67 * pitch) <= 2
+
+
+def test_fixed_scale_when_no_pitch_scales_with_resolution_and_focal_length():
+    im = Image.new("RGB", (2000, 1500), (180, 60, 60))  # matching thread: nothing to measure
+    mask = line_mask(2000, 1500)
+    cal = dict(px_per_stitch=30.0, long_side=4000, focal_35mm=26.0)
+    side, pitch, path = tile_side(im, mask, meta=dict(focal_35mm=52.0), calibration=cal)
+    assert path == "fixed" and pitch == 30.0 * 2000 / 4000 * 52 / 26
+    side, pitch, path = tile_side(im, mask, meta=dict(focal_35mm=None), calibration=cal)
+    assert path == "fixed" and pitch == 15.0
+    side, pitch, path = tile_side(im, mask, meta={}, calibration={})
+    assert path == "provisional" and pitch is None
 
 
 def test_tiles_are_square_and_follow_a_diagonal_seam():
@@ -73,7 +115,7 @@ def test_tiles_are_square_and_follow_a_diagonal_seam():
     mask = line_mask(angle_deg=30, thickness=4)
     arr = np.array(im)
     arr[mask] = 0
-    tiles = seam_tiles(Image.fromarray(arr), mask)
+    tiles = seam_tiles(Image.fromarray(arr), mask, side=200)
     assert len(tiles) == 3 and all(t.size[0] == t.size[1] for t in tiles)
     for t in tiles:  # after rotation the dark line runs across the middle row, not down a column
         g = np.array(t.convert("L")).astype(float)
@@ -82,7 +124,8 @@ def test_tiles_are_square_and_follow_a_diagonal_seam():
 
 def test_retake_when_no_seam(tmp_path):
     r = inspect_photo(photo_bytes(), sam=fake_sam(seam_conf=0.2), ensemble=FakeEnsemble([0.9, 0.025, 0.025, 0.025, 0.025]),
-                      client=FakeSpark(), reference=None, line_plan=PLAN, out_dir=tmp_path)
+                      client=FakeSpark(), reference=None, line_plan=PLAN, out_dir=tmp_path, part="collar",
+                      classes=CLASSES["clean"])
     assert r["retake"] and not r["seam_found"]
 
 
@@ -91,11 +134,12 @@ def test_agreement_maps_part_to_line_plan(tmp_path, monkeypatch):
     ref = tmp_path / "ref.jpg"
     Image.new("RGB", (224, 224)).save(ref)
     probs = [0.05, 0.85, 0.05, 0.03, 0.02]  # good, skipped, broken, crooked, stain
-    r = inspect_photo(photo_bytes(), sam=fake_sam(parts={"pocket": 0.9}), ensemble=FakeEnsemble(probs),
+    r = inspect_photo(photo_bytes(), sam=fake_sam(parts={"collar": 0.95}), ensemble=FakeEnsemble(probs),
                       client=FakeSpark({"verdict": "confirm", "label": "skipped_stitch", "reason": "gap"}),
-                      reference=ref, line_plan=PLAN, out_dir=tmp_path, part_hint="collar")
+                      reference=ref, line_plan=PLAN, out_dir=tmp_path, part="pocket", classes=CLASSES["clean"])
     assert r["proposed_label"] == "skipped_stitch" and not r["needs_checker"] and r["proposed_severity"] == "major"
-    assert (r["part"], r["operator_id"], r["machine_id"]) == ("pocket", "OP06", "M06")
+    assert (r["part"], r["operator_id"], r["machine_id"]) == ("pocket", "OP06", "M06")  # SAM never changes the part
+    assert r["step1_seconds"] >= 0 and r["step2_seconds"] >= 0
 
 
 def test_spark_failure_sends_the_classifier_label_to_the_checker(tmp_path, monkeypatch):
@@ -103,6 +147,7 @@ def test_spark_failure_sends_the_classifier_label_to_the_checker(tmp_path, monke
     ref = tmp_path / "ref.jpg"
     Image.new("RGB", (224, 224)).save(ref)
     r = inspect_photo(photo_bytes(), sam=fake_sam(), ensemble=FakeEnsemble([0.1, 0.05, 0.8, 0.03, 0.02]),
-                      client=FakeSpark(fail=True), reference=ref, line_plan=PLAN, out_dir=tmp_path, part_hint="collar")
+                      client=FakeSpark(fail=True), reference=ref, line_plan=PLAN, out_dir=tmp_path, part="collar",
+                      classes=CLASSES["clean"])
     assert r["needs_checker"] and r["proposed_label"] == "broken_stitch" and r["spark_verdict"]["spark_error"]
     assert (r["operator_id"], r["machine_id"]) == ("OP01", "M01")

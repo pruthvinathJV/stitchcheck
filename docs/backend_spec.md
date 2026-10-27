@@ -20,7 +20,7 @@ A **session** is one working day with a **line plan**: which operator and machin
 | `line_plan` | session_id, part (collar, pocket, hem, side_seam, sleeve, placket, cuff, shoulder), sequence_no, operator_id, machine_id |
 | `bundle` | id, session_id, bundle_no |
 | `garment` | id, bundle_id, garment_no, spot_check_part (nullable), status (open/complete), completed_at |
-| `inspection` | id, garment_id, reason (critical/suspicious/spot_check/audit), photo_path, crop_path, sam_part, sam_part_conf, seam_found, classifier_top2 (json), spark_verdict (json), proposed_label, proposed_severity, final_label, final_part, final_severity, operator_id, machine_id, decision (pending/agree/changed/not_a_defect/retake), decided_via (tap/voice), config_hash, created_at |
+| `inspection` | id, garment_id, reason (critical/suspicious/spot_check/audit), photo_path, crop_path, review_status (reviewing/done), scale_path, part_chip, sam_part, sam_part_conf, seam_found, classifier_top2 (json), spark_verdict (json), proposed_label, proposed_severity, final_label, final_part, final_severity, operator_id, machine_id, decision (pending/agree/changed/not_a_defect/retake), decided_via (tap/voice), config_hash, created_at |
 | `voice_note` | id, inspection_id, audio_path, transcript, parsed (json), confirmed |
 | `audit` | id, session_id, lot_size, plan (json), sampled_garment_nos (json), status (in_progress/accept/reject) |
 | `alert` | id, session_id, machine_id, defect, garment_ids (json), body_md, agent_run_id, created_at |
@@ -36,16 +36,20 @@ For every garment the checker photographs:
 - any **suspicious seam** they notice;
 - on 1 garment in 10, chosen at random when the garment opens, one **spot-check seam** from the other parts.
 
-Each garment counts as one unit for DHU once it is completed, whether or not a defect was found. The app pre-selects the part from the line-plan sequence (next critical part, then spot check); SAM's part suggestion overrides it only above 0.7.
+Each garment counts as one unit for DHU once it is completed, whether or not a defect was found. The part comes from the line-plan sequence (next critical part, then spot check). SAM never changes it: its part suggestion runs in the background and appears as a chip only when it disagrees with the sequence (confidence at least 0.7); the checker can tap the chip to change the part.
 
 ## 3. Per-photo pipeline
 
-`POST /garments/{id}/photos` (multipart image, part, reason)
+`POST /garments/{id}/photos` (multipart image, part, reason). Two steps, so the checker sees something quickly:
 
-1. Save the original. Apply EXIF rotation, strip GPS.
-2. **SAM 3.1, in parallel:** "seam" plus at most the three tested parts (collar, pocket, hem). Part override above 0.7. No seam above the seam threshold → return `retake: "Move closer to the stitching"` and stop (no inspection row). Thresholds and their sources are in `docs/design.md`.
-3. Crop tiles around the best seam mask, exactly as the phone-set evaluation does; 448 px for Spark, the classifier's input size for the ensemble.
-4. **`inspect()`** (shared with benchmark arm D): one Muse Spark request with the reference image (a good seam from the session's fabric: Kadiri `{F}-1-5` for fabrics A/B/C, a training-fabric fallback otherwise) and a forced `classify_stitch` tool call that returns the ensemble's top-2 labels and probabilities. Strict JSON verdict:
+**Step 1 (returned by the request):**
+1. Save the original. Apply EXIF rotation, strip GPS; keep the focal length for scaling.
+2. **SAM 3.1 "seam" only.** No seam above the seam threshold → return `retake: "Move closer to the stitching"` and stop (no inspection row).
+3. Three tiles along the best seam, rotated level and sized to hold the same number of stitches as a StitchingNet tile (`scale_path`: pitch, fixed or provisional; `docs/design.md`); classifier ensemble on each; the most suspicious tile is the crop.
+4. Insert the inspection (`decision = pending`, `review_status = reviewing`) and return crop URL, classifier label and `inspection_id`.
+
+**Step 2 (background; the UI polls `GET /inspections/{id}` and shows "reviewing" until done):**
+5. **`inspect()`** (shared with benchmark arm D): one Muse Spark request with the reference image (a good seam from the session's fabric: Kadiri `{F}-1-5` for fabrics A/B/C, a training-fabric fallback otherwise) and a forced `classify_stitch` tool call that returns the ensemble's top-2 labels and probabilities. Strict JSON verdict:
    ```json
    {"verdict": "confirm|override|unknown_defect|ask_checker",
     "label": "good|skipped_stitch|broken_stitch|crooked_seam|puckering|stain_damage|open_seam|other",
@@ -54,12 +58,12 @@ Each garment counts as one unit for DHU once it is completed, whether or not a d
     "confidence": 0.0}
    ```
    The hybrid rule and routing are applied in code after the call (section 4).
-5. Map the part to the line plan → operator_id, machine_id.
-6. Insert the inspection with `decision = pending` and return what the UI needs: crop URL, mask overlay URL, part, proposed label, severity, reason, operator, machine, `needs_checker`.
+6. Map the sequence part to the line plan → operator_id, machine_id; update the row with proposed label, severity, reason, `needs_checker`, `review_status = done`, and log the agent run.
+7. Then, off the critical path: SAM part prompts (collar, pocket, hem) → `part_chip` if they disagree with the sequence.
 
 If the Spark call fails, the classifier's top label is returned as `ask_checker`, so the line keeps moving.
 
-Latency target: under 5 s per photo end to end, with per-step timings logged.
+Step-1 and step-2 latencies are logged for every photo; there is no hard target.
 
 ## 4. Hybrid rule and severity (frozen with the benchmark)
 
@@ -68,6 +72,10 @@ Latency target: under 5 s per photo end to end, with per-step timings logged.
 - **Major-defect protection:** if the classifier's top label is a major defect (skipped_stitch, broken_stitch, stain_damage) with probability ≥ t, Spark cannot turn it into good or crooked_seam. The proposal stays the classifier's label and the photo goes to the checker. t is chosen on validation data and frozen (`docs/design.md`).
 - Spark's stated confidence is stored, not used for routing.
 - **Severity comes from a fixed map:** skipped_stitch, broken_stitch, open_seam → major. Spark judges only stain_damage (major if visible on the face side), crooked_seam and puckering (major or minor by extent and visibility), and gives the reason.
+
+**Agent trace.** Every verdict and every report links to its `agent_run` row. `GET /agent-runs/{id}` returns the tool calls made, in order, with their outputs (for a verdict: `classify_stitch` and its top-2 result; for a report: each `get_*` call and its result), the final answer, latency, tokens and cost. The UI shows it as an expandable list under the verdict or report.
+
+**Switchable brain (pending the Muse Spark Open smoke test; decided Day 4 with arm E).** The judgment and report steps would run on Muse Spark (Meta API) or Muse Spark Open (Modal shared endpoint), selectable per session, with Muse Spark Open used automatically when the Meta API fails.
 
 ## 5. Checker decision and voice
 
@@ -123,9 +131,11 @@ Visitors to the hosted URL have no garments and no tailor.
 
 `app/SPEC.md` lists screens, states, endpoints and payloads. Screens:
 1. **Start day:** style, fabric, lot size, critical parts, line plan (pre-filled template).
-2. **Inspect:** bundle and garment counter, the next seam to photograph, camera capture (rear camera, landscape hint), result card (crop with mask overlay, part chip, label, severity, reason), buttons Agree / Change / Not a defect / Retake, mic button, "Next garment".
+2. **Inspect:** bundle and garment counter, the next seam to photograph, camera capture (rear camera, landscape hint), result card in two steps (first the crop and classifier label, then "reviewing", then Spark's label, severity and reason), a part chip only when SAM disagrees with the sequence, buttons Agree / Change / Not a defect / Retake, mic button, "Next garment".
 3. **Voice confirm sheet:** transcript, parsed fields, confirm or edit.
 4. **Dashboard:** live DHU, defective %, by operator, by machine, by defect, trend alerts.
+
+Every verdict card and report has an expandable **agent trace**: the tool calls with their outputs, from `agent_run`.
 5. **Audit:** start an audit, sampled garment numbers, progress against Ac/Re.
 6. **Report:** generate, view, print to PDF.
 7. **Demo:** gallery, reset.

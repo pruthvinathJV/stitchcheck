@@ -1,0 +1,55 @@
+{
+  "images": "30 good training seams per training fabric, seed 0",
+  "tile_px": 224,
+  "min_strength": 0.3,
+  "min_pitch": 8,
+  "n_found": 135,
+  "median_pitch": 21.0,
+  "pitch_iqr": [
+    17.5,
+    22.0
+  ],
+  "stitches_per_tile": 10.67,
+  "per_fabric": {
+    "Chiffon": {
+      "n": 30,
+      "found": 28,
+      "median_pitch": 21.5
+    },
+    "Denim": {
+      "n": 30,
+      "found": 20,
+      "median_pitch": 14.0
+    },
+    "Jacquard": {
+      "n": 30,
+      "found": 0,
+      "median_pitch": null
+    },
+    "Nylon": {
+      "n": 30,
+      "found": 0,
+      "median_pitch": null
+    },
+    "Polyester": {
+      "n": 30,
+      "found": 30,
+      "median_pitch": 22.0
+    },
+    "Polyester (coated)": {
+      "n": 30,
+      "found": 29,
+      "median_pitch": 16.0
+    },
+    "Satin": {
+      "n": 30,
+      "found": 24,
+      "median_pitch": 21.0
+    },
+    "Velveteen": {
+      "n": 30,
+      "found": 4,
+      "median_pitch": 26.0
+    }
+  }
+}

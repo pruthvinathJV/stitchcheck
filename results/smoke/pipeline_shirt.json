@@ -6,214 +6,211 @@
     {
       "seam_found": true,
       "seam_conf": 0.6521739363670349,
-      "sam_part": "pocket",
-      "sam_part_conf": 0.9024390578269958,
-      "part": "pocket",
+      "tile_side": 135,
+      "stitch_pitch": null,
       "classifier_top2": [
         [
-          "broken_stitch",
-          0.6008562445640564
+          "stain_damage",
+          0.8921771049499512
         ],
         [
-          "stain_damage",
-          0.2900993227958679
+          "broken_stitch",
+          0.036153700202703476
         ]
       ],
       "tile_probs": [
         [
+          0.01600000075995922,
+          0.026000000536441803,
+          0.03620000183582306,
+          0.02969999983906746,
+          0.8921999931335449
+        ],
+        [
+          0.02019999921321869,
+          0.03759999945759773,
+          0.035100001841783524,
           0.04280000180006027,
-          0.08630000054836273,
-          0.5737000107765198,
-          0.03660000115633011,
-          0.2606000006198883
+          0.864300012588501
         ],
         [
-          0.031099999323487282,
-          0.05350000038743019,
-          0.7627999782562256,
-          0.031300000846385956,
-          0.12139999866485596
-        ],
-        [
-          0.021199999377131462,
-          0.0575999990105629,
-          0.6008999943733215,
-          0.03020000085234642,
-          0.29010000824928284
+          0.020400000736117363,
+          0.11320000141859055,
+          0.287200003862381,
+          0.030700000002980232,
+          0.5483999848365784
         ]
       ],
-      "proposed_label": "broken_stitch",
+      "config_hash": "5c61cffbd64c",
+      "step1_seconds": 2.27,
+      "proposed_label": "stain_damage",
       "proposed_severity": "major",
       "needs_checker": true,
-      "reason": "Image is dark and low-detail so stitch line cannot be verified against reference.",
+      "reason": "Image is too dark and blurry to confirm stain versus shadow.",
+      "part": "collar",
+      "operator_id": "OP01",
+      "machine_id": "M01",
       "spark_verdict": {
         "spark_verdict": "ask_checker",
-        "spark_label": "good",
-        "confidence": 0.35,
+        "spark_label": "stain_damage",
+        "confidence": 0.3,
         "protected": true,
         "pred": "ask_checker",
         "tool_called": true,
-        "spark_error": null
+        "spark_error": null,
+        "cached": false
       },
       "tokens": [
-        2992,
-        425
+        2989,
+        491
       ],
-      "operator_id": "OP06",
-      "machine_id": "M06",
-      "config_hash": "bace66889f8e",
-      "timings": {
-        "prepare": 0.01,
-        "sam": 5.56,
-        "classifier": 0.26,
-        "spark": 4.43,
-        "total": 10.26
-      },
+      "step2_seconds": 5.16,
+      "sam_part": "pocket",
+      "sam_part_conf": 0.9024390578269958,
+      "part_chip": "pocket",
       "photo": "collar.jpeg"
     },
     {
       "seam_found": true,
       "seam_conf": 0.5704697966575623,
-      "sam_part": "pocket",
-      "sam_part_conf": 0.9569892287254333,
-      "part": "pocket",
+      "tile_side": 135,
+      "stitch_pitch": null,
       "classifier_top2": [
         [
           "broken_stitch",
-          0.8663813471794128
+          0.4203517735004425
         ],
         [
-          "stain_damage",
-          0.052210334688425064
+          "crooked_seam",
+          0.3985634744167328
         ]
       ],
       "tile_probs": [
         [
-          0.016499999910593033,
-          0.031599998474121094,
-          0.8162999749183655,
-          0.06930000334978104,
-          0.06629999727010727
+          0.03759999945759773,
+          0.05490000173449516,
+          0.4203999936580658,
+          0.3986000120639801,
+          0.0885000005364418
         ],
         [
-          0.02280000038444996,
-          0.030300000682473183,
-          0.8428000211715698,
-          0.04839999973773956,
-          0.05570000037550926
+          0.052000001072883606,
+          0.13379999995231628,
+          0.06040000170469284,
+          0.05249999836087227,
+          0.7013000249862671
         ],
         [
-          0.014499999582767487,
-          0.028200000524520874,
-          0.8664000034332275,
-          0.03869999945163727,
-          0.05220000073313713
+          0.061000000685453415,
+          0.10220000147819519,
+          0.07689999788999557,
+          0.2689000070095062,
+          0.4909999966621399
         ]
       ],
-      "proposed_label": "broken_stitch",
-      "proposed_severity": "major",
+      "config_hash": "5c61cffbd64c",
+      "step1_seconds": 3.04,
+      "proposed_label": "crooked_seam",
+      "proposed_severity": "minor",
       "needs_checker": true,
-      "reason": "Image is too far and blurry to see stitch line clearly.",
+      "reason": "Image is blurry and seam curvature unclear versus reference",
+      "part": null,
+      "operator_id": null,
+      "machine_id": null,
       "spark_verdict": {
         "spark_verdict": "ask_checker",
-        "spark_label": "broken_stitch",
-        "confidence": 0.2,
-        "protected": true,
+        "spark_label": "crooked_seam",
+        "confidence": 0.35,
+        "protected": false,
         "pred": "ask_checker",
         "tool_called": true,
-        "spark_error": null
+        "spark_error": null,
+        "cached": false
       },
       "tokens": [
-        2991,
-        340
+        2995,
+        427
       ],
-      "operator_id": "OP06",
-      "machine_id": "M06",
-      "config_hash": "bace66889f8e",
-      "timings": {
-        "prepare": 0.02,
-        "sam": 3.25,
-        "classifier": 0.12,
-        "spark": 2.54,
-        "total": 5.93
-      },
+      "step2_seconds": 3.56,
+      "sam_part": "pocket",
+      "sam_part_conf": 0.9569892287254333,
+      "part_chip": "pocket",
       "photo": "full.jpeg"
     },
     {
       "retake": "Move closer to the stitching",
       "seam_found": false,
-      "timings": {
-        "prepare": 0.02,
-        "sam": 2.32
-      },
+      "step1_seconds": 2.18,
+      "sam_part": null,
+      "sam_part_conf": null,
+      "part_chip": null,
       "photo": "hem.jpeg"
     },
     {
       "seam_found": true,
       "seam_conf": 0.6878048777580261,
-      "sam_part": "pocket",
-      "sam_part_conf": 0.976608157157898,
-      "part": "pocket",
+      "tile_side": 135,
+      "stitch_pitch": null,
       "classifier_top2": [
         [
           "crooked_seam",
-          0.6116001009941101
+          0.5189002156257629
         ],
         [
           "broken_stitch",
-          0.2534284293651581
+          0.4175315797328949
         ]
       ],
       "tile_probs": [
         [
-          0.026599999517202377,
-          0.03359999880194664,
-          0.2533999979496002,
-          0.6115999817848206,
-          0.0746999979019165
+          0.02850000001490116,
+          0.023900000378489494,
+          0.517300009727478,
+          0.4065999984741211,
+          0.023600000888109207
         ],
         [
-          0.030300000682473183,
-          0.03620000183582306,
-          0.18279999494552612,
-          0.6995999813079834,
-          0.050999999046325684
+          0.025699999183416367,
+          0.02290000021457672,
+          0.042899999767541885,
+          0.8830000162124634,
+          0.02539999969303608
         ],
         [
-          0.029999999329447746,
-          0.039500001817941666,
-          0.34220001101493835,
-          0.5396000146865845,
-          0.04879999905824661
+          0.0210999995470047,
+          0.01889999955892563,
+          0.41749998927116394,
+          0.5188999772071838,
+          0.023499999195337296
         ]
       ],
-      "proposed_label": "good",
-      "proposed_severity": "none",
+      "config_hash": "5c61cffbd64c",
+      "step1_seconds": 2.08,
+      "proposed_label": "crooked_seam",
+      "proposed_severity": "minor",
       "needs_checker": true,
-      "reason": "Pocket stitch line is even and continuous with no wander or defect.",
+      "reason": "Image is too blurry to confirm seam straightness against reference.",
+      "part": "pocket",
+      "operator_id": "OP06",
+      "machine_id": "M06",
       "spark_verdict": {
-        "spark_verdict": "override",
-        "spark_label": "good",
-        "confidence": 0.9,
+        "spark_verdict": "ask_checker",
+        "spark_label": "crooked_seam",
+        "confidence": 0.35,
         "protected": false,
         "pred": "ask_checker",
         "tool_called": true,
-        "spark_error": null
+        "spark_error": null,
+        "cached": false
       },
       "tokens": [
-        2992,
-        258
+        2988,
+        394
       ],
-      "operator_id": "OP06",
-      "machine_id": "M06",
-      "config_hash": "bace66889f8e",
-      "timings": {
-        "prepare": 0.01,
-        "sam": 4.32,
-        "classifier": 0.15,
-        "spark": 2.08,
-        "total": 6.57
-      },
+      "step2_seconds": 6.88,
+      "sam_part": "pocket",
+      "sam_part_conf": 0.976608157157898,
+      "part_chip": null,
       "photo": "pocket.jpeg"
     }
   ]

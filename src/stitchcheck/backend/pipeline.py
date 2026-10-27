@@ -1,10 +1,12 @@
 """The per-photo pipeline (docs/backend_spec.md, section 3). The phone-set evaluation runs the same code.
 
-photo -> clean copy (EXIF rotation applied, metadata dropped) -> SAM 3.1 "seam" plus the tested parts, in parallel
--> tiles along the best seam, rotated so the seam runs horizontally and scaled so the seam is as thick, relative
-to the tile, as in StitchingNet -> classifier ensemble on
-every tile -> the tile most likely to be a defect goes to inspect() with the classifier's top 2 and a good reference
--> part mapped to the line plan -> pending inspection row, with the agent run logged.
+Step 1, shown first: photo -> clean copy (EXIF rotation applied, metadata dropped) -> SAM 3.1 "seam" -> tiles
+along the best seam, rotated so the seam runs horizontally as in StitchingNet, and cut to hold as many stitches
+as a StitchingNet tile -> classifier ensemble on every tile; the tile most likely to be a defect is the one shown.
+Step 2, while the screen says "reviewing": inspect() (Muse Spark with the classifier's top 2 and a good
+reference) -> proposed label, severity, reason, needs_checker; the part from the inspection sequence maps to the
+line plan. Off the critical path: SAM part prompts, shown only as a suggestion chip when they disagree with the
+sequence; they never change the part.
 """
 import hashlib
 import io
@@ -17,6 +19,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageOps
 
+from stitchcheck.backend.stitch import stitch_pitch
 from stitchcheck.classifier.ensemble import top2
 from stitchcheck.qc.counts import map_part
 from stitchcheck.spark import inspect as hybrid
@@ -26,114 +29,155 @@ PART_PROMPTS = ("collar", "pocket", "hem")  # the parts tested on the shirt phot
 PART_T = 0.7
 SEAM_T = 0.5  # provisional: set on the Kadiri reference pairs plus the shirt photos before the phone set is scored
 N_TILES = 3
-# Tile side / seam thickness in StitchingNet training images, measured with the same SAM prompt: median 51
-# (IQR 48 to 54, 12 good seams across the 8 training fabrics; results/smoke/seam_scale.json).
-TILE_PER_THICKNESS = 51
-TILE_MIN = 64  # px in the original photo
+# Stitches in a 224 px StitchingNet training tile: 224 / median stitch pitch (21 px) over 135 good training seams
+# where a pitch was found (results/val/stitch_scale.json). Phone tiles are cut to hold the same number.
+STITCHES_PER_TILE = 10.67
+PROBE_FRAC = 0.3  # probe tiles for measuring the pitch: this share of the photo's short side
+FALLBACK_FRAC = 0.15  # provisional tile side when there is neither a pitch nor a hand calibration
+# Hand calibration on reference pair A-1-5 at the 15 cm capture distance: stitches counted over a known pixel span
+# (scripts/val/hand_scale.py). Used when the pitch is not confident, scaled by resolution and focal length.
+HAND_CALIBRATION = Path("results/val/stitch_hand_calibration.json")
+FOCAL_35MM_TAG, FOCAL_TAG = 41989, 37386  # EXIF FocalLengthIn35mmFilm, FocalLength
+TILE_MIN = 64
 GOOD = "good"
 
 
 def clean_photo(data):
-    """Bytes from the phone -> RGB image upright, with no EXIF (so no GPS) when saved."""
-    im = ImageOps.exif_transpose(Image.open(io.BytesIO(data)))
-    return im.convert("RGB")
+    """Bytes from the phone -> (RGB image upright, with no EXIF so no GPS when saved; focal lengths from EXIF)."""
+    raw = Image.open(io.BytesIO(data))
+    exif = raw.getexif().get_ifd(0x8769) | dict(raw.getexif())
+    meta = dict(focal_35mm=_num(exif.get(FOCAL_35MM_TAG)), focal_mm=_num(exif.get(FOCAL_TAG)))
+    return ImageOps.exif_transpose(raw).convert("RGB"), meta
 
 
-def localize(im, sam, seam_t=SEAM_T, part_t=PART_T):
-    """Run SAM for the seam and the parts in parallel. Returns the best seam object above seam_t (or None), the
-    best part above part_t (or None) and the timing."""
-    t0 = time.time()
-    prompts = (SEAM_PROMPT, *PART_PROMPTS)
-    with ThreadPoolExecutor(len(prompts)) as pool:
-        found = dict(zip(prompts, pool.map(lambda p: sam(im, p)[0], prompts)))
-    seams = [o for o in found[SEAM_PROMPT] if o.get("confidence", 0) >= seam_t and "mask" in o]
-    seam = max(seams, key=lambda o: o["confidence"], default=None)
+def _num(v):
+    try:
+        return float(v) or None
+    except (TypeError, ValueError, ZeroDivisionError):
+        return None
+
+
+def hand_calibration():
+    return json.loads(HAND_CALIBRATION.read_text()) if HAND_CALIBRATION.exists() else None
+
+
+def find_seam(im, sam, seam_t=SEAM_T):
+    """The best "seam" object above seam_t, or None."""
+    objs = [o for o in sam(im, SEAM_PROMPT)[0] if o.get("confidence", 0) >= seam_t and "mask" in o]
+    return max(objs, key=lambda o: o["confidence"], default=None)
+
+
+def suggest_part(im, sam, part_t=PART_T):
+    """Background part check: the best of the tested parts above part_t, or (None, None)."""
+    with ThreadPoolExecutor(len(PART_PROMPTS)) as pool:
+        found = dict(zip(PART_PROMPTS, pool.map(lambda p: sam(im, p)[0], PART_PROMPTS)))
     parts = [(p, o["confidence"]) for p in PART_PROMPTS for o in found[p] if o.get("confidence", 0) >= part_t]
-    part, part_conf = max(parts, key=lambda x: x[1], default=(None, None))
-    return dict(seam=seam, part=part, part_conf=part_conf, seconds=round(time.time() - t0, 2))
+    return max(parts, key=lambda x: x[1], default=(None, None))
 
 
-def seam_tiles(im, mask, n=N_TILES, tile_min=TILE_MIN, per_thickness=TILE_PER_THICKNESS):
-    """n square tiles centred along the seam mask, each rotated so the seam runs horizontally, with side
-    per_thickness x the seam's thickness (mask area / length), so stitches appear at the training scale."""
+def seam_tiles(im, mask, side, n=N_TILES):
+    """n square tiles of the given side centred along the seam mask, each rotated so the seam runs horizontally."""
     ys, xs = np.nonzero(mask)
     pts = np.stack([xs, ys], 1).astype(float)
     mean = pts.mean(0)
-    _, _, vt = np.linalg.svd(pts - mean, full_matrices=False)
-    u = vt[0]
+    u = np.linalg.svd(pts - mean, full_matrices=False)[2][0]
     t = (pts - mean) @ u
-    length = t.max() - t.min() + 1
-    side = int(min(max(per_thickness * mask.sum() / length, tile_min), min(im.size)))
     angle = math.degrees(math.atan2(u[1], u[0]))
+    side = int(max(min(side, min(im.size)), TILE_MIN))
     tiles = []
     for q in (np.arange(n) + 0.5) / n:
         target = t.min() + q * (t.max() - t.min())
         near = np.abs(t - target) <= max(side / 4, 2)
         cx, cy = pts[near].mean(0) if near.any() else mean + target * u
         half = side * 0.75  # room to rotate without empty corners
-        box = (int(cx - half), int(cy - half), int(cx + half), int(cy + half))
-        big = im.crop(box).rotate(angle, resample=Image.BICUBIC)
+        big = im.crop((int(cx - half), int(cy - half), int(cx + half), int(cy + half))).rotate(angle, resample=Image.BICUBIC)
         c = big.size[0] / 2
         tiles.append(big.crop((int(c - side / 2), int(c - side / 2), int(c + side / 2), int(c + side / 2))))
     return tiles
 
 
+def tile_side(im, mask, meta=None, calibration=None):
+    """Side that holds STITCHES_PER_TILE stitches, and how it was found. Returns (side, pitch px, path):
+    - "pitch": measured on probe tiles along the seam (median of those where it is confident);
+    - "fixed": the hand calibration's pixels per stitch, scaled by the photo's long side and, when both photos have
+      it, the 35 mm-equivalent focal length (same 15 cm capture distance assumed);
+    - "provisional": neither is available."""
+    probes = seam_tiles(im, mask, side=PROBE_FRAC * min(im.size))
+    pitches = [r["pitch"] for r in (stitch_pitch(np.array(p)) for p in probes) if r["found"]]
+    if pitches:
+        pitch = float(np.median(pitches))
+        return int(round(STITCHES_PER_TILE * pitch)), pitch, "pitch"
+    cal = calibration if calibration is not None else hand_calibration()
+    if cal:
+        pitch = cal["px_per_stitch"] * max(im.size) / cal["long_side"]
+        f, f_ref = (meta or {}).get("focal_35mm"), cal.get("focal_35mm")
+        if f and f_ref:
+            pitch *= f / f_ref
+        return int(round(STITCHES_PER_TILE * pitch)), pitch, "fixed"
+    return int(FALLBACK_FRAC * min(im.size)), None, "provisional"
+
+
 def config_hash():
     """Identifies the evaluated configuration a row was produced with."""
     lock = Path("results/test/lock.json")
-    parts = [lock.read_text() if lock.exists() else "", SEAM_PROMPT, PART_PROMPTS, PART_T, SEAM_T, N_TILES, TILE_MIN,
-             TILE_PER_THICKNESS]
+    parts = [lock.read_text() if lock.exists() else "", SEAM_PROMPT, SEAM_T, N_TILES, STITCHES_PER_TILE, PROBE_FRAC,
+             FALLBACK_FRAC, TILE_MIN, hand_calibration()]
     return hashlib.sha256(json.dumps(parts, default=str).encode()).hexdigest()[:12]
 
 
-def inspect_photo(data, *, sam, ensemble, client, reference, line_plan, out_dir, part_hint=None):
-    """Run one photo end to end. Returns a dict for the inspection row and the UI (no database writes here).
-    retake is set when no seam clears the threshold; then nothing else is filled in."""
-    timings, t0 = {}, time.time()
+def step1(data, *, sam, ensemble, out_dir, classes):
+    """Photo -> seam crop and classifier label (the first screen). retake is set when no seam clears the
+    threshold; then nothing else is filled in. Also returns the cleaned image for the later steps."""
+    t0 = time.time()
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    im = clean_photo(data)
+    im, meta = clean_photo(data)
     key = hashlib.sha256(data).hexdigest()[:16]
     photo_path = out_dir / f"{key}.jpg"
     im.save(photo_path, quality=92)
-    timings["prepare"] = round(time.time() - t0, 2)
-
-    loc = localize(im, sam)
-    timings["sam"] = loc["seconds"]
-    part = loc["part"] or part_hint
-    if loc["seam"] is None:
+    seam = find_seam(im, sam)
+    if seam is None:
         return dict(retake="Move closer to the stitching", photo_path=str(photo_path), seam_found=False,
-                    timings=timings)
-
-    t1 = time.time()
-    tiles = seam_tiles(im, loc["seam"]["mask"])
+                    step1_seconds=round(time.time() - t0, 2)), im
+    side, pitch, scale_path = tile_side(im, seam["mask"], meta)
+    tiles = seam_tiles(im, seam["mask"], side)
     probs = ensemble(tiles)
-    worst = int(np.argmax(1 - probs[:, ensemble_classes(ensemble).index(GOOD)]))
+    worst = int(np.argmax(1 - probs[:, classes.index(GOOD)]))
     crop_path = out_dir / f"{key}_tile{worst}.jpg"
     tiles[worst].save(crop_path, quality=92)
-    t2 = top2(probs[worst])
-    timings["classifier"] = round(time.time() - t1, 2)
+    return dict(photo_path=str(photo_path), crop_path=str(crop_path), seam_found=True, seam_conf=seam["confidence"],
+                tile_side=side, stitch_pitch=pitch, scale_path=scale_path, focal_35mm=meta["focal_35mm"],
+                classifier_top2=top2(probs[worst]),
+                tile_probs=probs.round(4).tolist(), config_hash=config_hash(),
+                step1_seconds=round(time.time() - t0, 2)), im
 
-    t1 = time.time()
+
+def step2(s1, *, client, reference, line_plan, part):
+    """Muse Spark's review of the step-1 crop, and the line-plan mapping of the sequence part."""
+    t0 = time.time()
+    t2 = s1["classifier_top2"]
     try:
-        verdict = hybrid.inspect(client, crop_path, reference, t2)
+        v = hybrid.inspect(client, s1["crop_path"], reference, t2)
     except Exception as ex:  # Spark down: the classifier's label goes to the checker, and the line keeps moving
-        verdict = dict(pred=hybrid.ASK_CHECKER, proposed=t2[0][0], severity=hybrid.severity(t2[0][0], None),
-                       reason=None, spark_error=f"{type(ex).__name__}: {ex}"[:200], tool_called=False)
-    timings["spark"] = round(time.time() - t1, 2)
+        v = dict(pred=hybrid.ASK_CHECKER, proposed=t2[0][0], severity=hybrid.severity(t2[0][0], None),
+                 spark_error=f"{type(ex).__name__}: {ex}"[:200], tool_called=False)
     operator_id, machine_id = map_part(line_plan, part) if part else (None, None)
-    timings["total"] = round(time.time() - t0, 2)
-    return dict(
-        photo_path=str(photo_path), crop_path=str(crop_path), seam_found=True, seam_conf=loc["seam"]["confidence"],
-        sam_part=loc["part"], sam_part_conf=loc["part_conf"], part=part, classifier_top2=t2,
-        tile_probs=probs.round(4).tolist(), proposed_label=verdict["proposed"], proposed_severity=verdict["severity"],
-        needs_checker=verdict["pred"] == hybrid.ASK_CHECKER, reason=verdict.get("reason"),
-        spark_verdict={k: verdict.get(k) for k in ("spark_verdict", "spark_label", "confidence", "protected", "pred",
-                                                   "tool_called", "raw", "spark_error")},
-        tokens=(verdict.get("prompt_tokens"), verdict.get("completion_tokens")),
-        operator_id=operator_id, machine_id=machine_id, config_hash=config_hash(), timings=timings)
+    return dict(proposed_label=v["proposed"], proposed_severity=v["severity"], needs_checker=v["pred"] == hybrid.ASK_CHECKER,
+                reason=v.get("reason"), part=part, operator_id=operator_id, machine_id=machine_id,
+                spark_verdict={k: v.get(k) for k in ("spark_verdict", "spark_label", "confidence", "protected", "pred",
+                                                     "tool_called", "raw", "spark_error", "cached")},
+                tokens=[v.get("prompt_tokens"), v.get("completion_tokens")], step2_seconds=round(time.time() - t0, 2))
 
 
-def ensemble_classes(ensemble):
-    from stitchcheck.classifier.train import CLASSES
-    return getattr(ensemble, "classes", CLASSES["clean"])
+def part_chip(im, sam, sequence_part):
+    """SAM's part suggestion, shown only when it disagrees with the inspection sequence."""
+    part, conf = suggest_part(im, sam)
+    return dict(sam_part=part, sam_part_conf=conf, part_chip=part if part and part != sequence_part else None)
+
+
+def inspect_photo(data, *, sam, ensemble, client, reference, line_plan, out_dir, part, classes):
+    """Steps 1 and 2 in one call (the phone-set evaluation and scripts). The part check is not included."""
+    s1, _ = step1(data, sam=sam, ensemble=ensemble, out_dir=out_dir, classes=classes)
+    if not s1["seam_found"]:
+        return s1
+    return s1 | step2(s1, client=client, reference=reference, line_plan=line_plan, part=part)
