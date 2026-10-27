@@ -1,0 +1,28 @@
+{
+  "model": "muse-voice-transcribe-1.0",
+  "date": "2026-10-26",
+  "reference": "",
+  "runs": [
+    {
+      "variant": "auto",
+      "ok": true,
+      "seconds": 3.63,
+      "transcript": " मशीन ఏడు బండిల్ ముప్పై నాలుగు కాలర్ దగ్గర కుట్లు జారాయి ఇది మేనేజర్ డిఫెక్ట్",
+      "audio_ms": 10240
+    },
+    {
+      "variant": "bias",
+      "ok": true,
+      "seconds": 2.41,
+      "transcript": " మెషిన్ ఏడు బండిల్ ముప్పై నాలుగు. కాలర్ దగ్గర కుట్లు చేరాయి. ఇది మేనేజర్ డిఫెక్ట్.",
+      "audio_ms": 10240
+    },
+    {
+      "variant": "bias+keywords",
+      "ok": true,
+      "seconds": 2.26,
+      "transcript": "machine ఏడు bundle ముప్పై నాలుగు collar దగ్గర కుట్లు కుట్ట్లు జారాయి ఇది major defect",
+      "audio_ms": 10240
+    }
+  ]
+}
