@@ -1,0 +1,37 @@
+cls,precision,recall,f1,support,system
+good,0.8694,0.882,0.8756,483,C classifier (full split)
+skipped_stitch,0.7652,0.7026,0.7326,269,C classifier (full split)
+broken_stitch,0.9908,0.9351,0.9621,231,C classifier (full split)
+crooked_seam,0.977,0.906,0.9401,234,C classifier (full split)
+stain_damage,0.7852,0.9526,0.8608,211,C classifier (full split)
+macro,0.8775,0.8756,0.8743,1428,C classifier (full split)
+good,0.7857,0.9167,0.8462,84,C classifier (subset)
+skipped_stitch,0.8806,0.7024,0.7815,84,C classifier (subset)
+broken_stitch,0.9872,0.9167,0.9506,84,C classifier (subset)
+crooked_seam,0.9634,0.9405,0.9518,84,C classifier (subset)
+stain_damage,0.8526,0.9643,0.905,84,C classifier (subset)
+macro,0.8939,0.8881,0.887,420,C classifier (subset)
+good,0.4038,1.0,0.5753,84,A zero-shot Spark
+skipped_stitch,0.0,0.0,0.0,84,A zero-shot Spark
+broken_stitch,0.9385,0.7262,0.8188,84,A zero-shot Spark
+crooked_seam,0.9125,0.869,0.8902,84,A zero-shot Spark
+stain_damage,0.82,0.4881,0.6119,84,A zero-shot Spark
+macro,0.615,0.6167,0.5793,420,A zero-shot Spark
+good,0.4468,1.0,0.6176,84,B Spark + good reference
+skipped_stitch,0.125,0.0238,0.04,84,B Spark + good reference
+broken_stitch,0.9306,0.7976,0.859,84,B Spark + good reference
+crooked_seam,0.871,0.9643,0.9153,84,B Spark + good reference
+stain_damage,0.88,0.5238,0.6567,84,B Spark + good reference
+macro,0.6507,0.6619,0.6177,420,B Spark + good reference
+good,0.8,0.9048,0.8492,84,"D hybrid, auto label"
+skipped_stitch,0.8889,0.0952,0.172,84,"D hybrid, auto label"
+broken_stitch,1.0,0.8214,0.902,84,"D hybrid, auto label"
+crooked_seam,0.9875,0.9405,0.9634,84,"D hybrid, auto label"
+stain_damage,0.9474,0.8571,0.9,84,"D hybrid, auto label"
+macro,0.9248,0.7238,0.7573,420,"D hybrid, auto label"
+good,0.7477,0.9881,0.8513,84,"D hybrid, shown to checker"
+skipped_stitch,0.8615,0.6667,0.7517,84,"D hybrid, shown to checker"
+broken_stitch,0.9868,0.8929,0.9375,84,"D hybrid, shown to checker"
+crooked_seam,0.9756,0.9524,0.9639,84,"D hybrid, shown to checker"
+stain_damage,0.9419,0.9643,0.9529,84,"D hybrid, shown to checker"
+macro,0.9027,0.8929,0.8915,420,"D hybrid, shown to checker"
