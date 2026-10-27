@@ -1,0 +1,17 @@
+{
+  "runs": [
+    "clean_convnext_tiny_11fab_final12-seed0",
+    "clean_convnext_tiny_11fab_final12-seed1",
+    "clean_convnext_tiny_11fab_final12-seed2"
+  ],
+  "onnx": "models/demo_ensemble.onnx",
+  "size_mb": 334.2,
+  "parity_max_abs_diff": 3.0174851417541504e-07,
+  "parity_label_agreement": 1.0,
+  "cpu_session_load_s": 0.13,
+  "cpu_first_call_s": 0.197,
+  "cpu_steady_call_s_median": 0.189,
+  "tiles_per_call": 3,
+  "cpu_threads": 4,
+  "note": "local Mac CPU; the hosted container is timed at deploy"
+}

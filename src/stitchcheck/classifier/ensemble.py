@@ -51,3 +51,33 @@ def top2(probs):
     classes = CLASSES["clean"]
     order = np.argsort(-probs)[:2]
     return [(classes[i], float(probs[i])) for i in order]
+
+
+ONNX_DEMO = Path("models/demo_ensemble.onnx")  # scripts/export/onnx_ensemble.py; gitignored
+
+
+class OnnxEnsemble:
+    """The exported ensemble for serving: same interface as Ensemble, onnxruntime and NumPy only (no PyTorch).
+    Preprocessing matches eval_transform: shorter side to 224 (bilinear), centre crop 224, ImageNet normalisation."""
+
+    MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+    STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+
+    def __init__(self, path=ONNX_DEMO):
+        import onnxruntime as ort
+        self.session = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+
+    @classmethod
+    def preprocess(cls, im):
+        from PIL import Image
+        im = im.convert("RGB")
+        w, h = im.size
+        s = 224 / min(w, h)
+        im = im.resize((max(224, round(w * s)), max(224, round(h * s))), Image.BILINEAR)
+        left, top = (im.width - 224) // 2, (im.height - 224) // 2
+        a = np.asarray(im.crop((left, top, left + 224, top + 224)), dtype=np.float32) / 255.0
+        return ((a - cls.MEAN) / cls.STD).transpose(2, 0, 1)
+
+    def __call__(self, images):
+        x = np.stack([self.preprocess(im) for im in images]).astype(np.float32)
+        return self.session.run(None, {"tiles": x})[0]

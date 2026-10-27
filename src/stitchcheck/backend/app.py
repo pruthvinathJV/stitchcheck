@@ -338,8 +338,9 @@ def create_app(deps: Deps):
 
 
 def default_app():
-    """The real dependencies (API keys from .env, the 11-fabric demo ensemble)."""
-    from stitchcheck.classifier.ensemble import Ensemble
+    """The real dependencies (API keys from .env, the 11-fabric demo ensemble: the exported ONNX graph when present,
+    which matches PyTorch exactly, results/export/demo_ensemble.json)."""
+    from stitchcheck.classifier.ensemble import ONNX_DEMO, Ensemble, OnnxEnsemble
     from stitchcheck.data.stitchingnet import image_path, load_split
     from stitchcheck.meta_api import sam_segment, spark_client
     from stitchcheck.voice import transcribe_correction
@@ -355,5 +356,5 @@ def default_app():
         return crop if crop.exists() else fallback
 
     return create_app(Deps(db_path="data/app/stitchcheck.db", storage="data/app/photos", sam=sam_segment,
-                           ensemble=Ensemble(), spark=spark_client(), transcribe=transcribe_correction,
+                           ensemble=OnnxEnsemble() if ONNX_DEMO.exists() else Ensemble(), spark=spark_client(), transcribe=transcribe_correction,
                            reference=reference))
