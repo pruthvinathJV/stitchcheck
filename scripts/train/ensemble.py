@@ -15,17 +15,11 @@ from pathlib import Path
 import torch
 from torch.utils.data import DataLoader
 
-from stitchcheck.classifier.train import CLASSES, Images, build_model, eval_transform, predict, select
+from stitchcheck.classifier.ensemble import load_model as load
+from stitchcheck.classifier.train import CLASSES, Images, eval_transform, predict, select
 from stitchcheck.eval.metrics import per_class_report
 
 MIN_AGREEMENT = 0.90
-
-
-def load(run, device):
-    ck = torch.load(Path("models") / run / "best.pt", map_location=device, weights_only=False)
-    model = build_model(ck["arch"], len(ck["classes"]), pretrained=False)
-    model.load_state_dict(ck["state_dict"])
-    return model.to(device)
 
 
 def main():

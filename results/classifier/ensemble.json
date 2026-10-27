@@ -1,18 +1,18 @@
 {
   "val": "Linen",
   "n": 673,
-  "epoch": 9,
-  "note": "optimistic: the setting and the epoch were chosen on Linen",
+  "epoch": 12,
+  "note": "optimistic: the setting was chosen on Linen",
   "bench": {
-    "clean_convnext_tiny_8fab_final-seed0": 0.9441,
-    "clean_convnext_tiny_8fab_final-seed1": 0.927,
-    "clean_convnext_tiny_8fab_final-seed2": 0.8795
+    "clean_convnext_tiny_8fab_final12-seed0": 0.9185,
+    "clean_convnext_tiny_8fab_final12-seed1": 0.8452,
+    "clean_convnext_tiny_8fab_final12-seed2": 0.8855
   },
-  "bench_ensemble": 0.9432,
+  "bench_ensemble": 0.9208,
   "demo_agreement": {
-    "clean_convnext_tiny_11fab_final-seed0": 0.9421,
-    "clean_convnext_tiny_11fab_final-seed1": 0.9406,
-    "clean_convnext_tiny_11fab_final-seed2": 0.9421
+    "clean_convnext_tiny_11fab_final12-seed0": 0.9183,
+    "clean_convnext_tiny_11fab_final12-seed1": 0.9183,
+    "clean_convnext_tiny_11fab_final12-seed2": 0.9183
   },
   "demo_min_agreement": 0.9,
   "demo_ok": true
