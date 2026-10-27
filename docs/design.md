@@ -70,6 +70,15 @@ Also reported:
 
 The benchmark and the app use the same setting. Before the few-shot and hybrid arms run on test data, the effort level is rechecked for them on the same validation sample, because comparing against a reference may need more reasoning.
 
+## Telugu voice corrections
+
+Tested on two 10-second clips of mixed Telugu and English ("machine ఏడు, bundle ముప్పై నాలుగు, collar దగ్గర కుట్లు జారాయి, ఇది major defect"), one quiet and one with background noise (`scripts/smoke/`, `results/smoke/`). Each takes about 2.3 seconds to transcribe.
+
+- **Always send the Telugu + English language hint and the keyword list** (`src/stitchcheck/voice.py`). Without a hint, the noisy clip came back partly in Kannada script. Without keywords, "major" was heard as "manager".
+- **Keywords are English only:** machine, bundle, operator, major, minor, the defect names and the garment parts. Adding the Telugu defect words (జారాయి, తెగింది, వంకర, ముడతలు, మరక) as keywords made the defect word itself come back wrong more often: జారాయి was right in 4 of 12 runs with them, 10 of 12 without (`results/smoke/transcribe_keywords.csv`). The Telugu words go to Muse Spark instead, for the mapping step.
+- **Muse Spark maps the transcript onto the fixed defect list only**, using the Telugu words as a guide (జారాయి = skipped stitch, తెగింది = broken stitch, వంకర = crooked seam, ముడతలు = puckering, మరక = stain). If the defect word is ambiguous or matches nothing, it asks the checker rather than guessing.
+- **Nothing is logged from voice alone.** The checker sees the parsed entry (machine, bundle, part, defect, severity) and taps to confirm. This matters because the defect word is the least stable part of the transcript: across reruns of the same clip it sometimes changed to a different word.
+
 ## Day 5 decision rule
 
 If hybrid recall on major defects on the phone set is below 60% (pair-bootstrap point estimate), the product switches to suggestion mode: the AI proposes, the checker confirms every photo, and the README reports it.
