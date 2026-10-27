@@ -71,13 +71,23 @@ def build_model(arch, n_classes, pretrained=True):
     return m
 
 
-def train_transform():
-    # Brightness/contrast jitter stands in for phone lighting; flips because seams run either way.
-    return transforms.Compose([
-        transforms.RandomResizedCrop(224, scale=(0.6, 1.0), ratio=(0.8, 1.25)),
-        transforms.RandomHorizontalFlip(), transforms.RandomVerticalFlip(),
-        transforms.ColorJitter(brightness=0.4, contrast=0.4),
-        transforms.ToTensor(), transforms.Normalize(MEAN, STD)])
+AUGS = ("basic", "strong", "trivial")
+
+
+def train_transform(aug="basic"):
+    """basic: brightness/contrast jitter (phone lighting). strong: adds colour, grayscale and blur, because
+    unseen fabrics differ mostly in colour and texture. trivial: TrivialAugmentWide. Flips in all: seams run
+    either way."""
+    geometric = [transforms.RandomResizedCrop(224, scale=(0.6, 1.0), ratio=(0.8, 1.25)),
+                 transforms.RandomHorizontalFlip(), transforms.RandomVerticalFlip()]
+    photometric = {
+        "basic": [transforms.ColorJitter(brightness=0.4, contrast=0.4)],
+        "strong": [transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.05),
+                   transforms.RandomGrayscale(0.2),
+                   transforms.RandomApply([transforms.GaussianBlur(5, sigma=(0.1, 2.0))], p=0.3)],
+        "trivial": [transforms.TrivialAugmentWide()],
+    }[aug]
+    return transforms.Compose(geometric + photometric + [transforms.ToTensor(), transforms.Normalize(MEAN, STD)])
 
 
 def eval_transform():
@@ -136,6 +146,10 @@ def main():
     ap.add_argument("--epochs", type=int, default=12)
     ap.add_argument("--batch", type=int, default=64)
     ap.add_argument("--lr", type=float, default=5e-4)
+    ap.add_argument("--backbone-lr-mult", type=float, default=1.0, help="backbone lr = lr x this; the head gets lr")
+    ap.add_argument("--aug", choices=AUGS, default="basic")
+    ap.add_argument("--label-smoothing", type=float, default=0.1)
+    ap.add_argument("--tag", default="", help="suffix for the run name, e.g. a sweep config id")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--resume", action="store_true", help="continue from models/<run>/last.pt if it exists")
@@ -145,22 +159,27 @@ def main():
     random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
     device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
     classes = CLASSES[args.variant]
-    run = f"{args.variant}_{args.arch}_8fab" + (f"_holdout-{args.holdout.replace(' ', '')}" if args.holdout else "")
+    run = (f"{args.variant}_{args.arch}_8fab" + (f"_{args.tag}" if args.tag else "")
+           + (f"_holdout-{args.holdout.replace(' ', '')}" if args.holdout else ""))
     res_dir, model_dir = Path("results/classifier") / run, Path("models") / run
     res_dir.mkdir(parents=True, exist_ok=True); model_dir.mkdir(parents=True, exist_ok=True)
 
     train, val, extra = select(args.variant, args.holdout)
     loader = lambda df, tf, shuffle: DataLoader(Images(df, classes, tf), batch_size=args.batch, shuffle=shuffle,
                                                 num_workers=args.workers)
-    train_dl = loader(train, train_transform(), True)
+    train_dl = loader(train, train_transform(args.aug), True)
     val_dl = loader(val, eval_transform(), False)
     print(f"{run}: train {len(train)}, val {len(val)} ({', '.join(sorted(val['fabric'].unique()))}), device {device}",
           flush=True)
 
     model = build_model(args.arch, len(classes)).to(device)
-    opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
-    sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=args.lr, total_steps=args.epochs * len(train_dl), pct_start=0.1)
-    loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1)
+    head = list(model.classifier.parameters())
+    head_ids = {id(q) for q in head}
+    backbone = [q for q in model.parameters() if id(q) not in head_ids]
+    lrs = [args.lr * args.backbone_lr_mult, args.lr]
+    opt = torch.optim.AdamW([{"params": backbone, "lr": lrs[0]}, {"params": head, "lr": lrs[1]}], weight_decay=1e-4)
+    sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=lrs, total_steps=args.epochs * len(train_dl), pct_start=0.1)
+    loss_fn = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
 
     history, best, start = [], (-1.0, None), 1
     last_path = model_dir / "last.pt"
