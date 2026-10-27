@@ -6,10 +6,15 @@ clean: 5 classes, CC BY 4.0 images only (the shipped default). full: 6 classes, 
 Validates on Linen (split == "val"). With --holdout, validates on one training fabric instead and trains on
 the other 7 (per-fabric difficulty without touching the test fabrics). Test splits are never loaded.
 Best epoch by validation macro-F1. Weights -> models/<run>/best.pt (gitignored); metrics -> results/classifier/<run>/.
+
+The MPS backend can hang inside a GPU sync. A watchdog exits with code 75 if no training step finishes for
+--stall-minutes; models/<run>/last.pt is saved every epoch, so the caller can rerun with --resume.
 """
 import argparse
 import json
+import os
 import random
+import threading
 import time
 from pathlib import Path
 
@@ -30,6 +35,25 @@ CLASSES = {
 }
 SPLIT_FILE = Path("data/splits/stitchingnet_v1.csv")
 MEAN, STD = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
+STALLED_EXIT_CODE = 75
+
+
+class Watchdog:
+    """Kill the process if beat() isn't called for `seconds` (a hung GPU sync never returns)."""
+
+    def __init__(self, seconds):
+        self.seconds, self.last = seconds, time.time()
+        threading.Thread(target=self._run, daemon=True).start()
+
+    def beat(self):
+        self.last = time.time()
+
+    def _run(self):
+        while True:
+            time.sleep(15)
+            if time.time() - self.last > self.seconds:
+                print(f"STALLED: no progress for {self.seconds}s, exiting with {STALLED_EXIT_CODE}", flush=True)
+                os._exit(STALLED_EXIT_CODE)
 
 
 def build_model(arch, n_classes, pretrained=True):
@@ -94,11 +118,13 @@ def select(variant, holdout=None):
 
 
 @torch.no_grad()
-def predict(model, loader, device):
+def predict(model, loader, device, watchdog=None):
     model.eval()
     probs = []
     for x, _ in loader:
         probs.append(torch.softmax(model(x.to(device)), 1).cpu())
+        if watchdog:
+            watchdog.beat()
     return torch.cat(probs).numpy()
 
 
@@ -111,7 +137,9 @@ def main():
     ap.add_argument("--batch", type=int, default=64)
     ap.add_argument("--lr", type=float, default=5e-4)
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--resume", action="store_true", help="continue from models/<run>/last.pt if it exists")
+    ap.add_argument("--stall-minutes", type=float, default=10)
     args = ap.parse_args()
 
     random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
@@ -123,36 +151,52 @@ def main():
 
     train, val, extra = select(args.variant, args.holdout)
     loader = lambda df, tf, shuffle: DataLoader(Images(df, classes, tf), batch_size=args.batch, shuffle=shuffle,
-                                                num_workers=args.workers, persistent_workers=True)
+                                                num_workers=args.workers)
     train_dl = loader(train, train_transform(), True)
     val_dl = loader(val, eval_transform(), False)
-    print(f"{run}: train {len(train)}, val {len(val)} ({', '.join(sorted(val['fabric'].unique()))}), device {device}")
+    print(f"{run}: train {len(train)}, val {len(val)} ({', '.join(sorted(val['fabric'].unique()))}), device {device}",
+          flush=True)
 
     model = build_model(args.arch, len(classes)).to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=args.lr, total_steps=args.epochs * len(train_dl), pct_start=0.1)
     loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1)
 
-    history, best = [], (-1.0, None)
-    for epoch in range(1, args.epochs + 1):
-        model.train(); t0, total = time.time(), 0.0
+    history, best, start = [], (-1.0, None), 1
+    last_path = model_dir / "last.pt"
+    if args.resume and last_path.exists():
+        state = torch.load(last_path, map_location=device, weights_only=False)
+        model.load_state_dict(state["model"]); opt.load_state_dict(state["opt"]); sched.load_state_dict(state["sched"])
+        torch.set_rng_state(state["rng"].cpu())
+        history, best, start = state["history"], tuple(state["best"]), state["epoch"] + 1
+        print(f"resumed after epoch {state['epoch']}", flush=True)
+
+    watchdog = Watchdog(args.stall_minutes * 60)
+    for epoch in range(start, args.epochs + 1):
+        model.train(); t0 = time.time()
+        total = torch.zeros((), device=device)  # summed on the device: no GPU sync per step
         for x, y in train_dl:
             x, y = x.to(device), y.to(device)
             loss = loss_fn(model(x), y)
             opt.zero_grad(); loss.backward(); opt.step(); sched.step()
-            total += loss.item() * len(y)
-        probs = predict(model, val_dl, device)
+            total += loss.detach() * len(y)
+            watchdog.beat()
+        total = total.item()
+        probs = predict(model, val_dl, device, watchdog)
         pred = [classes[i] for i in probs.argmax(1)]
         macro_f1 = float(per_class_report(val.assign(pred=pred), classes).set_index("cls").loc["macro", "f1"])
         history.append(dict(epoch=epoch, train_loss=total / len(train), val_macro_f1=macro_f1, seconds=round(time.time() - t0)))
-        print(history[-1])
+        print(history[-1], flush=True)
         if macro_f1 > best[0]:
             best = (macro_f1, epoch)
             torch.save(dict(state_dict=model.state_dict(), classes=classes, arch=args.arch), model_dir / "best.pt")
+        torch.save(dict(model=model.state_dict(), opt=opt.state_dict(), sched=sched.state_dict(),
+                        rng=torch.get_rng_state(), history=history, best=list(best), epoch=epoch), last_path)
+        watchdog.beat()
 
-    ckpt = torch.load(model_dir / "best.pt", map_location=device)
+    ckpt = torch.load(model_dir / "best.pt", map_location=device, weights_only=False)
     model.load_state_dict(ckpt["state_dict"])
-    probs = predict(model, val_dl, device)
+    probs = predict(model, val_dl, device, watchdog)
     preds = val[["path", "fabric", "label"]].assign(pred=[classes[i] for i in probs.argmax(1)], conf=probs.max(1))
     preds.to_csv(res_dir / "val_preds.csv", index=False)
     report = per_class_report(preds, classes)
@@ -161,7 +205,7 @@ def main():
                per_class=report.to_dict("records"),
                confusion=pd.crosstab(preds["label"], preds["pred"]).to_dict())
     if len(extra):  # e.g. what the clean model calls puckering
-        xp = predict(model, loader(extra, eval_transform(), False), device)
+        xp = predict(model, loader(extra, eval_transform(), False), device, watchdog)
         out["unseen_class_predictions"] = (extra.assign(pred=[classes[i] for i in xp.argmax(1)])
                                            .groupby("label")["pred"].value_counts().unstack(fill_value=0).to_dict("index"))
     pd.DataFrame(history).to_csv(res_dir / "history.csv", index=False)
