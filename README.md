@@ -2,6 +2,8 @@
 
 StitchCheck is a phone app that turns any worker into a reliable stitch inspector, so a new 25-machine garment unit in rural Andhra Pradesh can prove factory-grade quality and win orders. The checker photographs each critical seam; SAM 3.1 finds the seam, a small classifier fine-tuned on stitch images scores it, and Muse Spark judges the photo with the classifier as a tool, explains its call in one line and hands the uncertain ones to the checker. Corrections can be spoken in Telugu. Every confirmed defect feeds a live dashboard by machine and operation, trend alerts with work orders for the mechanic, an AQL audit plan, and an end-of-day buyer report whose every number is filled in by the server from logged data. Built for the Meta Global AI Developer Hackathon (Oct 26 to Nov 4, 2026).
 
+**Headline result** (held-out fabrics, `results/test/summary.csv`): with the classifier as its tool and the checker deciding the photos where the two disagree, StitchCheck catches **92.9%** of major defects [89.7, 95.9]. Muse Spark alone catches 53.2%; the classifier alone 92.1%. The specialist sees the stitches, Muse Spark decides, explains and runs the day, and the checker has the final word.
+
 - Demo video: TODO
 - Live app: https://jvpnath--stitchcheck-web-web.us-east.modal.run (seeded demo day, labelled "Demo data")
 
@@ -31,7 +33,7 @@ Small garment units in India have to prove their quality before a buyer will giv
 | Muse Spark Open (open weights, Modal shared endpoint) | The second, measured AI mode ("High sensitivity") and the automatic fallback when the Meta API fails; evaluated as arm E |
 | SAM 3.1 | Finds the seam in each phone photo (tiles and the green overlay the checker sees); suggests the garment part. Never used to name defects |
 | Muse Voice Transcribe | Telugu and English voice corrections, with a language hint and a keyword list |
-| Muse Code | TODO: the phone app frontend (`app/`) |
+| Muse Code | Built the phone app frontend (`app/`: every screen, the Telugu and English switch, offline-safe service worker) from the API contract in `app/SPEC.md` |
 
 Two AI modes, each with its measured StitchingNet test figures (hybrid, checker in the loop):
 
@@ -130,7 +132,7 @@ Before Oct 26: research and planning documents only (no code). Day 0 preparation
 - [x] QC agent: defect log, DHU, ISO 2859-1 AQL audit, audit pass chance, trend alerts with mechanic work orders, verified end-of-day report
 - [x] Tech-pack reader with a preregistered extraction evaluation
 - [x] Backend API, ONNX serving, Modal hosting, seeded demo day
-- [ ] Phone app and dashboard
+- [x] Phone app and dashboard (built with Muse Code)
 - [ ] Phone test set results and Day 5 decision
 
 ## Data and licences
