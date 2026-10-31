@@ -1,0 +1,1184 @@
+[
+  {
+    "request": "GET /health",
+    "body": null,
+    "status": 200,
+    "response": {
+      "ok": true
+    }
+  },
+  {
+    "request": "GET /version",
+    "body": null,
+    "status": 404,
+    "response": {
+      "detail": "Not Found"
+    }
+  },
+  {
+    "request": "GET /brains",
+    "body": null,
+    "status": 200,
+    "response": [
+      {
+        "brain": "spark",
+        "label": "Low false alarm (Muse Spark)",
+        "major_recall": 0.929,
+        "good_flagged": 0.095,
+        "sent_to_checker": 0.217,
+        "available": true,
+        "spent_today_usd": 0
+      },
+      {
+        "brain": "open",
+        "label": "High sensitivity (Muse Spark Open)",
+        "major_recall": 0.944,
+        "good_flagged": 0.202,
+        "sent_to_checker": 0.257,
+        "available": false,
+        "spent_today_usd": 0
+      }
+    ]
+  },
+  {
+    "request": "POST /sessions",
+    "body": {
+      "date": "2026-11-01",
+      "style": "Men's shirt",
+      "fabric": "A",
+      "lot_size": 500,
+      "line_plan": [
+        {
+          "part": "collar",
+          "operator_id": "OP01",
+          "machine_id": "7"
+        },
+        {
+          "part": "placket",
+          "operator_id": "OP02",
+          "machine_id": "12"
+        },
+        {
+          "part": "cuff",
+          "operator_id": "OP03",
+          "machine_id": "3"
+        }
+      ],
+      "critical_parts": [
+        "collar",
+        "placket"
+      ],
+      "is_demo": false,
+      "brain": "spark"
+    },
+    "status": 200,
+    "response": {
+      "id": 1,
+      "date": "2026-11-01",
+      "style": "Men's shirt",
+      "fabric": "A",
+      "lot_size": 500,
+      "critical_parts": [
+        "collar",
+        "placket"
+      ],
+      "spot_check_rate": 0.1,
+      "is_demo": 0,
+      "brain": "spark",
+      "owner": null,
+      "created_at": "2026-10-31 01:30:21",
+      "status": "open",
+      "line_plan": [
+        {
+          "part": "collar",
+          "operator_id": "OP01",
+          "machine_id": "7",
+          "sequence_no": 1
+        },
+        {
+          "part": "placket",
+          "operator_id": "OP02",
+          "machine_id": "12",
+          "sequence_no": 2
+        },
+        {
+          "part": "cuff",
+          "operator_id": "OP03",
+          "machine_id": "3",
+          "sequence_no": 3
+        }
+      ]
+    }
+  },
+  {
+    "request": "GET /sessions/1",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 1,
+      "date": "2026-11-01",
+      "style": "Men's shirt",
+      "fabric": "A",
+      "lot_size": 500,
+      "critical_parts": [
+        "collar",
+        "placket"
+      ],
+      "spot_check_rate": 0.1,
+      "is_demo": 0,
+      "brain": "spark",
+      "owner": null,
+      "created_at": "2026-10-31 01:30:21",
+      "status": "open",
+      "line_plan": [
+        {
+          "part": "collar",
+          "operator_id": "OP01",
+          "machine_id": "7",
+          "sequence_no": 1
+        },
+        {
+          "part": "placket",
+          "operator_id": "OP02",
+          "machine_id": "12",
+          "sequence_no": 2
+        },
+        {
+          "part": "cuff",
+          "operator_id": "OP03",
+          "machine_id": "3",
+          "sequence_no": 3
+        }
+      ]
+    }
+  },
+  {
+    "request": "POST /sessions/1/brain",
+    "body": {
+      "brain": "spark"
+    },
+    "status": 200,
+    "response": {
+      "id": 1,
+      "date": "2026-11-01",
+      "style": "Men's shirt",
+      "fabric": "A",
+      "lot_size": 500,
+      "critical_parts": [
+        "collar",
+        "placket"
+      ],
+      "spot_check_rate": 0.1,
+      "is_demo": 0,
+      "brain": "spark",
+      "owner": null,
+      "created_at": "2026-10-31 01:30:21",
+      "status": "open",
+      "line_plan": [
+        {
+          "part": "collar",
+          "operator_id": "OP01",
+          "machine_id": "7",
+          "sequence_no": 1
+        },
+        {
+          "part": "placket",
+          "operator_id": "OP02",
+          "machine_id": "12",
+          "sequence_no": 2
+        },
+        {
+          "part": "cuff",
+          "operator_id": "OP03",
+          "machine_id": "3",
+          "sequence_no": 3
+        }
+      ]
+    }
+  },
+  {
+    "request": "POST /sessions/1/bundles",
+    "body": {
+      "bundle_no": 1
+    },
+    "status": 200,
+    "response": {
+      "id": 1,
+      "bundle_no": 1
+    }
+  },
+  {
+    "request": "POST /bundles/1/garments",
+    "body": {
+      "garment_no": 1
+    },
+    "status": 200,
+    "response": {
+      "id": 1,
+      "garment_no": 1,
+      "spot_check_part": null,
+      "photograph": [
+        "collar",
+        "placket"
+      ]
+    }
+  },
+  {
+    "request": "POST /garments/1/photos",
+    "body": null,
+    "status": 200,
+    "response": {
+      "inspection_id": 1,
+      "review_status": "reviewing",
+      "crop_url": "/media/1/c61229d364051512_tile0.jpg",
+      "overlay_url": "/media/1/c61229d364051512_seam.jpg",
+      "classifier_label": "skipped_stitch",
+      "classifier_top2": [
+        [
+          "skipped_stitch",
+          0.85
+        ],
+        [
+          "good",
+          0.05
+        ]
+      ],
+      "scale_path": "provisional",
+      "step1_seconds": 0.01
+    }
+  },
+  {
+    "request": "GET /inspections/1",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 1,
+      "garment_id": 1,
+      "reason": "critical",
+      "photo_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512.jpg",
+      "crop_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_tile0.jpg",
+      "overlay_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_seam.jpg",
+      "review_status": "done",
+      "scale_path": "provisional",
+      "part_chip": "pocket",
+      "sam_part": "pocket",
+      "sam_part_conf": 0.9,
+      "seam_found": 1,
+      "classifier_top2": [
+        [
+          "skipped_stitch",
+          0.85
+        ],
+        [
+          "good",
+          0.05
+        ]
+      ],
+      "spark_verdict": {
+        "spark_verdict": "confirm",
+        "spark_label": "skipped_stitch",
+        "confidence": 0.8,
+        "protected": true,
+        "pred": "skipped_stitch",
+        "tool_called": true,
+        "raw": "{\"verdict\": \"confirm\", \"label\": \"skipped_stitch\", \"severity_judgement\": null, \"reason\": \"One stitch is longer than its neighbours where the thread floats.\", \"confidence\": 0.8}",
+        "spark_error": null,
+        "cached": false,
+        "reason": "One stitch is longer than its neighbours where the thread floats.",
+        "brain": "spark",
+        "fell_back": false
+      },
+      "proposed_label": "skipped_stitch",
+      "proposed_severity": "major",
+      "needs_checker": 0,
+      "final_label": null,
+      "final_part": "collar",
+      "final_severity": null,
+      "operator_id": "OP01",
+      "machine_id": "7",
+      "decision": "pending",
+      "decided_via": null,
+      "config_hash": "66fbc08d2d02",
+      "agent_run_id": 1,
+      "timings": {
+        "step1": 0.01,
+        "tile_side": 90,
+        "stitch_pitch": null,
+        "step2": 0.0
+      },
+      "created_at": "2026-10-31 01:30:21",
+      "crop_url": "/media/1/c61229d364051512_tile0.jpg",
+      "photo_url": "/media/1/c61229d364051512.jpg",
+      "overlay_url": "/media/1/c61229d364051512_seam.jpg"
+    }
+  },
+  {
+    "request": "GET /agent-runs/1",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 1,
+      "kind": "inspect",
+      "brain": "spark",
+      "fell_back": 0,
+      "request": {
+        "crop": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_tile0.jpg",
+        "reference": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/ref.jpg",
+        "prompt_sha": "25835669af9ae954"
+      },
+      "tool_calls": [
+        {
+          "name": "classify_stitch",
+          "arguments": {}
+        }
+      ],
+      "tool_outputs": [
+        {
+          "top2": [
+            [
+              "skipped_stitch",
+              0.85
+            ],
+            [
+              "good",
+              0.05
+            ]
+          ]
+        }
+      ],
+      "final": {
+        "spark_verdict": "confirm",
+        "spark_label": "skipped_stitch",
+        "pred": "skipped_stitch",
+        "protected": true,
+        "spark_error": null,
+        "reason": "One stitch is longer than its neighbours where the thread floats.",
+        "proposed": "skipped_stitch"
+      },
+      "latency_ms": 0,
+      "tokens_in": 240,
+      "tokens_out": 80,
+      "cost_usd": 0.00064,
+      "created_at": "2026-10-31 01:30:21",
+      "steps": [
+        {
+          "call": {
+            "name": "classify_stitch",
+            "arguments": {}
+          },
+          "output": {
+            "top2": [
+              [
+                "skipped_stitch",
+                0.85
+              ],
+              [
+                "good",
+                0.05
+              ]
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "request": "POST /inspections/1/voice",
+    "body": null,
+    "status": 200,
+    "response": {
+      "voice_note_id": 1,
+      "transcript": "machine ఏడు collar దగ్గర కుట్లు చేరాయి ఇది major",
+      "proposed": {
+        "part": "collar",
+        "severity": "major",
+        "machine_id": "7"
+      },
+      "ambiguous": [
+        "label"
+      ],
+      "label_candidates": [
+        "skipped_stitch",
+        "broken_stitch"
+      ],
+      "agent_run_id": 2
+    }
+  },
+  {
+    "request": "POST /inspections/1/decision",
+    "body": {
+      "action": "change",
+      "label": "skipped_stitch",
+      "part": "collar",
+      "via": "voice"
+    },
+    "status": 200,
+    "response": {
+      "id": 1,
+      "garment_id": 1,
+      "reason": "critical",
+      "photo_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512.jpg",
+      "crop_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_tile0.jpg",
+      "overlay_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_seam.jpg",
+      "review_status": "done",
+      "scale_path": "provisional",
+      "part_chip": "pocket",
+      "sam_part": "pocket",
+      "sam_part_conf": 0.9,
+      "seam_found": 1,
+      "classifier_top2": [
+        [
+          "skipped_stitch",
+          0.85
+        ],
+        [
+          "good",
+          0.05
+        ]
+      ],
+      "spark_verdict": {
+        "spark_verdict": "confirm",
+        "spark_label": "skipped_stitch",
+        "confidence": 0.8,
+        "protected": true,
+        "pred": "skipped_stitch",
+        "tool_called": true,
+        "raw": "{\"verdict\": \"confirm\", \"label\": \"skipped_stitch\", \"severity_judgement\": null, \"reason\": \"One stitch is longer than its neighbours where the thread floats.\", \"confidence\": 0.8}",
+        "spark_error": null,
+        "cached": false,
+        "reason": "One stitch is longer than its neighbours where the thread floats.",
+        "brain": "spark",
+        "fell_back": false
+      },
+      "proposed_label": "skipped_stitch",
+      "proposed_severity": "major",
+      "needs_checker": 0,
+      "final_label": "skipped_stitch",
+      "final_part": "collar",
+      "final_severity": "major",
+      "operator_id": "OP01",
+      "machine_id": "7",
+      "decision": "changed",
+      "decided_via": "voice",
+      "config_hash": "66fbc08d2d02",
+      "agent_run_id": 1,
+      "timings": {
+        "step1": 0.01,
+        "tile_side": 90,
+        "stitch_pitch": null,
+        "step2": 0.0
+      },
+      "created_at": "2026-10-31 01:30:21",
+      "crop_url": "/media/1/c61229d364051512_tile0.jpg",
+      "photo_url": "/media/1/c61229d364051512.jpg",
+      "overlay_url": "/media/1/c61229d364051512_seam.jpg"
+    }
+  },
+  {
+    "request": "POST /garments/1/complete",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 1,
+      "status": "complete",
+      "new_alerts": []
+    }
+  },
+  {
+    "request": "POST /bundles/1/garments",
+    "body": {
+      "garment_no": 2
+    },
+    "status": 200,
+    "response": {
+      "id": 2,
+      "garment_no": 2,
+      "spot_check_part": null,
+      "photograph": [
+        "collar",
+        "placket"
+      ]
+    }
+  },
+  {
+    "request": "POST /garments/2/photos",
+    "body": null,
+    "status": 200,
+    "response": {
+      "inspection_id": 2,
+      "review_status": "reviewing",
+      "crop_url": "/media/1/c61229d364051512_tile0.jpg",
+      "overlay_url": "/media/1/c61229d364051512_seam.jpg",
+      "classifier_label": "skipped_stitch",
+      "classifier_top2": [
+        [
+          "skipped_stitch",
+          0.85
+        ],
+        [
+          "good",
+          0.05
+        ]
+      ],
+      "scale_path": "provisional",
+      "step1_seconds": 0.01
+    }
+  },
+  {
+    "request": "GET /inspections/2",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 2,
+      "garment_id": 2,
+      "reason": "critical",
+      "photo_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512.jpg",
+      "crop_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_tile0.jpg",
+      "overlay_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_seam.jpg",
+      "review_status": "done",
+      "scale_path": "provisional",
+      "part_chip": "pocket",
+      "sam_part": "pocket",
+      "sam_part_conf": 0.9,
+      "seam_found": 1,
+      "classifier_top2": [
+        [
+          "skipped_stitch",
+          0.85
+        ],
+        [
+          "good",
+          0.05
+        ]
+      ],
+      "spark_verdict": {
+        "spark_verdict": "confirm",
+        "spark_label": "skipped_stitch",
+        "confidence": 0.8,
+        "protected": true,
+        "pred": "skipped_stitch",
+        "tool_called": true,
+        "raw": "{\"verdict\": \"confirm\", \"label\": \"skipped_stitch\", \"severity_judgement\": null, \"reason\": \"One stitch is longer than its neighbours where the thread floats.\", \"confidence\": 0.8}",
+        "spark_error": null,
+        "cached": true,
+        "reason": "One stitch is longer than its neighbours where the thread floats.",
+        "brain": "spark",
+        "fell_back": false
+      },
+      "proposed_label": "skipped_stitch",
+      "proposed_severity": "major",
+      "needs_checker": 0,
+      "final_label": null,
+      "final_part": "collar",
+      "final_severity": null,
+      "operator_id": "OP01",
+      "machine_id": "7",
+      "decision": "pending",
+      "decided_via": null,
+      "config_hash": "66fbc08d2d02",
+      "agent_run_id": 3,
+      "timings": {
+        "step1": 0.01,
+        "tile_side": 90,
+        "stitch_pitch": null,
+        "step2": 0.0
+      },
+      "created_at": "2026-10-31 01:30:21",
+      "crop_url": "/media/1/c61229d364051512_tile0.jpg",
+      "photo_url": "/media/1/c61229d364051512.jpg",
+      "overlay_url": "/media/1/c61229d364051512_seam.jpg"
+    }
+  },
+  {
+    "request": "POST /inspections/2/decision",
+    "body": {
+      "action": "agree",
+      "via": "tap"
+    },
+    "status": 200,
+    "response": {
+      "id": 2,
+      "garment_id": 2,
+      "reason": "critical",
+      "photo_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512.jpg",
+      "crop_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_tile0.jpg",
+      "overlay_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_seam.jpg",
+      "review_status": "done",
+      "scale_path": "provisional",
+      "part_chip": "pocket",
+      "sam_part": "pocket",
+      "sam_part_conf": 0.9,
+      "seam_found": 1,
+      "classifier_top2": [
+        [
+          "skipped_stitch",
+          0.85
+        ],
+        [
+          "good",
+          0.05
+        ]
+      ],
+      "spark_verdict": {
+        "spark_verdict": "confirm",
+        "spark_label": "skipped_stitch",
+        "confidence": 0.8,
+        "protected": true,
+        "pred": "skipped_stitch",
+        "tool_called": true,
+        "raw": "{\"verdict\": \"confirm\", \"label\": \"skipped_stitch\", \"severity_judgement\": null, \"reason\": \"One stitch is longer than its neighbours where the thread floats.\", \"confidence\": 0.8}",
+        "spark_error": null,
+        "cached": true,
+        "reason": "One stitch is longer than its neighbours where the thread floats.",
+        "brain": "spark",
+        "fell_back": false
+      },
+      "proposed_label": "skipped_stitch",
+      "proposed_severity": "major",
+      "needs_checker": 0,
+      "final_label": "skipped_stitch",
+      "final_part": "collar",
+      "final_severity": "major",
+      "operator_id": "OP01",
+      "machine_id": "7",
+      "decision": "agree",
+      "decided_via": "tap",
+      "config_hash": "66fbc08d2d02",
+      "agent_run_id": 3,
+      "timings": {
+        "step1": 0.01,
+        "tile_side": 90,
+        "stitch_pitch": null,
+        "step2": 0.0
+      },
+      "created_at": "2026-10-31 01:30:21",
+      "crop_url": "/media/1/c61229d364051512_tile0.jpg",
+      "photo_url": "/media/1/c61229d364051512.jpg",
+      "overlay_url": "/media/1/c61229d364051512_seam.jpg"
+    }
+  },
+  {
+    "request": "POST /garments/2/complete",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 2,
+      "status": "complete",
+      "new_alerts": []
+    }
+  },
+  {
+    "request": "POST /bundles/1/garments",
+    "body": {
+      "garment_no": 3
+    },
+    "status": 200,
+    "response": {
+      "id": 3,
+      "garment_no": 3,
+      "spot_check_part": null,
+      "photograph": [
+        "collar",
+        "placket"
+      ]
+    }
+  },
+  {
+    "request": "POST /garments/3/photos",
+    "body": null,
+    "status": 200,
+    "response": {
+      "inspection_id": 3,
+      "review_status": "reviewing",
+      "crop_url": "/media/1/c61229d364051512_tile0.jpg",
+      "overlay_url": "/media/1/c61229d364051512_seam.jpg",
+      "classifier_label": "skipped_stitch",
+      "classifier_top2": [
+        [
+          "skipped_stitch",
+          0.85
+        ],
+        [
+          "good",
+          0.05
+        ]
+      ],
+      "scale_path": "provisional",
+      "step1_seconds": 0.01
+    }
+  },
+  {
+    "request": "GET /inspections/3",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 3,
+      "garment_id": 3,
+      "reason": "critical",
+      "photo_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512.jpg",
+      "crop_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_tile0.jpg",
+      "overlay_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_seam.jpg",
+      "review_status": "done",
+      "scale_path": "provisional",
+      "part_chip": "pocket",
+      "sam_part": "pocket",
+      "sam_part_conf": 0.9,
+      "seam_found": 1,
+      "classifier_top2": [
+        [
+          "skipped_stitch",
+          0.85
+        ],
+        [
+          "good",
+          0.05
+        ]
+      ],
+      "spark_verdict": {
+        "spark_verdict": "confirm",
+        "spark_label": "skipped_stitch",
+        "confidence": 0.8,
+        "protected": true,
+        "pred": "skipped_stitch",
+        "tool_called": true,
+        "raw": "{\"verdict\": \"confirm\", \"label\": \"skipped_stitch\", \"severity_judgement\": null, \"reason\": \"One stitch is longer than its neighbours where the thread floats.\", \"confidence\": 0.8}",
+        "spark_error": null,
+        "cached": true,
+        "reason": "One stitch is longer than its neighbours where the thread floats.",
+        "brain": "spark",
+        "fell_back": false
+      },
+      "proposed_label": "skipped_stitch",
+      "proposed_severity": "major",
+      "needs_checker": 0,
+      "final_label": null,
+      "final_part": "collar",
+      "final_severity": null,
+      "operator_id": "OP01",
+      "machine_id": "7",
+      "decision": "pending",
+      "decided_via": null,
+      "config_hash": "66fbc08d2d02",
+      "agent_run_id": 4,
+      "timings": {
+        "step1": 0.01,
+        "tile_side": 90,
+        "stitch_pitch": null,
+        "step2": 0.0
+      },
+      "created_at": "2026-10-31 01:30:21",
+      "crop_url": "/media/1/c61229d364051512_tile0.jpg",
+      "photo_url": "/media/1/c61229d364051512.jpg",
+      "overlay_url": "/media/1/c61229d364051512_seam.jpg"
+    }
+  },
+  {
+    "request": "POST /inspections/3/decision",
+    "body": {
+      "action": "agree",
+      "via": "tap"
+    },
+    "status": 200,
+    "response": {
+      "id": 3,
+      "garment_id": 3,
+      "reason": "critical",
+      "photo_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512.jpg",
+      "crop_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_tile0.jpg",
+      "overlay_path": "/var/folders/w7/865l69m13vg6t7h8m44tv5880000gn/T/tmp7vrjm2w5/photos/1/c61229d364051512_seam.jpg",
+      "review_status": "done",
+      "scale_path": "provisional",
+      "part_chip": "pocket",
+      "sam_part": "pocket",
+      "sam_part_conf": 0.9,
+      "seam_found": 1,
+      "classifier_top2": [
+        [
+          "skipped_stitch",
+          0.85
+        ],
+        [
+          "good",
+          0.05
+        ]
+      ],
+      "spark_verdict": {
+        "spark_verdict": "confirm",
+        "spark_label": "skipped_stitch",
+        "confidence": 0.8,
+        "protected": true,
+        "pred": "skipped_stitch",
+        "tool_called": true,
+        "raw": "{\"verdict\": \"confirm\", \"label\": \"skipped_stitch\", \"severity_judgement\": null, \"reason\": \"One stitch is longer than its neighbours where the thread floats.\", \"confidence\": 0.8}",
+        "spark_error": null,
+        "cached": true,
+        "reason": "One stitch is longer than its neighbours where the thread floats.",
+        "brain": "spark",
+        "fell_back": false
+      },
+      "proposed_label": "skipped_stitch",
+      "proposed_severity": "major",
+      "needs_checker": 0,
+      "final_label": "skipped_stitch",
+      "final_part": "collar",
+      "final_severity": "major",
+      "operator_id": "OP01",
+      "machine_id": "7",
+      "decision": "agree",
+      "decided_via": "tap",
+      "config_hash": "66fbc08d2d02",
+      "agent_run_id": 4,
+      "timings": {
+        "step1": 0.01,
+        "tile_side": 90,
+        "stitch_pitch": null,
+        "step2": 0.0
+      },
+      "created_at": "2026-10-31 01:30:21",
+      "crop_url": "/media/1/c61229d364051512_tile0.jpg",
+      "photo_url": "/media/1/c61229d364051512.jpg",
+      "overlay_url": "/media/1/c61229d364051512_seam.jpg"
+    }
+  },
+  {
+    "request": "POST /garments/3/complete",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 3,
+      "status": "complete",
+      "new_alerts": [
+        {
+          "id": 1,
+          "machine_id": "7",
+          "defect": "skipped_stitch",
+          "garment_ids": [
+            1,
+            2,
+            3
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "request": "GET /sessions/1/dashboard",
+    "body": null,
+    "status": 200,
+    "response": {
+      "completed_garments": 3,
+      "inspections": 3,
+      "pending_decisions": 0,
+      "dhu": 100.0,
+      "defective_pct": 100.0,
+      "by": {
+        "machine": {
+          "7": {
+            "defects": 3,
+            "dhu": 100.0
+          }
+        },
+        "part": {
+          "collar": {
+            "defects": 3,
+            "dhu": 100.0
+          }
+        },
+        "defect": {
+          "skipped_stitch": {
+            "defects": 3,
+            "dhu": 100.0
+          }
+        }
+      },
+      "top_issues": [
+        [
+          "7",
+          "collar",
+          "skipped_stitch",
+          3
+        ]
+      ],
+      "supervisor_only": {
+        "by_operator": {
+          "OP01": {
+            "defects": 3,
+            "dhu": 100.0
+          }
+        }
+      },
+      "alerts": [
+        {
+          "id": 1,
+          "session_id": 1,
+          "machine_id": "7",
+          "defect": "skipped_stitch",
+          "garment_ids": [
+            1,
+            2,
+            3
+          ],
+          "body_md": "Check machine 7 for skipped stitch: needle, timing, thread path.",
+          "agent_run_id": 5,
+          "created_at": "2026-10-31 01:30:21"
+        }
+      ],
+      "audit_pass_chance": {
+        "major": 0.0,
+        "minor": 1.0,
+        "both": 0.0,
+        "sample_size": 50,
+        "major_ac": 3,
+        "minor_ac": 5
+      },
+      "ai_vs_checker": {
+        "agreed": 2,
+        "changed": 1,
+        "not_a_defect": 0,
+        "sent_to_checker": 0
+      }
+    }
+  },
+  {
+    "request": "POST /sessions/1/audit",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 1,
+      "plan": {
+        "code": "H",
+        "lot_size": 500,
+        "major": {
+          "aql": 2.5,
+          "plan_letter": "H",
+          "sample_size": 50,
+          "ac": 3,
+          "re": 4,
+          "full_inspection": false
+        },
+        "minor": {
+          "aql": 4.0,
+          "plan_letter": "H",
+          "sample_size": 50,
+          "ac": 5,
+          "re": 6,
+          "full_inspection": false
+        },
+        "critical": {
+          "sample_size": 50,
+          "ac": 0,
+          "re": 1
+        }
+      },
+      "sampled_garment_nos": [
+        167,
+        306,
+        469,
+        136,
+        193,
+        408,
+        393,
+        101,
+        73,
+        65,
+        79,
+        348,
+        164,
+        1,
+        153,
+        386,
+        97,
+        256,
+        99,
+        178,
+        172,
+        218,
+        118,
+        108,
+        330,
+        69,
+        264,
+        312,
+        363,
+        133,
+        443,
+        296,
+        276,
+        186,
+        350,
+        370,
+        40,
+        115,
+        93,
+        449,
+        468,
+        262,
+        346,
+        29,
+        496,
+        447,
+        310,
+        206,
+        181,
+        61
+      ],
+      "inspected_garment_nos": [],
+      "audit_bundle_id": 2,
+      "status": "in_progress",
+      "counts": {
+        "critical": 0,
+        "major": 0,
+        "minor": 0
+      },
+      "rejected_by": [],
+      "inspected": 0,
+      "sample_size": 50
+    }
+  },
+  {
+    "request": "GET /sessions/1/audit",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 1,
+      "plan": {
+        "code": "H",
+        "lot_size": 500,
+        "major": {
+          "aql": 2.5,
+          "plan_letter": "H",
+          "sample_size": 50,
+          "ac": 3,
+          "re": 4,
+          "full_inspection": false
+        },
+        "minor": {
+          "aql": 4.0,
+          "plan_letter": "H",
+          "sample_size": 50,
+          "ac": 5,
+          "re": 6,
+          "full_inspection": false
+        },
+        "critical": {
+          "sample_size": 50,
+          "ac": 0,
+          "re": 1
+        }
+      },
+      "sampled_garment_nos": [
+        167,
+        306,
+        469,
+        136,
+        193,
+        408,
+        393,
+        101,
+        73,
+        65,
+        79,
+        348,
+        164,
+        1,
+        153,
+        386,
+        97,
+        256,
+        99,
+        178,
+        172,
+        218,
+        118,
+        108,
+        330,
+        69,
+        264,
+        312,
+        363,
+        133,
+        443,
+        296,
+        276,
+        186,
+        350,
+        370,
+        40,
+        115,
+        93,
+        449,
+        468,
+        262,
+        346,
+        29,
+        496,
+        447,
+        310,
+        206,
+        181,
+        61
+      ],
+      "inspected_garment_nos": [],
+      "audit_bundle_id": 2,
+      "status": "in_progress",
+      "counts": {
+        "critical": 0,
+        "major": 0,
+        "minor": 0
+      },
+      "rejected_by": [],
+      "inspected": 0,
+      "sample_size": 50
+    }
+  },
+  {
+    "request": "POST /sessions/1/report",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 1,
+      "session_id": 1,
+      "kind": "daily",
+      "body_template": "## Buyer summary\n- Garments inspected: {{dhu.session.garments}}\n- DHU: {{dhu.session.dhu}}",
+      "body_md": "## Buyer summary\n- Garments inspected: 3\n- DHU: 100.0",
+      "validator_ok": 1,
+      "agent_run_id": 6,
+      "created_at": "2026-10-31 01:30:21",
+      "errors": []
+    }
+  },
+  {
+    "request": "GET /reports/1",
+    "body": null,
+    "status": 200,
+    "response": {
+      "id": 1,
+      "session_id": 1,
+      "kind": "daily",
+      "body_template": "## Buyer summary\n- Garments inspected: {{dhu.session.garments}}\n- DHU: {{dhu.session.dhu}}",
+      "body_md": "## Buyer summary\n- Garments inspected: 3\n- DHU: 100.0",
+      "validator_ok": 1,
+      "agent_run_id": 6,
+      "created_at": "2026-10-31 01:30:21"
+    }
+  },
+  {
+    "request": "POST /demo/session",
+    "body": null,
+    "status": 404,
+    "response": {
+      "detail": "Not Found"
+    }
+  },
+  {
+    "request": "GET /demo/gallery",
+    "body": null,
+    "status": 404,
+    "response": {
+      "detail": "Not Found"
+    }
+  },
+  {
+    "note": "Errors: 404 not found, 409 still reviewing or conflict, 413 too large, 422 invalid input (message in detail), 429 too many requests, 503 AI or seam finder unavailable."
+  }
+]
