@@ -8,6 +8,7 @@ import threading
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
+from types import SimpleNamespace
 from datetime import datetime
 from pathlib import Path
 from typing import Callable
@@ -85,7 +86,10 @@ class Decision(BaseModel):
     via: str = "tap"
 
 
-def create_app(deps: Deps):
+def create_app(deps: Deps, extensions=()):
+    """extensions: callables ext(app, ctx) that add routes or middleware in their own modules (demo mode, access
+    control). ctx exposes the shared pieces: con, lock, write, one, brains, deps, storage, url, line_plan,
+    session_of_garment, step1 (the photo step-1 runner) and review (the background step-2 runner)."""
     app = FastAPI(title="StitchCheck")
     con = db.connect(deps.db_path)
     lock = threading.Lock()  # one writer
@@ -414,7 +418,14 @@ def create_app(deps: Deps):
         steps = [{"call": c, "output": o} for c, o in zip(r["tool_calls"] or [], r["tool_outputs"] or [])]
         return r | {"steps": steps}
 
-    app.state.con = con
+    def run_step1(data, session_id):
+        return step1(data, sam=deps.sam, ensemble=deps.ensemble, out_dir=storage / str(session_id), classes=deps.classes)
+
+    ctx = SimpleNamespace(con=con, lock=lock, write=write, one=one, brains=brains, deps=deps, storage=storage, url=url,
+                          line_plan=line_plan, session_of_garment=session_of_garment, step1=run_step1, review=review)
+    app.state.con, app.state.ctx = con, ctx
+    for ext in extensions:
+        ext(app, ctx)
     return app
 
 

@@ -159,3 +159,19 @@ def test_demo_day_is_seeded_once_with_a_trend_alert(tmp_path):
     dash = TestClient(create_app(deps)).get(f"/sessions/{sid}/dashboard").json()
     assert dash["completed_garments"] == 42 and dash["dhu"] > 0
     assert any(a["machine_id"] == "7" and a["defect"] == "skipped_stitch" for a in dash["alerts"])
+
+
+def test_extensions_get_the_shared_context(tmp_path):
+    seen = {}
+
+    def ext(app, ctx):
+        seen.update(con=ctx.con is not None, step1=callable(ctx.step1), review=callable(ctx.review))
+
+        @app.get("/ext/ping")
+        def ping():
+            return {"ok": True}
+
+    deps = Deps(db_path=str(tmp_path / "t.db"), storage=str(tmp_path / "p"), sam=fake_sam(), ensemble=FakeEnsemble(SKIPPED),
+                spark=FakeSpark(), transcribe=lambda p: "", reference=lambda f: None)
+    c = TestClient(create_app(deps, extensions=[ext]))
+    assert seen == {"con": True, "step1": True, "review": True} and c.get("/ext/ping").json() == {"ok": True}
