@@ -54,7 +54,8 @@ def test_the_seeded_day_is_read_only_for_everyone(env):
     assert c.get(f"/sessions/{seed}").status_code == 200 and c.get(f"/sessions/{seed}/dashboard").status_code == 200
     gid = app.state.con.execute("SELECT g.id FROM garment g JOIN bundle b ON b.id = g.bundle_id WHERE b.session_id = ? "
                                 "LIMIT 1", (seed,)).fetchone()["id"]
-    assert c.get(f"/garments/{gid}/complete").status_code == 405  # the route exists only as POST, but GET is let through
+    # GET is let through access control: the route only takes POST, so it is 405, or 404 when the frontend is mounted at "/"
+    assert c.get(f"/garments/{gid}/complete").status_code in (404, 405)
     for p in (f"/sessions/{seed}/report", f"/sessions/{seed}/bundles", f"/garments/{gid}/complete", f"/sessions/{seed}/brain"):
         assert c.post(p, json={"bundle_no": 9, "brain": "open"}).status_code == 403, p
 

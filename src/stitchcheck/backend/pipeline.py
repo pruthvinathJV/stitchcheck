@@ -40,14 +40,31 @@ HAND_CALIBRATION = Path("results/val/stitch_hand_calibration.json")
 FOCAL_35MM_TAG, FOCAL_TAG = 41989, 37386  # EXIF FocalLengthIn35mmFilm, FocalLength
 TILE_MIN = 64
 GOOD = "good"
+Image.MAX_IMAGE_PIXELS = 60_000_000  # larger than any phone photo; beyond it Pillow refuses (decompression bombs)
+
+
+class NotAnImage(Exception):
+    """The upload is not a photo Pillow can decode, or has too many pixels."""
+
+
+class SeamFinderDown(Exception):
+    """SAM could not be reached or failed."""
 
 
 def clean_photo(data):
-    """Bytes from the phone -> (RGB image upright, with no EXIF so no GPS when saved; focal lengths from EXIF)."""
-    raw = Image.open(io.BytesIO(data))
-    exif = raw.getexif().get_ifd(0x8769) | dict(raw.getexif())
-    meta = dict(focal_35mm=_num(exif.get(FOCAL_35MM_TAG)), focal_mm=_num(exif.get(FOCAL_TAG)))
-    return ImageOps.exif_transpose(raw).convert("RGB"), meta
+    """Bytes from the phone -> (RGB image upright, with no EXIF so no GPS when saved; focal lengths from EXIF).
+    Raises NotAnImage for anything Pillow cannot decode or a picture over MAX_IMAGE_PIXELS."""
+    try:
+        raw = Image.open(io.BytesIO(data))
+        if raw.width * raw.height > Image.MAX_IMAGE_PIXELS:
+            raise Image.DecompressionBombError(f"{raw.width}x{raw.height}")
+        exif = raw.getexif().get_ifd(0x8769) | dict(raw.getexif())
+        meta = dict(focal_35mm=_num(exif.get(FOCAL_35MM_TAG)), focal_mm=_num(exif.get(FOCAL_TAG)))
+        return ImageOps.exif_transpose(raw).convert("RGB"), meta
+    except Image.DecompressionBombError as ex:
+        raise NotAnImage("photo has too many pixels, use the normal camera size") from ex
+    except (OSError, SyntaxError, ValueError, EOFError) as ex:  # UnidentifiedImageError and truncated files are OSError
+        raise NotAnImage("not an image") from ex
 
 
 def _num(v):
@@ -136,7 +153,8 @@ def config_hash():
 
 def step1(data, *, sam, ensemble, out_dir, classes):
     """Photo -> seam crop and classifier label (the first screen). retake is set when no seam clears the
-    threshold; then nothing else is filled in. Also returns the cleaned image for the later steps."""
+    threshold; then nothing else is filled in. Also returns the cleaned image for the later steps. Raises NotAnImage
+    for an upload that is not a usable photo and SeamFinderDown when SAM fails."""
     t0 = time.time()
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -144,7 +162,10 @@ def step1(data, *, sam, ensemble, out_dir, classes):
     key = hashlib.sha256(data).hexdigest()[:16]
     photo_path = out_dir / f"{key}.jpg"
     im.save(photo_path, quality=92)
-    seam = find_seam(im, sam)
+    try:
+        seam = find_seam(im, sam)
+    except Exception as ex:
+        raise SeamFinderDown(f"{type(ex).__name__}: {ex}"[:200]) from ex
     if seam is None:
         return dict(retake="Move closer to the stitching", photo_path=str(photo_path), seam_found=False,
                     step1_seconds=round(time.time() - t0, 2)), im

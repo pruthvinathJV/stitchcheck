@@ -1,6 +1,8 @@
 """SQLite storage for the app (docs/backend_spec.md, section 1). One writer: the app runs in a single container."""
 import json
+import re
 import sqlite3
+import threading
 from pathlib import Path
 
 SCHEMA = """
@@ -123,21 +125,119 @@ CREATE TABLE IF NOT EXISTS report (
     agent_run_id INTEGER REFERENCES agent_run(id),
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+CREATE TABLE IF NOT EXISTS idempotency (
+    key TEXT,
+    path TEXT,
+    status INTEGER,  -- 0 while the first request with this key is still running
+    body TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    PRIMARY KEY (key, path)
+);
 CREATE INDEX IF NOT EXISTS inspection_garment ON inspection(garment_id);
 CREATE INDEX IF NOT EXISTS garment_bundle ON garment(bundle_id);
 """
+# Values for a column added to an older database, applied to the rows already there (not a default for new rows)
+BACKFILL = {("inspection", "review_status"): "'done'"}  # before the two-step review, every review finished in one call
 JSON_COLUMNS = {"critical_parts", "classifier_top2", "spark_verdict", "timings", "parsed", "plan", "sampled_garment_nos",
                 "garment_ids", "request", "tool_calls", "tool_outputs", "final"}
 
 
+class Rows:
+    """The result of Connection.execute: rows fetched while the lock was held, read like a cursor."""
+
+    def __init__(self, rows, lastrowid, description, rowcount):
+        self.rows, self.lastrowid, self.description, self.rowcount = rows, lastrowid, description, rowcount
+        self._next = 0
+
+    def fetchone(self):
+        if self._next >= len(self.rows):
+            return None
+        self._next += 1
+        return self.rows[self._next - 1]
+
+    def fetchall(self):
+        rest, self._next = self.rows[self._next:], len(self.rows)
+        return rest
+
+    def __iter__(self):
+        return iter(self.fetchall())
+
+
+class Connection:
+    """One sqlite3 connection shared by the server's threads. Every call holds one re-entrant lock (`lock`, also the
+    app's writer lock) and fetches its rows before releasing it, so threads never interleave on the connection."""
+
+    def __init__(self, raw):
+        self.raw, self.lock = raw, threading.RLock()
+
+    def execute(self, sql, params=()):
+        with self.lock:
+            cur = self.raw.execute(sql, params)
+            return Rows(cur.fetchall(), cur.lastrowid, cur.description, cur.rowcount)
+
+    def executescript(self, script):
+        with self.lock:
+            self.raw.executescript(script)
+
+    def commit(self):
+        with self.lock:
+            self.raw.commit()
+
+    def rollback(self):
+        with self.lock:
+            self.raw.rollback()
+
+    def close(self):
+        with self.lock:
+            self.raw.close()
+
+    def __getattr__(self, name):
+        return getattr(self.raw, name)
+
+
 def connect(path):
-    """Open (and create if needed) the database. Rows come back as dicts with JSON columns decoded."""
+    """Open (and create if needed) the database. Rows come back as dicts with JSON columns decoded. The connection
+    is safe to share between threads (Connection)."""
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(path, check_same_thread=False)
-    con.row_factory = _row
+    raw = sqlite3.connect(path, check_same_thread=False)
+    raw.row_factory = _row
+    con = Connection(raw)
     con.execute("PRAGMA foreign_keys = ON")
+    migrate(con)
     con.executescript(SCHEMA)
     return con
+
+
+def migrate(con):
+    """Add the columns SCHEMA has and an older database lacks, keeping every row. SQLite cannot add a NOT NULL
+    column without a constant default, so such columns are added nullable; a non-constant default such as
+    datetime('now') is then filled in for new rows by an insert trigger."""
+    ref = sqlite3.connect(":memory:")
+    ref.executescript(SCHEMA)
+    for (table,) in ref.execute("SELECT name FROM sqlite_master WHERE type = 'table'").fetchall():
+        have = {r["name"] for r in con.execute(f"PRAGMA table_info({table})").fetchall()}
+        if not have:
+            continue  # a new table: created by SCHEMA
+        for _, name, kind, notnull, default, pk in ref.execute(f"PRAGMA table_info({table})").fetchall():
+            if name in have or pk:
+                continue
+            constant = default is None or _constant(default)
+            col = f"{name} {kind}"
+            if default is not None and constant:
+                col += f" DEFAULT {default}" + (" NOT NULL" if notnull else "")
+            con.execute(f"ALTER TABLE {table} ADD COLUMN {col}")
+            if (table, name) in BACKFILL:
+                con.execute(f"UPDATE {table} SET {name} = {BACKFILL[table, name]}")
+            if not constant:
+                con.execute(f"CREATE TRIGGER IF NOT EXISTS {table}_{name}_default AFTER INSERT ON {table} "
+                            f"WHEN NEW.{name} IS NULL BEGIN UPDATE {table} SET {name} = {default} "
+                            f"WHERE rowid = NEW.rowid; END")
+    con.commit()
+    ref.close()
+
+
+def _constant(default):
+    return re.fullmatch(r"'(?:[^']|'')*'|[-+]?\d+(\.\d+)?|NULL|TRUE|FALSE", default, re.I) is not None
 
 
 def _row(cursor, values):
@@ -151,16 +251,27 @@ def insert(con, table, **fields):
     """Insert one row; dicts and lists are stored as JSON. Returns the new id."""
     cols = list(fields)
     vals = [json.dumps(v) if isinstance(v, (dict, list, tuple)) else v for v in fields.values()]
-    cur = con.execute(f"INSERT INTO {table} ({', '.join(cols)}) VALUES ({', '.join('?' * len(cols))})", vals)
-    con.commit()
+    with con.lock:
+        cur = _write(con, f"INSERT INTO {table} ({', '.join(cols)}) VALUES ({', '.join('?' * len(cols))})", vals)
     return cur.lastrowid
 
 
 def update(con, table, row_id, **fields):
     sets = ", ".join(f"{c} = ?" for c in fields)
     vals = [json.dumps(v) if isinstance(v, (dict, list, tuple)) else v for v in fields.values()]
-    con.execute(f"UPDATE {table} SET {sets} WHERE id = ?", [*vals, row_id])
-    con.commit()
+    with con.lock:
+        _write(con, f"UPDATE {table} SET {sets} WHERE id = ?", [*vals, row_id])
+
+
+def _write(con, sql, vals):
+    """One statement and its commit; a failed statement leaves no transaction open."""
+    try:
+        cur = con.execute(sql, vals)
+        con.commit()
+        return cur
+    except sqlite3.Error:
+        con.rollback()
+        raise
 
 
 AUDIT_BUNDLE = 0  # audit garments live in bundle 0, apart from the end-line count
