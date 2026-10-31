@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="720" viewBox="0 0 960 720" role="img" aria-labelledby="t d">
+  <title id="t">StitchCheck architecture</title>
+  <desc id="d">A phone PWA talks to one FastAPI container on Modal with SQLite. Inside it, four agents (hybrid inspector, voice mapper, report agent, work orders), the QC math and the agent_run log. Below it, the models: SAM 3.1, the ConvNeXt-Tiny classifier ensemble in ONNX, Muse Spark and Muse Spark Open with automatic fallback, and Muse Voice Transcribe.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#57606a"/>
+    </marker>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+      .h { font-size: 15px; font-weight: 700; }
+      .big { font-size: 20px; font-weight: 700; }
+      .s { font-size: 12px; }
+      .m { font-size: 12px; fill: #57606a; }
+      .line { stroke: #57606a; stroke-width: 1.6; fill: none; }
+    </style>
+  </defs>
+
+  <rect x="1" y="1" width="958" height="718" rx="16" fill="#ffffff" stroke="#d0d7de" stroke-width="2"/>
+  <text x="32" y="42" class="big">StitchCheck architecture</text>
+
+  <!-- Phone PWA -->
+  <rect x="300" y="62" width="360" height="62" rx="10" fill="#ddf4ff" stroke="#0969da" stroke-width="1.6"/>
+  <text x="480" y="87" class="h" text-anchor="middle">Phone PWA</text>
+  <text x="480" y="108" class="s" text-anchor="middle">camera, tap and Telugu voice, dashboard, buyer report</text>
+
+  <path d="M480 124 L480 158" class="line" marker-end="url(#a)"/>
+  <text x="490" y="146" class="m">same origin, no keys in the browser</text>
+
+  <!-- FastAPI container -->
+  <rect x="24" y="162" width="912" height="338" rx="12" fill="#f6f8fa" stroke="#57606a" stroke-width="1.6"/>
+  <text x="44" y="188" class="h">FastAPI on Modal</text>
+  <text x="182" y="188" class="m">one container, SQLite, the AI drafts and the checker decides</text>
+
+  <!-- Agents -->
+  <g>
+    <rect x="44" y="204" width="206" height="160" rx="8" fill="#ffffff" stroke="#8c959f"/>
+    <text x="58" y="226" class="h">Hybrid inspector</text>
+    <text x="58" y="248" class="s">per photo: SAM seam, 3 tiles</text>
+    <text x="58" y="266" class="s">tool: classify_stitch (top-2)</text>
+    <text x="58" y="284" class="s">good reference seam in prompt</text>
+    <text x="58" y="302" class="s">label, severity, one-line reason</text>
+    <text x="58" y="320" class="s">agree: label is pre-filled</text>
+    <text x="58" y="338" class="s">disagree: sent to the checker</text>
+  </g>
+  <g>
+    <rect x="266" y="204" width="206" height="160" rx="8" fill="#ffffff" stroke="#8c959f"/>
+    <text x="280" y="226" class="h">Voice mapper</text>
+    <text x="280" y="248" class="s">Telugu and English speech</text>
+    <text x="280" y="266" class="s">transcript, then Muse Spark</text>
+    <text x="280" y="284" class="s">maps it onto the fixed lists</text>
+    <text x="280" y="302" class="s">one-tap candidates if unclear</text>
+    <text x="280" y="320" class="s">checker confirms with a tap</text>
+  </g>
+  <g>
+    <rect x="488" y="204" width="206" height="160" rx="8" fill="#ffffff" stroke="#8c959f"/>
+    <text x="502" y="226" class="h">Report agent</text>
+    <text x="502" y="248" class="s">tools: get_dhu, get_top_issues,</text>
+    <text x="502" y="266" class="s">get_audit_status,</text>
+    <text x="502" y="284" class="s">get_audit_pass_chance,</text>
+    <text x="502" y="302" class="s">get_examples,</text>
+    <text x="502" y="320" class="s">get_ai_vs_checker, get_checklist</text>
+    <text x="502" y="338" class="s">placeholders + validator</text>
+  </g>
+  <g>
+    <rect x="710" y="204" width="206" height="160" rx="8" fill="#ffffff" stroke="#8c959f"/>
+    <text x="724" y="226" class="h">Work orders</text>
+    <text x="724" y="248" class="s">trend rule: same defect 3 times</text>
+    <text x="724" y="266" class="s">on one machine in its</text>
+    <text x="724" y="284" class="s">last 10 garments</text>
+    <text x="724" y="302" class="s">mechanic work order drafted</text>
+    <text x="724" y="320" class="s">in Telugu and English</text>
+    <text x="724" y="338" class="s">checks from get_checklist</text>
+  </g>
+
+  <!-- QC math and log -->
+  <rect x="44" y="380" width="428" height="50" rx="8" fill="#ffffff" stroke="#8c959f"/>
+  <text x="58" y="401" class="h">QC math</text>
+  <text x="58" y="420" class="s">DHU, defective %, ISO 2859-1 AQL plans, audit pass chance</text>
+
+  <rect x="488" y="380" width="428" height="50" rx="8" fill="#fff8c5" stroke="#9a6700"/>
+  <text x="502" y="401" class="h">agent_run log</text>
+  <text x="502" y="420" class="s">every model call: tool calls, outputs, brain, fallback, cost</text>
+
+  <text x="44" y="458" class="m">Guards: per-visitor demo copies, unit PIN for real sessions, GPS stripped from photos,</text>
+  <text x="44" y="476" class="m">daily caps per brain, 60 model calls per IP per hour, model text shown as plain text.</text>
+
+  <!-- Bus to models -->
+  <path d="M480 500 L480 522" class="line"/>
+  <path d="M147 522 L813 522" class="line"/>
+  <path d="M147 522 L147 546" class="line" marker-end="url(#a)"/>
+  <path d="M369 522 L369 546" class="line" marker-end="url(#a)"/>
+  <path d="M591 522 L591 546" class="line" marker-end="url(#a)"/>
+  <path d="M813 522 L813 546" class="line" marker-end="url(#a)"/>
+
+  <!-- Models -->
+  <g>
+    <rect x="44" y="550" width="206" height="112" rx="8" fill="#fbefff" stroke="#8250df" stroke-width="1.6"/>
+    <text x="58" y="573" class="h">SAM 3.1</text>
+    <text x="58" y="595" class="s">"seam" mask, 3 level tiles</text>
+    <text x="58" y="613" class="s">green seam overlay</text>
+    <text x="58" y="631" class="s">never names defects</text>
+  </g>
+  <g>
+    <rect x="266" y="550" width="206" height="112" rx="8" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.6"/>
+    <text x="280" y="573" class="h">Classifier</text>
+    <text x="280" y="595" class="s">ConvNeXt-Tiny, 3-seed ensemble</text>
+    <text x="280" y="613" class="s">ONNX on CPU</text>
+    <text x="280" y="631" class="s">0.19 s per photo</text>
+    <text x="280" y="649" class="s">fine-tuned on CC BY images</text>
+  </g>
+  <g>
+    <rect x="488" y="550" width="206" height="112" rx="8" fill="#fbefff" stroke="#8250df" stroke-width="1.6"/>
+    <text x="502" y="573" class="h">Muse Spark</text>
+    <text x="502" y="591" class="h">Muse Spark Open</text>
+    <text x="502" y="613" class="s">tool calling, two measured modes</text>
+    <text x="502" y="631" class="s">automatic fallback to Open</text>
+    <text x="502" y="649" class="s">when the Meta API fails</text>
+  </g>
+  <g>
+    <rect x="710" y="550" width="206" height="112" rx="8" fill="#fbefff" stroke="#8250df" stroke-width="1.6"/>
+    <text x="724" y="573" class="h">Muse Voice Transcribe</text>
+    <text x="724" y="595" class="s">Telugu and English</text>
+    <text x="724" y="613" class="s">language hint</text>
+    <text x="724" y="631" class="s">keyword list from the labels</text>
+    <text x="724" y="649" class="s">and the line plan</text>
+  </g>
+
+  <!-- Legend -->
+  <rect x="44" y="682" width="14" height="14" rx="3" fill="#fbefff" stroke="#8250df"/>
+  <text x="66" y="694" class="m">Meta models</text>
+  <rect x="170" y="682" width="14" height="14" rx="3" fill="#dafbe1" stroke="#1a7f37"/>
+  <text x="192" y="694" class="m">our fine-tuned classifier</text>
+  <rect x="360" y="682" width="14" height="14" rx="3" fill="#ffffff" stroke="#8c959f"/>
+  <text x="382" y="694" class="m">agents (every run logged)</text>
+</svg>
