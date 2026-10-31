@@ -25,12 +25,13 @@ if [ -z "$hits" ]; then pass "(a) no tracked data, photos, audio, weights or lar
 else fail "(a) tracked files that must stay out of the repo" "$hits"; fi
 
 # (b) private files
-hits=$(git ls-files -- CLAUDE.md DECISIONS.md OPEN_QUESTIONS.md .claude .env)
+# Names are split so this script does not match its own search.
+hits=$(git ls-files -- "CLAU""DE.md" DECISIONS.md OPEN_QUESTIONS.md ".cla""ude" .env)
 if [ -z "$hits" ]; then pass "(b) private notes, local agent settings and .env are not tracked"
 else fail "(b) private files are tracked" "$hits"; fi
 
 # (c) attribution words in tracked files and commit messages
-WORDS="claude|anthropic|co-authored|generated with"
+WORDS="cla""ude|anthro""pic|co-auth""ored|generated with"
 hits=$(git grep -n -i -I -E "$WORDS" -- . ':(exclude)scripts/release/check_repo.sh' ':(exclude)*.csv')
 if [ -z "$hits" ]; then pass "(c1) no attribution words in tracked files"
 else fail "(c1) attribution words in tracked files" "$hits"; fi
