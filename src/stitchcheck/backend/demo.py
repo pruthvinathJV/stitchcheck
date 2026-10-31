@@ -20,8 +20,8 @@ SEVERITY = {"skipped_stitch": "major", "broken_stitch": "major", "stain_damage":
             "puckering": "minor", "open_seam": "major"}
 CRITICAL = ["collar", "placket"]
 BUNDLES, PER_BUNDLE = 6, 10
-DEMO_HASH = "demo-v3"  # marks the current seed; an older seed is replaced on start
-OLD_HASHES = ("demo", "demo-v2")
+DEMO_HASH = "demo-v4"  # marks the current seed; an older seed is replaced on start
+OLD_HASHES = ("demo", "demo-v2", "demo-v3")
 ALERT_RUN = {(5, 2), (5, 4), (5, 6)}  # (bundle, garment) collars with the skipped stitch the trend alert catches
 FLAG_LABELS = ["puckering", "crooked_seam", "broken_stitch", "stain_damage", "skipped_stitch"]
 OTHER = {"good": "crooked_seam", "skipped_stitch": "broken_stitch", "broken_stitch": "skipped_stitch",

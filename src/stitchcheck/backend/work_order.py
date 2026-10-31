@@ -8,10 +8,10 @@ import time
 from stitchcheck.backend.report import CHECKLIST, render, validate
 
 PROMPT = """Write a short work order for the unit's mechanic: the Telugu version, then a line with only ===, then the
-English version. The app already shows the machine and the defect as a title, so write no title line.
+English version. The app already shows the machine and the defect as a title, so write no title line and never
+mention the machine again in the lines.
 A trend alert fired: the same defect was confirmed several times on one machine within its recent garments.
 Facts (use only placeholders for numbers and IDs; never type a digit or an ID):
-- {{{{alert.machine}}}}: the machine number
 - {{{{alert.defect}}}}: the defect
 - {{{{alert.count}}}}: how many garments showed it
 - {{{{alert.window}}}}: within how many recent garments
