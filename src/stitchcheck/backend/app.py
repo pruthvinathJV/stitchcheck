@@ -436,6 +436,7 @@ def default_app():
     first start."""
     import os
 
+    from stitchcheck.backend import access, demo_api
     from stitchcheck.backend.brains import open_client
     from stitchcheck.backend.demo import seed_demo
     from stitchcheck.classifier.ensemble import ONNX_DEMO, OnnxEnsemble
@@ -460,6 +461,6 @@ def default_app():
     app = create_app(Deps(db_path=str(env("STITCHCHECK_DB", "data/app/stitchcheck.db")),
                           storage=str(env("STITCHCHECK_STORAGE", "data/app/photos")), sam=sam_segment, ensemble=ensemble,
                           spark=spark_client(), spark_open=open_client(), transcribe=transcribe_correction,
-                          reference=reference))
+                          reference=reference), extensions=[access.install, demo_api.register])
     seed_demo(app.state.con)
     return app
