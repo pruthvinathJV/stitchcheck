@@ -155,6 +155,10 @@ def web():
         import resource
         return {"max_rss_mb": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1)}
 
+    # The frontend is mounted at "/" and would shadow the route just added: keep that mount last.
+    from starlette.routing import Mount
+    routes = api.router.routes
+    routes.sort(key=lambda r: isinstance(r, Mount) and r.path in ("", "/"))
     return api
 
 
