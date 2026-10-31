@@ -125,7 +125,8 @@ def test_frontend_is_served_at_root_after_the_api_and_extensions(tmp_path):
     assert r.status_code == 200 and "<title>StitchCheck</title>" in r.text and r.headers["cache-control"] == "no-cache"
     assert c.get("/index.html").headers["cache-control"] == "no-cache"
     assert c.get("/sw.js").headers["cache-control"] == "no-cache"
-    assert c.get("/app.js").status_code == 200 and "no-cache" not in c.get("/app.js").headers.get("cache-control", "")
+    # every frontend file is revalidated, so a new page never runs with an old script from the HTTP cache
+    assert c.get("/app.js").status_code == 200 and c.get("/app.js").headers.get("cache-control") == "no-cache"
     assert c.get("/health").json() == {"ok": True} and c.get("/ext/ping").json() == {"ok": True}
     s, (g,) = start(c)
     assert c.get(f"/sessions/{s['id']}").json()["line_plan"][0]["part"] == "collar"

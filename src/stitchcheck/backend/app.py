@@ -53,7 +53,6 @@ AUDIO_TYPES = {"audio/webm": ".webm", "audio/mp4": ".m4a", "audio/x-m4a": ".m4a"
 CORS_ORIGINS = "http://localhost:8000,http://127.0.0.1:8000,http://localhost:5500,http://127.0.0.1:5500"
 REVIEW_TIMEOUT_S = 45  # a review still running after this is finished with the classifier's label
 IDEMPOTENCY_STALE_S = 120  # a key held this long by a request that never finished is free again
-NO_CACHE = ("index.html", "sw.js")
 INLINE_SCRIPT = re.compile(r"<script(?![^>]*\bsrc\s*=)[^>]*>(.*?)</script\s*>", re.I | re.S)
 SECURITY_HEADERS = {"X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer",
                     "Permissions-Policy": "camera=(self), microphone=(self), geolocation=()"}
@@ -118,12 +117,12 @@ class Decision(BaseModel):
 
 
 class AppFiles(StaticFiles):
-    """The frontend. index.html and the service worker are revalidated on every load, so a deploy shows at once."""
+    """The frontend. Every file is revalidated on each load (no-cache; unchanged files answer 304 from their ETag), so a
+    deploy shows at once and a phone never mixes a new page with an old script or stylesheet from its HTTP cache."""
 
     async def get_response(self, path, scope):
         response = await super().get_response(path, scope)
-        if Path(getattr(response, "path", "")).name in NO_CACHE:
-            response.headers["Cache-Control"] = "no-cache"
+        response.headers["Cache-Control"] = "no-cache"
         return response
 
 
