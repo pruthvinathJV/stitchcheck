@@ -65,14 +65,15 @@ def test_seeded_day_looks_like_a_decent_new_unit(tmp_path):
     s = con.execute("SELECT * FROM session WHERE id = ?", (sid,)).fetchone()
     assert s["is_demo"] == 1 and s["owner"] is None
     insp, done = session_inspections(con, sid), completed_garments(con, sid)
-    assert len(done) == 42
+    assert len(done) == 60
     assert 5 <= counts.dhu(insp, done) <= 9
     assert 0.10 <= sum(i["needs_checker"] for i in insp) / len(insp) <= 0.20
     alerts = con.execute("SELECT * FROM alert WHERE session_id = ?", (sid,)).fetchall()
     assert any(a["machine_id"] == "7" and a["defect"] == "skipped_stitch" for a in alerts)
     flagged = {i["machine_id"] for i in insp if i["proposed_label"] != "good"}
     assert len(flagged) >= 3  # the defect mix (flags, overruled or waiting for the checker) spans machines
-    assert {i["final_part"] for i in counts.confirmed_defects(insp, done)} == {"collar"}
+    confirmed = counts.confirmed_defects(insp, done)
+    assert len({i["machine_id"] for i in confirmed}) >= 3  # confirmed defects on machine 7 and at least two others
 
 
 def test_an_older_seed_is_replaced(tmp_path):
@@ -85,7 +86,7 @@ def test_an_older_seed_is_replaced(tmp_path):
     con.commit()
     sid = seed_demo(con)  # the id may be reused; the old rows are gone
     assert con.execute("SELECT COUNT(*) AS n FROM inspection WHERE config_hash = 'demo'").fetchone()["n"] == 0
-    assert len(completed_garments(con, sid)) == 42 and seed_demo(con) == sid
+    assert len(completed_garments(con, sid)) == 60 and seed_demo(con) == sid
 
 
 # ---- 2. per-visitor copies ---------------------------------------------------------------------------------------
@@ -103,7 +104,7 @@ def test_demo_session_is_a_private_deep_copy_with_an_empty_bundle(env):
     row = app.state.con.execute("SELECT * FROM session WHERE id = ?", (sid,)).fetchone()
     assert row["is_demo"] == 1 and row["owner"]
     dash, seed_dash = c.get(f"/sessions/{sid}/dashboard").json(), c.get(f"/sessions/{seed}/dashboard").json()
-    assert dash["completed_garments"] == 42 and dash["dhu"] == seed_dash["dhu"] and dash["inspections"] == seed_dash["inspections"]
+    assert dash["completed_garments"] == 60 and dash["dhu"] == seed_dash["dhu"] and dash["inspections"] == seed_dash["inspections"]
     copy_garments = {r["id"] for r in app.state.con.execute(
         "SELECT g.id FROM garment g JOIN bundle b ON b.id = g.bundle_id WHERE b.session_id = ?", (sid,)).fetchall()}
     assert dash["alerts"] and all(set(a["garment_ids"]) <= copy_garments for a in dash["alerts"])

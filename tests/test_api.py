@@ -157,7 +157,7 @@ def test_demo_day_is_seeded_once_with_a_trend_alert(tmp_path):
     deps = Deps(db_path=str(tmp_path / "d.db"), storage=str(tmp_path / "p"), sam=fake_sam(), ensemble=FakeEnsemble(SKIPPED),
                 spark=FakeSpark(), transcribe=lambda p: "", reference=lambda f: None)
     dash = TestClient(create_app(deps)).get(f"/sessions/{sid}/dashboard").json()
-    assert dash["completed_garments"] == 42 and dash["dhu"] > 0
+    assert dash["completed_garments"] == 60 and dash["dhu"] > 0
     assert any(a["machine_id"] == "7" and a["defect"] == "skipped_stitch" for a in dash["alerts"])
 
 

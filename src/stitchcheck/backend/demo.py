@@ -1,8 +1,8 @@
 """A seeded demo day for visitors without garments (docs/backend_spec.md, section 8). Every row is flagged demo.
 
 One men's-shirt session that looks like a decent new unit: a line plan of 8 operations on numbered machines,
-6 bundles, 42 completed garments and a session DHU of about 7. The only confirmed defects are a skipped-stitch run
-on machine 7's collar, so the trend alert shows; the rest of the day is what a checker sees on a normal shift:
+6 bundles, 60 completed garments and a session DHU of about 8. Confirmed defects: a skipped-stitch run on machine 7's
+collar, so the trend alert shows, a broken stitch on machine 12's placket and a stain found on a spot check; the rest of the day is what a checker sees on a normal shift:
 AI flags the checker overruled, one label the checker changed, and a short queue of flags still waiting for the
 checker, spread over several machines (about 15% of inspections go to the checker). Drawn with a fixed seed.
 
@@ -19,9 +19,9 @@ LINE_PLAN = [("collar", "OP01", "7"), ("placket", "OP02", "12"), ("cuff", "OP03"
 SEVERITY = {"skipped_stitch": "major", "broken_stitch": "major", "stain_damage": "major", "crooked_seam": "minor",
             "puckering": "minor", "open_seam": "major"}
 CRITICAL = ["collar", "placket"]
-BUNDLES, PER_BUNDLE = 6, 7
-DEMO_HASH = "demo-v2"  # marks the current seed; an older seed is replaced on start
-OLD_HASHES = ("demo",)
+BUNDLES, PER_BUNDLE = 6, 10
+DEMO_HASH = "demo-v3"  # marks the current seed; an older seed is replaced on start
+OLD_HASHES = ("demo", "demo-v2")
 ALERT_RUN = {(5, 2), (5, 4), (5, 6)}  # (bundle, garment) collars with the skipped stitch the trend alert catches
 FLAG_LABELS = ["puckering", "crooked_seam", "broken_stitch", "stain_damage", "skipped_stitch"]
 OTHER = {"good": "crooked_seam", "skipped_stitch": "broken_stitch", "broken_stitch": "skipped_stitch",
@@ -75,7 +75,10 @@ def _outcomes(slots, rng):
     overruled = rng.sample(rest, 8)  # sent to the checker, who said not a defect
     rest = [i for i in rest if i not in overruled]
     false_alarms = rng.sample(rest, 2)  # the AI was sure, the checker still said not a defect
-    out = {}
+    rest = [i for i in rest if i not in false_alarms]
+    placket = next(i for i in rest if slots[i][2] == "placket" and slots[i][0] == 2)  # machine 12
+    spot = next(i for i in rest if slots[i][3] == "spot_check" and slots[i][0] >= 3)
+    out = {placket: ("broken_stitch", 0, "agree", "broken_stitch"), spot: ("stain_damage", 1, "agree", "stain_damage")}
     for k, i in enumerate(alert):
         if k == 1:  # the AI was unsure (broken or skipped); the checker changed it to skipped
             out[i] = ("broken_stitch", 1, "changed", "skipped_stitch")
