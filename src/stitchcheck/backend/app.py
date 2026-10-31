@@ -337,7 +337,7 @@ def create_app(deps: Deps, extensions=()):
         return get_session(sid)
 
     @app.post("/sessions")
-    def new_session(s: NewSession):
+    def new_session(s: NewSession, request: Request):
         if s.lot_size < 2:
             raise HTTPException(422, "lot size must be at least 2")
         parts = [r.part for r in s.line_plan]
@@ -358,9 +358,12 @@ def create_app(deps: Deps, extensions=()):
             raise HTTPException(422, "spot check rate must be between 0 and 1")
         if s.brain not in MODES:
             raise HTTPException(422, f"brain must be one of {list(MODES)}")
+        # Without the unit PIN on the hosted app, access control marks the request: the session becomes the visitor's
+        # private sandbox (flagged demo data), so nobody can create real data without the PIN.
+        owner = getattr(request.state, "sandbox_owner", None)
         sid = write(db.insert, "session", date=s.date, style=s.style, fabric=s.fabric, lot_size=s.lot_size,
-                    critical_parts=s.critical_parts, spot_check_rate=s.spot_check_rate, is_demo=int(s.is_demo),
-                    brain=s.brain)
+                    critical_parts=s.critical_parts, spot_check_rate=s.spot_check_rate,
+                    is_demo=1 if owner else int(s.is_demo), owner=owner, brain=s.brain)
         for i, r in enumerate(s.line_plan, 1):
             write(db.insert, "line_plan", session_id=sid, part=r.part, sequence_no=i, operator_id=r.operator_id,
                   machine_id=r.machine_id)

@@ -40,10 +40,25 @@ def safe_mode():
 
 
 def secret(app):
-    """The signing secret: STITCHCHECK_SECRET, or a random one made once per process."""
+    """The signing secret: STITCHCHECK_SECRET, else one made once and kept in the database (so visitor cookies stay
+    valid across restarts), else a per-process one when there is no database."""
     if getattr(app.state, "sc_secret", None) is None:
-        app.state.sc_secret = (os.environ.get("STITCHCHECK_SECRET") or secrets.token_hex(32)).encode()
+        value = os.environ.get("STITCHCHECK_SECRET")
+        con = getattr(app.state, "con", None)
+        if not value and con is not None:
+            row = con.execute("SELECT value FROM app_kv WHERE key = 'cookie_secret'").fetchone()
+            if row is None:
+                con.execute("INSERT OR IGNORE INTO app_kv (key, value) VALUES ('cookie_secret', ?)", (secrets.token_hex(32),))
+                con.commit()
+                row = con.execute("SELECT value FROM app_kv WHERE key = 'cookie_secret'").fetchone()
+            value = row["value"]
+        app.state.sc_secret = (value or secrets.token_hex(32)).encode()
     return app.state.sc_secret
+
+
+def hosted():
+    """True on the public deployment (STITCHCHECK_HOSTED=1): real sessions then always need the unit PIN."""
+    return os.environ.get("STITCHCHECK_HOSTED") == "1"
 
 
 def _sign(key, value):
@@ -143,7 +158,7 @@ def install(app, ctx):
             return None if request.method in READ else 403
         pin = unit_pin()
         if pin is None:
-            return None
+            return 404 if hosted() else None  # hosted without a PIN: real sessions are closed to everyone
         if locked(client_ip(request)):
             return 429
         return None if pin_ok(request, pin) else 404
@@ -178,12 +193,22 @@ def install(app, ctx):
             return await call_next(request)
         if path.rstrip("/") == "/sessions" and request.method == "POST":
             pin = unit_pin()
-            if pin is not None:
-                if locked(client_ip(request)):
-                    return deny(429)
-                if not pin_ok(request, pin):
-                    return deny(401)
-            return await call_next(request)
+            if pin is None and not hosted():
+                return await call_next(request)  # local development: real sessions are open
+            if pin is not None and request.headers.get("x-unit-pin") is not None and locked(client_ip(request)):
+                return deny(429)
+            if pin is not None and pin_ok(request, pin):
+                return await call_next(request)
+            # No valid PIN: a private sandbox owned by the visitor's cookie, flagged demo data
+            vid, cookie = visitor_id(request), None
+            if vid is None:
+                vid, cookie = make_visitor(app)
+            request.state.sandbox_owner = vid
+            response = await call_next(request)
+            if cookie:
+                response.set_cookie(VISITOR_COOKIE, cookie, max_age=86400, httponly=True, samesite="lax",
+                                    secure=is_https(request))
+            return response
         m = _SCOPED.match(path)
         if m:
             sids = owning_sessions(m[1], m[2])

@@ -67,8 +67,12 @@ def test_unit_pin_guards_real_sessions(env, monkeypatch):
     assert c.get(f"/sessions/{s['id']}").status_code == 200
     monkeypatch.setenv("STITCHCHECK_UNIT_PIN", "4821")
     new = dict(date="2026-10-28", style="shirt", fabric="A", lot_size=500, line_plan=PLAN)
-    assert c.post("/sessions", json=new).status_code == 401
-    assert c.post("/sessions", json=new, headers={"X-Unit-Pin": "4821"}).status_code == 200
+    sandbox = c.post("/sessions", json=new)  # no PIN: the visitor's private sandbox, flagged demo data
+    assert sandbox.status_code == 200 and sandbox.json()["is_demo"] == 1 and sandbox.json()["owner"]
+    assert c.get(f"/sessions/{sandbox.json()['id']}").status_code == 200  # the same visitor sees it
+    assert TestClient(app).get(f"/sessions/{sandbox.json()['id']}").status_code == 404  # nobody else does
+    real = c.post("/sessions", json=new, headers={"X-Unit-Pin": "4821"})
+    assert real.status_code == 200 and real.json()["is_demo"] == 0 and real.json()["owner"] is None
     assert c.get(f"/sessions/{s['id']}").status_code == 404
     assert c.get(f"/garments/{g['id']}/complete").status_code == 404
     assert c.get(f"/sessions/{s['id']}", headers={"X-Unit-Pin": "4821"}).status_code == 200
@@ -171,3 +175,23 @@ def test_admin_stats_count_review_errors(env, monkeypatch):
     monkeypatch.setenv("STITCHCHECK_SAFE_MODE", "1")
     st = c.get("/admin/stats", headers={"X-Admin-Token": "t0ken"}).json()
     assert st["review_errors_today"] == 1 and st["safe_mode"] is True
+
+
+def test_hosted_without_a_pin_never_opens_real_sessions(env, monkeypatch):
+    app, seed, _ = make_app(env)
+    c = TestClient(app)
+    s, _ = start(c)  # created before the switch: a real session
+    monkeypatch.setenv("STITCHCHECK_HOSTED", "1")
+    monkeypatch.delenv("STITCHCHECK_UNIT_PIN", raising=False)
+    assert c.get(f"/sessions/{s['id']}").status_code == 404
+    r = c.post("/sessions", json=dict(date="2026-10-28", style="shirt", fabric="A", lot_size=500, line_plan=PLAN))
+    assert r.status_code == 200 and r.json()["is_demo"] == 1 and "sc_visitor=" in r.headers["set-cookie"]
+
+
+def test_cookie_secret_survives_a_restart(env, monkeypatch):
+    from stitchcheck.backend.access import secret
+    monkeypatch.delenv("STITCHCHECK_SECRET", raising=False)
+    app1, _, _ = make_app(env)
+    key1 = secret(app1)
+    app2, _, _ = make_app(env)  # same database, new process state
+    assert secret(app2) == key1

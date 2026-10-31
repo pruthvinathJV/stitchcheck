@@ -113,7 +113,7 @@ image = (modal.Image.debian_slim(python_version="3.12")
          .env({"STITCHCHECK_DB": "/vol/stitchcheck.db", "STITCHCHECK_STORAGE": "/vol/photos",
                "STITCHCHECK_ONNX": "/models/demo_ensemble.onnx", "STITCHCHECK_REFS": "/vol/ref_tiles",
                "STITCHCHECK_FALLBACK_REF": "/app/assets/reference_good.jpg", "STITCHCHECK_APP_DIR": "/app/app",
-               "STITCHCHECK_GALLERY_DIR": "/gallery", "STITCHCHECK_COMMIT": COMMIT})
+               "STITCHCHECK_GALLERY_DIR": "/gallery", "STITCHCHECK_COMMIT": COMMIT, "STITCHCHECK_HOSTED": "1"})
          .add_local_file("results/test/lock.json", "/app/results/test/lock.json")
          .add_local_file(str(LOCKED_REF), "/app/assets/reference_good.jpg")
          .add_local_dir("app", "/app/app")
@@ -136,6 +136,7 @@ def web():
     os.chdir("/app")  # relative paths (lock file, Spark cache) resolve here
     from stitchcheck.backend.app import default_app
     api = default_app()
+    _warm_up(api)
 
     import threading
     import time
@@ -212,6 +213,32 @@ def _log(record, path="/vol/uptime.jsonl"):
         appdata.commit()
     except Exception as ex:
         print("uptime log not written:", ex, flush=True)
+
+
+WARM_FROM, WARM_TO = "2026-11-05T08:00", "2026-11-09T08:00"  # UTC: Nov 5 to Nov 8, Pacific time
+
+
+def _warm_up(api):
+    """At container start: one classifier pass and an open connection to the Meta API, so the first photo of a
+    visit does not pay for loading the model or a TLS handshake."""
+    try:
+        from PIL import Image
+
+        from stitchcheck.meta_api import BASE_URL, HTTP
+        api.state.ctx.deps.ensemble([Image.new("RGB", (224, 224), (180, 180, 180))])
+        HTTP.get(BASE_URL.rsplit("/v1", 1)[0], timeout=10)
+    except Exception as ex:
+        print("warm-up skipped:", ex, flush=True)
+
+
+@app.function(image=ops_image, schedule=modal.Cron("0 * * * *"), timeout=120)
+def warmth():
+    """Keeps one web container running during judging (no cold start for judges) and none outside it. Hourly, so a
+    redeploy (which resets the autoscaler to the decorator's value) is corrected within the hour."""
+    now = datetime.now(timezone.utc).isoformat(timespec="minutes")
+    want = 1 if WARM_FROM <= now < WARM_TO else WARM
+    modal.Function.from_name("stitchcheck-web", "web").update_autoscaler(min_containers=want)
+    print(f"{now}: min_containers={want}", flush=True)
 
 
 MONITOR_FROM, MONITOR_TO = "2026-11-04", "2026-11-09"  # judging window; outside it the monitors do nothing

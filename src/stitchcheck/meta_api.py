@@ -19,6 +19,7 @@ BASE_URL = "https://api.meta.ai/v1"
 SPARK_MODEL = "muse-spark-1.3"
 SAM_MODEL = "sam-3.1"
 TRANSCRIBE_MODEL = "muse-voice-transcribe-1.0"
+HTTP = requests.Session()  # keeps the TLS connection to the API open between SAM and transcription calls
 
 
 def api_key():
@@ -63,7 +64,7 @@ def sam_segment(image, prompt, include_confidence=True, timeout=120):
     }
     if include_confidence:
         body["metadata"] = {"include_confidence": "true"}
-    r = requests.post(f"{BASE_URL}/responses", json=body, timeout=timeout,
+    r = HTTP.post(f"{BASE_URL}/responses", json=body, timeout=timeout,
                       headers={"Authorization": f"Bearer {api_key()}"})
     r.raise_for_status()
     raw = "".join(c.get("text", "") for item in r.json().get("output", [])
@@ -109,7 +110,7 @@ def transcribe(wav_path, language_bias=None, keywords=None, timeout=120):
     if keywords:
         request["keywords"] = list(keywords)
     with open(wav_path, "rb") as f:
-        r = requests.post(
+        r = HTTP.post(
             f"{BASE_URL}/asr/transcribe", timeout=timeout,
             headers={"Authorization": f"Bearer {api_key()}", "Accept": "application/json"},
             files={"request": (None, json.dumps(request), "application/json"),

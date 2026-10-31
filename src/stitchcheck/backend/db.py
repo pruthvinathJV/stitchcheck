@@ -125,6 +125,10 @@ CREATE TABLE IF NOT EXISTS report (
     agent_run_id INTEGER REFERENCES agent_run(id),
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+CREATE TABLE IF NOT EXISTS app_kv (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS idempotency (
     key TEXT,
     path TEXT,
