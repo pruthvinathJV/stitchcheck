@@ -93,3 +93,32 @@ def test_invented_number_gets_one_retry_then_is_flagged(session):
 def test_rendered_text_has_no_em_or_en_dashes():
     from stitchcheck.backend.report import no_dashes
     assert no_dashes("Check the needle \u2014\nTension \u2014 feed \u2013 handling") == "Check the needle\nTension, feed, handling"
+
+
+class _Replies:
+    """Spark stand-in that returns the given replies in order."""
+
+    def __init__(self, *replies):
+        self.replies, self.chat, self.completions = list(replies), self, self
+
+    def create(self, messages, **kw):
+        msg = type("M", (), dict(content=self.replies.pop(0), tool_calls=None))()
+        usage = type("U", (), dict(prompt_tokens=10, completion_tokens=5))()
+        return type("R", (), dict(choices=[type("C", (), dict(message=msg))()], usage=usage))()
+
+
+def test_work_order_keeps_telugu_and_english_apart():
+    from stitchcheck.backend.work_order import draft_work_order
+    te = "మెషిన్ {{alert.machine}} సూది మార్చండి"
+    en = "{{alert.defect}} on {{alert.count}} of the last {{alert.window}} garments.\nCheck the needle."
+    w = draft_work_order(_Replies(f"{te}\n===\n{en}"), "7", "skipped_stitch", 3, 10, model="m", effort="minimal")
+    assert w["validator_ok"] and w["body_te"] == "మెషిన్ 7 సూది మార్చండి"
+    assert w["body_en"] == "Skipped stitch on 3 of the last 10 garments.\nCheck the needle."
+    assert w["body_md"] == f"{w['body_te']}\n\n{w['body_en']}"
+
+
+def test_work_order_without_the_separator_gets_one_retry_and_still_has_a_body():
+    from stitchcheck.backend.work_order import draft_work_order
+    w = draft_work_order(_Replies("Check the needle.", "Still one block."), "7", "skipped_stitch", 3, 10, model="m",
+                         effort="minimal")
+    assert w["validator_ok"] and w["body_te"] is None and w["body_en"] is None and w["body_md"] == "Still one block."

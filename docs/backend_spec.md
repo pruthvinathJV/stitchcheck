@@ -25,7 +25,7 @@ A **session** is one working day with a **line plan**: which operator and machin
 | `inspection` | id, garment_id, reason (critical/suspicious/spot_check/audit), photo_path, crop_path, review_status (reviewing/done), scale_path, part_chip, sam_part, sam_part_conf, seam_found, classifier_top2 (json), spark_verdict (json), proposed_label, proposed_severity, final_label, final_part, final_severity, operator_id, machine_id, decision (pending/agree/changed/not_a_defect/retake), decided_via (tap/voice), config_hash, created_at |
 | `voice_note` | id, inspection_id, audio_path, transcript, parsed (json), confirmed |
 | `audit` | id, session_id, lot_size, plan (json), sampled_garment_nos (json), status (in_progress/accept/reject) |
-| `alert` | id, session_id, machine_id, defect, garment_ids (json), body_md, agent_run_id, created_at |
+| `alert` | id, session_id, machine_id, defect, garment_ids (json), body_md, body_te, body_en, agent_run_id, created_at |
 | `report` | id, session_id, kind (daily/audit), body_template, body_md, validator_ok, agent_run_id, created_at |
 | `agent_run` | id, kind (inspect/voice/report/alert), request (json), tool_calls (json), tool_outputs (json), final (json), latency_ms, tokens_in, tokens_out, cost_usd, created_at |
 

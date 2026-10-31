@@ -77,7 +77,7 @@ Hold the mic button to record (WAV, M4A or WebM). Release to send:
 - `by.machine`, `by.part`, `by.defect`: `{key: {defects, dhu}}`, most defects first. Show as bar lists; machines and operations lead the screen.
 - `top_issues`: `[[machine, part, defect, count]]`.
 - `supervisor_only.by_operator`: per-operator counts, shown only on a separate supervisor view (behind a tap, never on the main dashboard), for training, never as a ranking.
-- `alerts`: trend alerts `{machine_id, defect, garment_ids, created_at, body_md}` ("3 skipped stitches on machine 7 in the last 10 garments"). `body_md` (the AI-drafted note with checks) may be empty for now.
+- `alerts`: trend alerts `{machine_id, defect, garment_ids, created_at, body_md}` ("3 skipped stitches on machine 7 in the last 10 garments"). `body_md` is the AI-drafted work order in both languages; `body_te` and `body_en` hold each language on its own (show the one matching the app language; fall back to `body_md` when they are null). All three are null until the draft is ready.
 - `ai_vs_checker`: `{agreed, changed, not_a_defect, sent_to_checker}`.
 
 ### 5. Report

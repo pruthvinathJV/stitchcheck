@@ -112,6 +112,8 @@ CREATE TABLE IF NOT EXISTS alert (
     defect TEXT NOT NULL,
     garment_ids TEXT NOT NULL,
     body_md TEXT,
+    body_te TEXT,
+    body_en TEXT,
     agent_run_id INTEGER REFERENCES agent_run(id),
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );

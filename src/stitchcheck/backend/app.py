@@ -408,7 +408,9 @@ def create_app(deps: Deps, extensions=()):
                        request={"alert_id": alert_id, "facts": w["facts"]}, tool_calls=[], tool_outputs=[],
                        final={"template": w["template"], "errors": w["errors"]}, latency_ms=int(w["seconds"] * 1000),
                        tokens_in=tin, tokens_out=tout, cost_usd=brain.cost(tin, tout))
-        write(db.update, "alert", alert_id, body_md=w["body_md"] if w["validator_ok"] else None, agent_run_id=run_id)
+        ok = w["validator_ok"]
+        write(db.update, "alert", alert_id, body_md=w["body_md"] if ok else None, body_te=w["body_te"] if ok else None,
+              body_en=w["body_en"] if ok else None, agent_run_id=run_id)
 
     @app.post("/garments/{gid}/complete")
     def complete(gid: int, background: BackgroundTasks, request: Request):
@@ -709,9 +711,11 @@ def create_app(deps: Deps, extensions=()):
 
 def _draft_missing_work_orders(app, session_id):
     """The seeded day's trend alerts get their mechanic work order drafted once, in the background, so demo copies made
-    afterwards show it (the alerts were created by the seed, not by a completed garment)."""
+    afterwards show it (the alerts were created by the seed, not by a completed garment). A work order saved before
+    the Telugu and English versions were stored separately is drafted again."""
     ctx = app.state.ctx
-    rows = ctx.con.execute("SELECT * FROM alert WHERE session_id = ? AND body_md IS NULL", (session_id,)).fetchall()
+    rows = ctx.con.execute("SELECT * FROM alert WHERE session_id = ? AND (body_md IS NULL OR body_te IS NULL)",
+                           (session_id,)).fetchall()
     for a in rows:
         threading.Thread(target=ctx.work_order, args=(a["id"], a["machine_id"], a["defect"], a["garment_ids"], "spark"),
                          daemon=True).start()
