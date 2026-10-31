@@ -210,9 +210,19 @@ def _log(record, path="/vol/uptime.jsonl"):
         print("uptime log not written:", ex, flush=True)
 
 
+MONITOR_FROM, MONITOR_TO = "2026-11-04", "2026-11-09"  # judging window; outside it the monitors do nothing
+
+
+def _monitoring_now():
+    """Pings wake the scaled-down container, so they only run while judges may be using the app."""
+    return MONITOR_FROM <= datetime.now(timezone.utc).date().isoformat() <= MONITOR_TO
+
+
 @app.function(image=ops_image, volumes={"/vol": appdata}, schedule=modal.Cron("*/10 * * * *"), timeout=120)
 def uptime():
     """GET /health and /version; one line per run in /vol/uptime.jsonl."""
+    if not _monitoring_now():
+        return
     record = {"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "kind": "uptime"}
     try:
         import requests
@@ -233,6 +243,8 @@ def uptime():
 def synthetic():
     """The no-AI part of scripts/ops/smoke_e2e.py: demo session, its dashboard, the gallery. Offset from uptime by 5
     minutes so the two never append to the log at the same time."""
+    if not _monitoring_now():
+        return
     record = {"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "kind": "synthetic"}
     try:
         import requests
