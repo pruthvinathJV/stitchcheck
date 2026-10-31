@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS session (
     spot_check_rate REAL NOT NULL DEFAULT 0.1,
     is_demo INTEGER NOT NULL DEFAULT 0,
     brain TEXT NOT NULL DEFAULT 'spark' CHECK (brain IN ('spark', 'open')),
+    owner TEXT,  -- the visitor that owns a demo copy (signed cookie id); NULL for real and seeded sessions
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
     status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'closed'))
 );
 CREATE TABLE IF NOT EXISTS line_plan (
