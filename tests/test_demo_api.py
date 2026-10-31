@@ -257,3 +257,31 @@ def test_build_gallery_from_a_fake_folder(tmp_path, capsys):
     for i in items:
         assert "\u2013" not in i["title_en"] + i["title_te"] and "\u2014" not in i["title_en"] + i["title_te"]
     assert bg.build(out, shirt, ROOT / "docs/ui_strings.json", split=pd.DataFrame(rows), image_path=lambda r: seg / r) == items
+
+
+def test_seeded_alerts_get_their_work_order_drafted(tmp_path):
+    import time as _time
+    from stitchcheck.backend.app import Deps, _draft_missing_work_orders, create_app
+    from stitchcheck.backend.demo import seed_demo
+    from test_pipeline import FakeEnsemble, fake_sam
+
+    class WorkOrderSpark:
+        def __init__(self):
+            self.chat = self.completions = self
+
+        def create(self, messages, **kw):
+            msg = type("M", (), dict(content="Check machine {{alert.machine}}: needle and timing.", tool_calls=None))()
+            usage = type("U", (), dict(prompt_tokens=10, completion_tokens=5))()
+            return type("R", (), dict(choices=[type("C", (), dict(message=msg))()], usage=usage))()
+
+    app = create_app(Deps(db_path=str(tmp_path / "w.db"), storage=str(tmp_path / "p"), sam=fake_sam(),
+                          ensemble=FakeEnsemble([0.9, 0.025, 0.025, 0.025, 0.025]), spark=WorkOrderSpark(),
+                          transcribe=lambda p: "", reference=lambda f: None))
+    sid = seed_demo(app.state.con)
+    _draft_missing_work_orders(app, sid)
+    for _ in range(50):
+        rows = app.state.con.execute("SELECT body_md FROM alert WHERE session_id = ?", (sid,)).fetchall()
+        if rows and all(r["body_md"] for r in rows):
+            break
+        _time.sleep(0.05)
+    assert rows and all(r["body_md"] == "Check machine 7: needle and timing." for r in rows)

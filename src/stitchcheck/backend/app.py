@@ -11,6 +11,7 @@ import os
 import re
 import sqlite3
 import sys
+import threading
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
@@ -697,13 +698,24 @@ def create_app(deps: Deps, extensions=()):
             raise HTTPException(503, "Seam finder unavailable, try again")
 
     ctx = SimpleNamespace(con=con, lock=lock, write=write, one=one, brains=brains, deps=deps, storage=storage, url=url,
-                          line_plan=line_plan, session_of_garment=session_of_garment, step1=run_step1, review=review)
+                          line_plan=line_plan, session_of_garment=session_of_garment, step1=run_step1, review=review,
+                          work_order=work_order)
     app.state.con, app.state.ctx = con, ctx
     for ext in extensions:
         ext(app, ctx)
     if Path(deps.app_dir).is_dir():  # last, so no API or extension route is shadowed
         app.mount("/", AppFiles(directory=deps.app_dir, html=True), name="app")
     return app
+
+
+def _draft_missing_work_orders(app, session_id):
+    """The seeded day's trend alerts get their mechanic work order drafted once, in the background, so demo copies made
+    afterwards show it (the alerts were created by the seed, not by a completed garment)."""
+    ctx = app.state.ctx
+    rows = ctx.con.execute("SELECT * FROM alert WHERE session_id = ? AND body_md IS NULL", (session_id,)).fetchall()
+    for a in rows:
+        threading.Thread(target=ctx.work_order, args=(a["id"], a["machine_id"], a["defect"], a["garment_ids"], "spark"),
+                         daemon=True).start()
 
 
 def default_app():
@@ -742,5 +754,6 @@ def default_app():
                           cors_origins=[o.strip() for o in os.environ.get("STITCHCHECK_CORS_ORIGINS", CORS_ORIGINS).split(",")
                                         if o.strip()]),
                      extensions=[access.install, demo_api.register])
-    seed_demo(app.state.con)
+    sid = seed_demo(app.state.con)
+    _draft_missing_work_orders(app, sid)
     return app

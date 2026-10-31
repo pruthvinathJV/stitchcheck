@@ -5,6 +5,7 @@ or their order. Reference images, if any, come first, each with its label. Respo
 """
 import hashlib
 import json
+import os
 import re
 import time
 from pathlib import Path
@@ -46,7 +47,7 @@ FEW_SHOT_NOTE = (
     "\nBefore the image to inspect you get labelled reference close-ups of seams. They may be on a different fabric "
     "from the image to inspect. Compare the stitch line against them; classify only the last image."
 )
-CACHE_DIR = Path("data/cache/spark")
+CACHE_DIR = Path(os.environ.get("STITCHCHECK_SPARK_CACHE", "data/cache/spark"))  # on the volume when hosted
 _JSON = re.compile(r"\{.*\}", re.DOTALL)
 
 

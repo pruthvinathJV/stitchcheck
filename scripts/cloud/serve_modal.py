@@ -99,7 +99,8 @@ image = (modal.Image.debian_slim(python_version="3.12")
          .env({"STITCHCHECK_DB": "/vol/stitchcheck.db", "STITCHCHECK_STORAGE": "/vol/photos",
                "STITCHCHECK_ONNX": "/models/demo_ensemble.onnx", "STITCHCHECK_REFS": "/vol/ref_tiles",
                "STITCHCHECK_FALLBACK_REF": "/app/assets/reference_good.jpg", "STITCHCHECK_APP_DIR": "/app/app",
-               "STITCHCHECK_GALLERY_DIR": "/gallery", "STITCHCHECK_COMMIT": COMMIT, "STITCHCHECK_HOSTED": "1"})
+               "STITCHCHECK_GALLERY_DIR": "/gallery", "STITCHCHECK_COMMIT": COMMIT, "STITCHCHECK_HOSTED": "1",
+               "STITCHCHECK_SPARK_CACHE": "/vol/spark_cache", "STITCHCHECK_SAM_CACHE": "/vol/sam_cache"})
          .add_local_file("results/test/lock.json", "/app/results/test/lock.json")
          .add_local_file(str(LOCKED_REF), "/app/assets/reference_good.jpg")
          .add_local_dir("app", "/app/app")
