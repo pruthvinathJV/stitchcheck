@@ -1,8 +1,6 @@
 # StitchCheck
 
-A phone app that turns any worker into a reliable stitch inspector, so a new 25-machine garment unit in rural Andhra Pradesh can prove factory-grade quality and win orders.
-
-> Status: in progress (Meta Global AI Developer Hackathon, Oct 26 to Nov 4, 2026).
+StitchCheck is a phone app that turns any worker into a reliable stitch inspector, so a new 25-machine garment unit in rural Andhra Pradesh can prove factory-grade quality and win orders. The checker photographs each critical seam; SAM 3.1 finds the seam, a small classifier fine-tuned on stitch images scores it, and Muse Spark judges the photo with the classifier as a tool, explains its call in one line and hands the uncertain ones to the checker. Corrections can be spoken in Telugu. Every confirmed defect feeds a live dashboard by machine and operation, trend alerts with work orders for the mechanic, an AQL audit plan, and an end-of-day buyer report whose every number is filled in by the server from logged data. Built for the Meta Global AI Developer Hackathon (Oct 26 to Nov 4, 2026).
 
 - Demo video: TODO
 - Live app: TODO (seeded demo day, labelled "Demo data")
@@ -20,6 +18,10 @@ Muse Spark runs quality control for a small garment unit, with a small specialis
 **AI drafts, the checker decides.** Nothing is logged as a defect until the checker confirms it, and every photo keeps the classifier's output, the AI's verdict and the checker's decision.
 
 **Process first.** Defects are about the process, not the person: the dashboard leads with machines and operations, per-operator counts are a supervisor-only view for training, and the AI never names, ranks or blames a worker.
+
+## Why it matters
+
+Small garment units in India have to prove their quality before a buyer will give them orders, and a new unit has no track record to show. Paper checklists miss defects, depend on one experienced checker, and give the buyer no data to verify. StitchCheck turns every check into a photo-backed record the buyer can audit, and the Muse Spark calls cost $1.021 per 100 garments on the StitchingNet test ($1.201 with Muse Spark Open), at 2.1 photos per garment (results/test/summary.csv). It is process first: the data points at machines and methods to fix, never at people to blame.
 
 ## Meta models used
 
@@ -39,6 +41,8 @@ Two AI modes, each with its measured StitchingNet test figures (hybrid, checker 
 | High sensitivity (Muse Spark Open) | 94.4% | 20.2% | 25.7% |
 
 ## Architecture
+
+![StitchCheck architecture: phone PWA, FastAPI on Modal, the Meta models and the agents](docs/architecture.svg)
 
 ```
 Phone PWA (camera, tap and voice, dashboard, report)
@@ -94,13 +98,23 @@ TODO: all arms on 54 test pairs (216 photos), pair-bootstrap intervals; the Day 
 
 TODO: field accuracy and hallucinations on the unseen sheets (headline) and the seen sheets, as preregistered in `docs/techpack_eval.md`.
 
-### Known limitations and next improvements
+## Known limitations and next improvements
 
 - **Skipped stitches can leak through the label shown to the checker.** The classifier's skipped-stitch calls are protected from being relabelled good or crooked only when its probability is at least 0.60. Below that, the AI's "good" or "crooked seam" is pre-filled: skipped-stitch recall of the shown label is 0.667 against the classifier's 0.702. The 0.60 threshold and the rule were fixed on validation data and are not changed after seeing test results; a lower threshold is the next improvement to test on new validation data.
 - **Muse Spark does not name new defect types** on StitchingNet (above).
 - **Phone photos are the real test.** StitchingNet is lab swatches from a fixed camera; results on phone photos of real shirts are reported above when the phone set is scored.
 - **Curved seams.** Tiles are rotated along the seam's overall direction, so on a curved or V-shaped seam each tile sits slightly off level.
 - **Stitch scale on matching thread.** When the stitch pitch cannot be measured (matching thread, little contrast), tile size comes from a hand calibration on a reference photo at the fixed capture distance.
+
+## Security and privacy
+
+- **API keys stay on the server.** `MODEL_API_KEY` and the Modal proxy token live in a Modal secret; the browser never sees them.
+- **No location in photos.** Every upload is re-encoded with EXIF rotation applied and the metadata dropped, so GPS never reaches storage.
+- **Per-visitor demo copies.** Each visitor to the public URL gets their own copy of the seeded demo day, so nobody sees or changes another visitor's data.
+- **Unit PIN for real sessions.** Sessions that are not demo data need the unit's PIN.
+- **Spend caps.** Daily caps per brain ($10 Muse Spark, $5 Muse Spark Open) and 60 model calls per visitor IP per hour.
+- **Model text is plain text.** Verdict reasons, work orders and reports are rendered as text, never as HTML.
+- **The report validator.** A buyer report cannot contain a number or ID the model typed: the model writes placeholders, the server fills them from logged data, and any bare number is rejected.
 
 ## Built during the hackathon
 
@@ -116,7 +130,7 @@ Before Oct 26: research and planning documents only (no code). Day 0 preparation
 - [x] QC agent: defect log, DHU, ISO 2859-1 AQL audit, audit pass chance, trend alerts with mechanic work orders, verified end-of-day report
 - [x] Tech-pack reader with a preregistered extraction evaluation
 - [x] Backend API, ONNX serving, Modal hosting, seeded demo day
-- [ ] Phone app and dashboard (Muse Code)
+- [ ] Phone app and dashboard
 - [ ] Phone test set results and Day 5 decision
 
 ## Data and licences
@@ -136,7 +150,7 @@ Dataset images and phone photos are not redistributed in this repository. The re
 ## How to run
 
 ```sh
-python3 -m venv .venv && .venv/bin/pip install -e '.[data,api,ml,serve,dev]'
+python3 -m venv .venv && .venv/bin/pip install -e '.[data,api,ml,serve,cloud,dev]'
 cp .env.example .env                        # add MODEL_API_KEY (and the Modal proxy token for Muse Spark Open)
 
 .venv/bin/python -m stitchcheck.data.download   # StitchingNet-Seg (CC BY) into data/raw/
