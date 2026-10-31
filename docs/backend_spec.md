@@ -96,10 +96,10 @@ Step-1 and step-2 latencies are logged for every photo; there is no hard target.
 
     | Lot size | Code | Sample | Major 2.5 Ac/Re | Minor 4.0 Ac/Re |
     |---|---|---|---|---|
-    | 281–500 | H | 50 | 3/4 | 5/6 |
-    | 501–1200 | J | 80 | 5/6 | 7/8 |
-    | 1201–3200 | K | 125 | 7/8 | 10/11 |
-    | 3201–10000 | L | 200 | 10/11 | 14/15 |
+    | 281 to 500 | H | 50 | 3/4 | 5/6 |
+    | 501 to 1200 | J | 80 | 5/6 | 7/8 |
+    | 1201 to 3200 | K | 125 | 7/8 | 10/11 |
+    | 3201 to 10000 | L | 200 | 10/11 | 14/15 |
 
 ## 7. Agents
 
@@ -164,7 +164,7 @@ UI labels in Telugu with English below; buyer report in English.
 | Wed Oct 28 | Schema; pure functions (DHU, AQL, mapping) with tests; per-photo pipeline against the real APIs on 5 Kadiri pilot photos (the four smoke-test shirt photos if the pilot is late) |
 | Thu Oct 29 | Decision and voice endpoints; dashboard endpoint; `app/SPEC.md` |
 | Fri Oct 30 | Report agent and validator (may move to Saturday); Day 5 gate result sets the product mode (full or suggestion) |
-| Sat–Sun | Trend alerts, demo seed, deploy, frontend |
+| Sat to Sun | Trend alerts, demo seed, deploy, frontend |
 | Mon Nov 2 | Hosted URL live, end to end on a phone |
 
 Any change to a frozen evaluation setting, any new external service, or anything that would make the product differ from the evaluated configuration is agreed before it is made.

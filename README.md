@@ -3,7 +3,7 @@
 StitchCheck is a phone app that turns any worker into a reliable stitch inspector, so a new 25-machine garment unit in rural Andhra Pradesh can prove factory-grade quality and win orders. The checker photographs each critical seam; SAM 3.1 finds the seam, a small classifier fine-tuned on stitch images scores it, and Muse Spark judges the photo with the classifier as a tool, explains its call in one line and hands the uncertain ones to the checker. Corrections can be spoken in Telugu. Every confirmed defect feeds a live dashboard by machine and operation, trend alerts with work orders for the mechanic, an AQL audit plan, and an end-of-day buyer report whose every number is filled in by the server from logged data. Built for the Meta Global AI Developer Hackathon (Oct 26 to Nov 4, 2026).
 
 - Demo video: TODO
-- Live app: TODO (seeded demo day, labelled "Demo data")
+- Live app: https://jvpnath--stitchcheck-web-web.us-east.modal.run (seeded demo day, labelled "Demo data")
 
 ## What it does
 
