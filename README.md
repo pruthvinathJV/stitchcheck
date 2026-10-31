@@ -11,11 +11,10 @@ StitchCheck is a phone app that turns any worker into a reliable stitch inspecto
 
 Muse Spark runs quality control for a small garment unit, with a small specialist model as one of its tools.
 
-1. **Plans the day from the buyer's spec.** The supervisor photographs the buyer's tech pack; Muse Spark reads it into a draft inspection plan (critical seams, stitch targets, AQL levels, the buyer's severity rules, in any language) and code checks every value. The supervisor confirms it.
-2. **Judges every photographed seam.** The checker photographs the critical seams of each garment, any suspicious seam, and a random spot check on 1 garment in 10. SAM 3.1 finds the seam; a classifier fine-tuned on stitch images scores tiles cut along it; Muse Spark calls that classifier as a tool, compares the seam with a good reference seam, and gives a label, severity and a one-line reason. When the two disagree, the photo goes to the checker.
-3. **Takes corrections in Telugu.** The checker taps Agree, Change, Not a defect or Retake, or speaks a correction in Telugu and English; Muse Spark maps it onto the fixed lists and the checker confirms with a tap.
-4. **Counts and warns.** Live DHU and defective %, by machine, operation and defect; trend alerts when one machine repeats a defect, each with a work order for the mechanic drafted by Muse Spark; the AQL 2.5 audit plan, its status, and the chance the lot passes a buyer's audit at today's rate.
-5. **Writes the report the buyer can check.** Muse Spark writes the end-of-day buyer report and supervisor actions (Telugu and English) from tool results only: every number is filled in by the server from logged data, a validator rejects any number the model typed, and the full agent trace is one tap away.
+1. **Judges every photographed seam.** The checker photographs the critical seams of each garment, any suspicious seam, and a random spot check on 1 garment in 10. SAM 3.1 finds the seam; a classifier fine-tuned on stitch images scores tiles cut along it; Muse Spark calls that classifier as a tool, compares the seam with a good reference seam, and gives a label, severity and a one-line reason. When the two disagree, the photo goes to the checker.
+2. **Takes corrections in Telugu.** The checker taps Agree, Change, Not a defect or Retake, or speaks a correction in Telugu and English; Muse Spark maps it onto the fixed lists and the checker confirms with a tap.
+3. **Counts and warns.** Live DHU and defective %, by machine, operation and defect; trend alerts when one machine repeats a defect, each with a work order for the mechanic drafted by Muse Spark; the AQL 2.5 audit plan, its status, and the chance the lot passes a buyer's audit at today's rate.
+4. **Writes the report the buyer can check.** Muse Spark writes the end-of-day buyer report and supervisor actions (Telugu and English) from tool results only: every number is filled in by the server from logged data, a validator rejects any number the model typed, and the full agent trace is one tap away.
 
 **AI drafts, the checker decides.** Nothing is logged as a defect until the checker confirms it, and every photo keeps the classifier's output, the AI's verdict and the checker's decision.
 
@@ -29,7 +28,7 @@ Small garment units in India have to prove their quality before a buyer will giv
 
 | Model | Where |
 |---|---|
-| Muse Spark (`muse-spark-1.3`, Meta Model API) | The inspector's brain: hybrid judgment with the classifier as a tool, the tech-pack reader, Telugu voice correction mapping, the report agent, mechanic work orders |
+| Muse Spark (`muse-spark-1.3`, Meta Model API) | The inspector's brain: hybrid judgment with the classifier as a tool, Telugu voice correction mapping, the report agent, mechanic work orders; reading buyer tech packs (offline evaluation below, not yet in the app) |
 | Muse Spark Open (open weights, Modal shared endpoint) | The second, measured AI mode ("High sensitivity") and the automatic fallback when the Meta API fails; evaluated as arm E |
 | SAM 3.1 | Finds the seam in each phone photo (tiles and the green overlay the checker sees); suggests the garment part. Never used to name defects |
 | Muse Voice Transcribe | Telugu and English voice corrections, with a language hint and a keyword list |
@@ -96,7 +95,9 @@ Full tables: `results/test/summary.csv`, `per_class.csv`, `paired.csv` (`scripts
 
 TODO: all arms on 54 test pairs (216 photos), pair-bootstrap intervals; the Day 5 decision rule result.
 
-### Tech-pack reader
+### Tech-pack reader (offline evaluation, not yet in the app)
+
+Can Muse Spark read a buyer's tech pack into an inspection plan that code can check? The extraction module and its evaluation are built; the app screen is the next step.
 
 TODO: field accuracy and hallucinations on the unseen sheets (headline) and the seen sheets, as preregistered in `docs/techpack_eval.md`.
 
@@ -105,6 +106,7 @@ TODO: field accuracy and hallucinations on the unseen sheets (headline) and the 
 - **Skipped stitches can leak through the label shown to the checker.** The classifier's skipped-stitch calls are protected from being relabelled good or crooked only when its probability is at least 0.60. Below that, the AI's "good" or "crooked seam" is pre-filled: skipped-stitch recall of the shown label is 0.667 against the classifier's 0.702. The 0.60 threshold and the rule were fixed on validation data and are not changed after seeing test results; a lower threshold is the next improvement to test on new validation data.
 - **Muse Spark does not name new defect types** on StitchingNet (above).
 - **Phone photos are the real test.** StitchingNet is lab swatches from a fixed camera; results on phone photos of real shirts are reported above when the phone set is scored.
+- **Tech packs are read offline only.** The tech-pack extraction is evaluated (above) but has no screen yet; the day plan is entered on the Start sheet.
 - **Curved seams.** Tiles are rotated along the seam's overall direction, so on a curved or V-shaped seam each tile sits slightly off level.
 - **Stitch scale on matching thread.** When the stitch pitch cannot be measured (matching thread, little contrast), tile size comes from a hand calibration on a reference photo at the fixed capture distance.
 
@@ -130,7 +132,7 @@ Before Oct 26: research and planning documents only (no code). Day 0 preparation
 - [x] Hybrid inspector (Muse Spark with the classifier as a tool), two measured AI modes with automatic fallback
 - [x] Telugu voice correction (number words, one-tap candidates when unclear)
 - [x] QC agent: defect log, DHU, ISO 2859-1 AQL audit, audit pass chance, trend alerts with mechanic work orders, verified end-of-day report
-- [x] Tech-pack reader with a preregistered extraction evaluation
+- [x] Tech-pack extraction with a preregistered evaluation (offline; not yet a screen in the app)
 - [x] Backend API, ONNX serving, Modal hosting, seeded demo day
 - [x] Phone app and dashboard (built with Muse Code)
 - [ ] Phone test set results and Day 5 decision
