@@ -93,6 +93,12 @@ Start an AQL audit for the lot, see the sampled garment numbers, inspect them, a
 ### 7. Demo (backend coming)
 For visitors without garments: a gallery of real phone photos that run through the live pipeline, upload from the visitor's phone, a per-visitor copy of a seeded demo day, and a Reset button. Endpoints will be added here when built.
 
+## Unit PIN and private sandboxes
+
+On the hosted app, real sessions need the unit PIN. Without it, "Start" still works: `POST /sessions` creates a private sandbox owned by this phone (a cookie), returned with `is_demo: 1`, so the "Demo data" badge shows and nobody else can see it. Sandboxes are deleted after 24 hours.
+- Start day has a small "Unit PIN" field (numeric, 6 digits) with a "Unlock" button: `POST /auth/pin` `{pin}` sets an HttpOnly cookie for 30 days; 200 means unlocked (show "Unit unlocked"), 403 or 404 means wrong PIN, 429 means too many tries (wait 10 minutes). Once unlocked, new sessions are real (`is_demo: 0`).
+- Under the field, one line: "Without the PIN you get a private practice session (demo data)."
+
 ## Other endpoints
 
 - `GET /health` → `{ok: true}`.
