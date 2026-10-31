@@ -11,7 +11,6 @@ import os
 import re
 import sqlite3
 import sys
-import threading
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
@@ -209,8 +208,7 @@ def create_app(deps: Deps, extensions=()):
     setup_logging()
     app = FastAPI(title="StitchCheck")
     con = db.connect(deps.db_path)
-    lock = threading.Lock()  # one writer
-    idem_lock = threading.Lock()  # claims on the idempotency table only, never held during the work
+    lock = con.lock  # the connection's re-entrant lock: every query holds it; write() holds it for a whole write
     csp = content_security_policy(deps.app_dir, deps.cors_origins)
     storage = Path(deps.storage)
     storage.mkdir(parents=True, exist_ok=True)
@@ -285,7 +283,7 @@ def create_app(deps: Deps, extensions=()):
 
     def idempotent(request, fn):
         """fn() once per Idempotency-Key (see Idempotency); without the header, just fn()."""
-        with Idempotency(con, idem_lock, request) as idem:
+        with Idempotency(con, lock, request) as idem:
             return idem.replay if idem.replay is not None else idem.done(fn())
 
     def run_brain(mode, fn):
@@ -432,21 +430,19 @@ def create_app(deps: Deps, extensions=()):
     @app.post("/garments/{gid}/photos")
     async def photo(gid: int, background: BackgroundTasks, request: Request, image: UploadFile = File(...),
                     part: str = Form(...), reason: str = Form("critical")):
-        with Idempotency(con, idem_lock, request) as idem:
-            if idem.replay is not None:
-                return idem.replay
-            return idem.done(await take_photo(gid, background, image, part, reason))
+        data = await image.read(PHOTO_MAX_BYTES + 1)
+        if len(data) > PHOTO_MAX_BYTES:
+            raise HTTPException(413, "photo too large, the limit is 15 MB")
+        # Database work and step 1 run in the thread pool, never on the event loop
+        return await run_in_threadpool(idempotent, request, lambda: take_photo(gid, background, data, part, reason))
 
-    async def take_photo(gid, background, image, part, reason):
+    def take_photo(gid, background, data, part, reason):
         sess = session_of_garment(gid)
         if part not in PARTS:
             raise HTTPException(422, f"unknown part {part}")
         if reason not in REASONS:
             raise HTTPException(422, f"reason must be one of {list(REASONS)}")
-        data = await image.read(PHOTO_MAX_BYTES + 1)
-        if len(data) > PHOTO_MAX_BYTES:
-            raise HTTPException(413, "photo too large, the limit is 15 MB")
-        s1, im = await run_in_threadpool(run_step1, data, sess["session_id"])
+        s1, im = run_step1(data, sess["session_id"])
         if not s1["seam_found"]:
             return {"retake": s1["retake"], "step1_seconds": s1["step1_seconds"]}
         # The sequence part and its line-plan mapping are known now, so a review that never finishes still has them
@@ -571,25 +567,25 @@ def create_app(deps: Deps, extensions=()):
 
     @app.post("/inspections/{iid}/voice")
     async def voice(iid: int, audio: UploadFile = File(...)):
-        row = one("SELECT * FROM inspection WHERE id = ?", iid)
-        sess = session_of_garment(row["garment_id"])
         suffix = audio_suffix(audio)
         if suffix is None:
             raise HTTPException(422, "not an audio recording")
         data = await audio.read(AUDIO_MAX_BYTES + 1)
         if len(data) > AUDIO_MAX_BYTES:
             raise HTTPException(413, "recording too large, the limit is 10 MB")
+        return await run_in_threadpool(propose_correction, iid, suffix, data)
+
+    def propose_correction(iid, suffix, data):
+        row = one("SELECT * FROM inspection WHERE id = ?", iid)
+        sess = session_of_garment(row["garment_id"])
         path = storage / str(sess["session_id"]) / "voice" / f"{iid}_{int(time.time())}{suffix}"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
         try:
-            transcript = await run_in_threadpool(deps.transcribe, path)
+            transcript = deps.transcribe(path)
         except Exception as ex:
             log.error(json.dumps({"event": "transcribe_failed", "inspection_id": iid}), exc_info=ex)
             raise HTTPException(503, "Voice not available, type the correction instead")
-        return await run_in_threadpool(propose_correction, iid, sess, path, transcript)
-
-    def propose_correction(iid, sess, path, transcript):
         plan = line_plan(sess["session_id"])
         parsed, brain, fell_back = run_brain(sess["brain"], lambda b: parse_correction(b.client, transcript, plan,
                                                                                        model=b.model, effort=b.effort))
@@ -666,8 +662,8 @@ def create_app(deps: Deps, extensions=()):
 
     def write_report(sid):
         s = one("SELECT * FROM session WHERE id = ?", sid)
-        with lock:  # the report reads a consistent snapshot of the session
-            r, brain, fell_back = run_brain(s["brain"], lambda b: run_report(b.client, con, sid, model=b.model, effort=b.effort))
+        # Each of the report's reads holds the connection lock on its own; nothing is locked while the model writes
+        r, brain, fell_back = run_brain(s["brain"], lambda b: run_report(b.client, con, sid, model=b.model, effort=b.effort))
         tin, tout = r["tokens"]
         run_id = write(db.insert, "agent_run", kind="report", brain=brain.name, fell_back=int(fell_back),
                        request={"session_id": sid}, tool_calls=r["trace"]["tool_calls"],

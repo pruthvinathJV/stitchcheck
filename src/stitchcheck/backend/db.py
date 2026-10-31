@@ -2,6 +2,7 @@
 import json
 import re
 import sqlite3
+import threading
 from pathlib import Path
 
 SCHEMA = """
@@ -141,11 +142,66 @@ JSON_COLUMNS = {"critical_parts", "classifier_top2", "spark_verdict", "timings",
                 "garment_ids", "request", "tool_calls", "tool_outputs", "final"}
 
 
+class Rows:
+    """The result of Connection.execute: rows fetched while the lock was held, read like a cursor."""
+
+    def __init__(self, rows, lastrowid, description, rowcount):
+        self.rows, self.lastrowid, self.description, self.rowcount = rows, lastrowid, description, rowcount
+        self._next = 0
+
+    def fetchone(self):
+        if self._next >= len(self.rows):
+            return None
+        self._next += 1
+        return self.rows[self._next - 1]
+
+    def fetchall(self):
+        rest, self._next = self.rows[self._next:], len(self.rows)
+        return rest
+
+    def __iter__(self):
+        return iter(self.fetchall())
+
+
+class Connection:
+    """One sqlite3 connection shared by the server's threads. Every call holds one re-entrant lock (`lock`, also the
+    app's writer lock) and fetches its rows before releasing it, so threads never interleave on the connection."""
+
+    def __init__(self, raw):
+        self.raw, self.lock = raw, threading.RLock()
+
+    def execute(self, sql, params=()):
+        with self.lock:
+            cur = self.raw.execute(sql, params)
+            return Rows(cur.fetchall(), cur.lastrowid, cur.description, cur.rowcount)
+
+    def executescript(self, script):
+        with self.lock:
+            self.raw.executescript(script)
+
+    def commit(self):
+        with self.lock:
+            self.raw.commit()
+
+    def rollback(self):
+        with self.lock:
+            self.raw.rollback()
+
+    def close(self):
+        with self.lock:
+            self.raw.close()
+
+    def __getattr__(self, name):
+        return getattr(self.raw, name)
+
+
 def connect(path):
-    """Open (and create if needed) the database. Rows come back as dicts with JSON columns decoded."""
+    """Open (and create if needed) the database. Rows come back as dicts with JSON columns decoded. The connection
+    is safe to share between threads (Connection)."""
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(path, check_same_thread=False)
-    con.row_factory = _row
+    raw = sqlite3.connect(path, check_same_thread=False)
+    raw.row_factory = _row
+    con = Connection(raw)
     con.execute("PRAGMA foreign_keys = ON")
     migrate(con)
     con.executescript(SCHEMA)
@@ -195,16 +251,27 @@ def insert(con, table, **fields):
     """Insert one row; dicts and lists are stored as JSON. Returns the new id."""
     cols = list(fields)
     vals = [json.dumps(v) if isinstance(v, (dict, list, tuple)) else v for v in fields.values()]
-    cur = con.execute(f"INSERT INTO {table} ({', '.join(cols)}) VALUES ({', '.join('?' * len(cols))})", vals)
-    con.commit()
+    with con.lock:
+        cur = _write(con, f"INSERT INTO {table} ({', '.join(cols)}) VALUES ({', '.join('?' * len(cols))})", vals)
     return cur.lastrowid
 
 
 def update(con, table, row_id, **fields):
     sets = ", ".join(f"{c} = ?" for c in fields)
     vals = [json.dumps(v) if isinstance(v, (dict, list, tuple)) else v for v in fields.values()]
-    con.execute(f"UPDATE {table} SET {sets} WHERE id = ?", [*vals, row_id])
-    con.commit()
+    with con.lock:
+        _write(con, f"UPDATE {table} SET {sets} WHERE id = ?", [*vals, row_id])
+
+
+def _write(con, sql, vals):
+    """One statement and its commit; a failed statement leaves no transaction open."""
+    try:
+        cur = con.execute(sql, vals)
+        con.commit()
+        return cur
+    except sqlite3.Error:
+        con.rollback()
+        raise
 
 
 AUDIT_BUNDLE = 0  # audit garments live in bundle 0, apart from the end-line count
