@@ -1,4 +1,19 @@
-# Design notes
+# StitchCheck design record
+
+The public design record: the evaluation data, the metrics, the model, prompt and routing choices, and the rules fixed before each test run, with the dates they were fixed or amended. Results are in the README and under `results/`.
+
+## Contents
+
+1. [Evaluation data](#evaluation-data)
+2. [Licensing and puckering](#licensing-and-puckering)
+3. [Metrics (fixed before results)](#metrics-fixed-before-results)
+4. [Systems compared](#systems-compared)
+5. [Classifier selection (fixed before the search runs)](#classifier-selection-fixed-before-the-search-runs)
+6. [Muse Spark settings (chosen on validation, before any test-set run)](#muse-spark-settings-chosen-on-validation-before-any-test-set-run)
+7. [Process first](#process-first)
+8. [Test-set lock](#test-set-lock)
+9. [Day 5 decision rule](#day-5-decision-rule)
+10. [Licence coverage](#licence-coverage)
 
 ## Evaluation data
 
