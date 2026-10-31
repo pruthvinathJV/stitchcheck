@@ -33,7 +33,7 @@ Note on cost: when the app is not kept warm, the uptime check every 10 minutes w
 Never put values in the repo, in docs or in shell history. Keep them in a file outside the repo and load it with `--from-dotenv`.
 
 - `stitchcheck-meta` (required): `MODEL_API_KEY`, `MODAL_PROXY_TOKEN_ID`, `MODAL_PROXY_TOKEN_SECRET`
-- `stitchcheck-app-config` (optional): `STITCHCHECK_SAFE_MODE`, `STITCHCHECK_UNIT_PIN`, `STITCHCHECK_ADMIN_TOKEN`, `STITCHCHECK_SECRET`
+- `stitchcheck-app-config` (required; the app does not start without it): `STITCHCHECK_SAFE_MODE`, `STITCHCHECK_UNIT_PIN`, `STITCHCHECK_ADMIN_TOKEN`, `STITCHCHECK_SECRET`
 
 If `stitchcheck-app-config` does not exist, the deploy prints a warning and goes ahead without it (safe mode, unit PIN and admin token stay off). After creating it, redeploy so the function picks it up:
 

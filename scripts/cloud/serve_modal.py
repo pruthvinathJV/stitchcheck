@@ -4,9 +4,9 @@ One container at most (SQLite has a single writer). The ONNX ensemble lives in t
 once: modal volume put stitchcheck-models models/demo_ensemble.onnx demo_ensemble.onnx); the database and photos live
 in "stitchcheck-app"; the demo gallery photos in "stitchcheck-gallery"; nightly database copies in
 "stitchcheck-backups". MODEL_API_KEY comes from the Modal secret "stitchcheck-meta" (MODEL_API_KEY, plus
-MODAL_PROXY_TOKEN_ID and MODAL_PROXY_TOKEN_SECRET for the Muse Spark Open fallback). The optional secret
-"stitchcheck-app-config" carries STITCHCHECK_SAFE_MODE, STITCHCHECK_UNIT_PIN, STITCHCHECK_ADMIN_TOKEN and
-STITCHCHECK_SECRET; when it does not exist the deploy prints a warning and goes ahead without it. The URL is public;
+MODAL_PROXY_TOKEN_ID and MODAL_PROXY_TOKEN_SECRET for the Muse Spark Open fallback). The secret
+"stitchcheck-app-config" (required) carries STITCHCHECK_SAFE_MODE, STITCHCHECK_UNIT_PIN, STITCHCHECK_ADMIN_TOKEN and
+STITCHCHECK_SECRET. The URL is public;
 spend is bounded by the per-IP limit and the daily caps per brain (backend/brains.py). Runbook: docs/ops.md.
 
 Deploy-time settings (read on the machine that runs modal deploy):
@@ -30,7 +30,7 @@ import modal
 REPO = Path(__file__).resolve().parent.parent.parent  # the repo root locally; "/" in a container
 DEFAULT_URL = "https://jvpnath--stitchcheck-web-web.us-east.modal.run"
 KEEP_BACKUPS = 7
-OPTIONAL_SECRET = "stitchcheck-app-config"  # STITCHCHECK_SAFE_MODE, _UNIT_PIN, _ADMIN_TOKEN, _SECRET
+APP_SECRET = "stitchcheck-app-config"  # STITCHCHECK_SAFE_MODE, _UNIT_PIN, _ADMIN_TOKEN, _SECRET
 LOCAL = modal.is_local()
 CLI = LOCAL and sys.argv[1:2] in (["deploy"], ["serve"], ["run"], ["shell"])  # loaded by the modal command line
 
@@ -80,20 +80,6 @@ def refuse_dirty_deploy():
                          + "\n  ".join(dirty[:20]) + "\nCommit them, or set STITCHCHECK_ALLOW_DIRTY=1 to deploy anyway.")
 
 
-def optional_secret(name):
-    """The named secret if it exists; None (with a warning) if not, so a missing config never blocks a deploy."""
-    if not CLI:
-        return None  # tests and imports: no network; in the container the secrets are already in the environment
-    secret = modal.Secret.from_name(name)
-    try:
-        secret.hydrate()
-    except modal.exception.NotFoundError:
-        print(f"warning: Modal secret {name!r} not found; deploying without it (safe mode, unit PIN and admin token "
-              "off). Create it with: modal secret create " + name + " STITCHCHECK_SAFE_MODE=0 ...", file=sys.stderr)
-        return None
-    return secret
-
-
 if sys.argv[1:2] == ["deploy"] and LOCAL:
     refuse_dirty_deploy()
 COMMIT = deploy_commit() if LOCAL else os.environ.get("STITCHCHECK_COMMIT", "unknown")
@@ -125,7 +111,9 @@ models = modal.Volume.from_name("stitchcheck-models", create_if_missing=True)
 appdata = modal.Volume.from_name("stitchcheck-app", create_if_missing=True)
 gallery = modal.Volume.from_name("stitchcheck-gallery", create_if_missing=True)
 backups = modal.Volume.from_name("stitchcheck-backups", create_if_missing=True)
-secrets = [modal.Secret.from_name("stitchcheck-meta")] + [s for s in [optional_secret(OPTIONAL_SECRET)] if s]
+# Both secrets are always attached: the list must be the same when the app is deployed and inside the container,
+# or the container refuses to start ("Function has 5 dependencies but container got 6 object ids").
+secrets = [modal.Secret.from_name("stitchcheck-meta"), modal.Secret.from_name(APP_SECRET)]
 
 
 @app.function(image=image, secrets=secrets, volumes={"/models": models, "/vol": appdata, "/gallery": gallery},
