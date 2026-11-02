@@ -114,11 +114,24 @@ def test_folders_mode(tmp_path):
     d.mkdir()
     for i in range(4):
         _img(d / f"{i}.jpg", i)
-    (tmp_path / "notes").mkdir()
-    (tmp_path / "B-5").mkdir()
+    (tmp_path / "notes" / "misc").mkdir(parents=True)
     df, warnings = ingest.ingest(tmp_path, tmp_path / "out", folders=True, pairs=["B-5-2"])
     assert list(df["pair_id"].unique()) == ["B5-p2"] and set(df["label"]) == {"puckering"}
-    assert sum("not a known tag" in w for w in warnings) == 2
+    assert sum("not a known tag" in w and "misc" in w for w in warnings) == 1
+
+
+def test_folders_mode_inside_grouping_folders(tmp_path):
+    src = tmp_path / "inbox"
+    for tag, group in (("A-1-1", "A-1 white good"), ("C-3-2", "C-3 checks broken")):
+        d = src / group / tag
+        d.mkdir(parents=True)
+        for i in range(4):
+            _img(d / f"IMG_{i}.jpg", hash(tag) + i)
+    (src / "A-2 white skipped" / "A-2-1").mkdir(parents=True)  # not shot yet: empty pair folder
+    (src / "A-1 white good" / "A-1-1 extra").mkdir()
+    df, warnings = ingest.ingest(src, tmp_path / "out", folders=True, pairs=["A-1-1", "C-3-2"])
+    assert sorted(df["pair_id"].unique()) == ["A1-p1", "C3-p2"] and len(df) == 8
+    assert any("A-1-1 extra" in w for w in warnings)
 
 
 def test_review_export_keeps_accepted_with_reviewed_label(tmp_path):

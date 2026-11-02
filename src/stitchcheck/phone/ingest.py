@@ -11,7 +11,8 @@ metrics, so they go to their own folder and manifest: <out>/ref/. The other 54 p
 
 Inputs (either):
   WhatsApp "Export chat" with media, unzipped or as .zip (iOS `_chat.txt` or Android `WhatsApp Chat with *.txt`)
-  --folders: a directory with one sub-folder per tag (B-3-2/...), photos sorted by capture time then name
+  --folders: a directory with one sub-folder per tag (B-3-2/...), or those inside grouping folders
+             (B-3 dark broken/B-3-2/...); photos sorted by capture time then name
 
 python -m stitchcheck.phone.ingest <export.zip | export_dir> [--folders] [--out data/phone] [--pairs A-1-1 ...]
 
@@ -127,14 +128,26 @@ def _capture_time(path):
         return ""
 
 
-def parse_folders(root):
-    photos, warnings = [], []
-    for i, d in enumerate(sorted(p for p in root.iterdir() if p.is_dir())):
+def _tag_dirs(root, warnings, depth=1):
+    """(tag, folder) for every pair folder under root. A folder named after a known tag is a pair; any other folder
+    (e.g. "A-1 white good") is a grouping folder, searched `depth` more levels down."""
+    found = []
+    for d in sorted(p for p in root.iterdir() if p.is_dir()):
         m = TAG_LIKE.fullmatch(d.name.strip())
         tag = normalise_tag(m) if m else None
-        if tag not in EXPECTED_TAGS:
-            warnings.append(f"folder name is not a known tag, skipped: {d.name}")
-            continue
+        if tag in EXPECTED_TAGS:
+            found.append((tag, d))
+        elif depth > 0:
+            found += _tag_dirs(d, warnings, depth - 1)
+        else:
+            warnings.append(f"folder name is not a known tag, skipped: {d.relative_to(root.parent)}")
+    return found
+
+
+def parse_folders(root):
+    """Pair folders (B-3-2/...) directly under root, or inside one level of grouping folders (B-3 dark broken/B-3-2/)."""
+    photos, warnings = [], []
+    for i, (tag, d) in enumerate(_tag_dirs(root, warnings)):
         files = sorted((f for f in d.iterdir() if f.suffix.lower() in IMAGE_SUFFIXES),
                        key=lambda f: (_capture_time(f), f.name))
         photos += [Photo(tag, i, f) for f in files]
