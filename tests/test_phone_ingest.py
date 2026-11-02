@@ -117,21 +117,43 @@ def test_folders_mode(tmp_path):
     (tmp_path / "notes" / "misc").mkdir(parents=True)
     df, warnings = ingest.ingest(tmp_path, tmp_path / "out", folders=True, pairs=["B-5-2"])
     assert list(df["pair_id"].unique()) == ["B5-p2"] and set(df["label"]) == {"puckering"}
-    assert sum("not a known tag" in w and "misc" in w for w in warnings) == 1
+    assert sum("skipped: notes" in w for w in warnings) == 1
 
 
-def test_folders_mode_inside_grouping_folders(tmp_path):
+def _img_at(path, seed, stamp):
+    im = Image.new("RGB", (40, 20), (seed % 256, (seed * 7) % 256, (seed * 13) % 256))
+    exif = Image.Exif()
+    exif[306] = stamp
+    im.save(path, exif=exif)
+
+
+def test_type_folders_split_into_pairs_by_capture_time(tmp_path):
     src = tmp_path / "inbox"
-    for tag, group in (("A-1-1", "A-1 white good"), ("C-3-2", "C-3 checks broken")):
-        d = src / group / tag
-        d.mkdir(parents=True)
-        for i in range(4):
-            _img(d / f"IMG_{i}.jpg", hash(tag) + i)
-    (src / "A-2 white skipped" / "A-2-1").mkdir(parents=True)  # not shot yet: empty pair folder
-    (src / "A-1 white good" / "A-1-1 extra").mkdir()
-    df, warnings = ingest.ingest(src, tmp_path / "out", folders=True, pairs=["A-1-1", "C-3-2"])
-    assert sorted(df["pair_id"].unique()) == ["A1-p1", "C3-p2"] and len(df) == 8
-    assert any("A-1-1 extra" in w for w in warnings)
+    good = src / "A-1 white good"
+    good.mkdir(parents=True)
+    for k in range(20):  # 5 pairs; 10 s between photos of a pair, 5 min between pairs
+        _img_at(good / f"WA{19 - k:04d}.jpg", k, f"2026:11:01 10:{(k // 4) * 5:02d}:{(k % 4) * 10:02d}")
+    short = src / "B-3 dark broken stitch"
+    short.mkdir()
+    for k in range(7):
+        _img_at(short / f"{k}.jpg", 100 + k, f"2026:11:01 11:00:{k:02d}")
+    df, warnings = ingest.ingest(src, tmp_path / "out", folders=True)
+    test = pd.read_csv(tmp_path / "out" / "manifest.csv")
+    assert sorted(test["pair_id"].unique()) == ["A1-p1", "A1-p2", "A1-p3", "A1-p4"]  # A-1-5 is a reference pair
+    assert len(df) == 20
+    ref = pd.read_csv(tmp_path / "out" / "ref" / "manifest.csv")
+    assert list(ref["pair_id"].unique()) == ["A1-p5"] and len(ref) == 4
+    assert any("B-3: 7 photos" in w and "not ingested" in w for w in warnings)
+
+
+def test_type_folder_warns_when_pair_boundaries_are_unclear(tmp_path):
+    files = []
+    for k in range(8):  # evenly spaced: no visible break between the pairs
+        f = tmp_path / f"{k}.jpg"
+        _img_at(f, k, f"2026:11:01 10:{k:02d}:00")
+        files.append(f)
+    pairs, warnings = ingest.split_type_folder(files, "C", 2)
+    assert [t for t, _ in pairs] == ["C-2-1", "C-2-2"] and "not clear" in warnings[0]
 
 
 def test_review_export_keeps_accepted_with_reviewed_label(tmp_path):

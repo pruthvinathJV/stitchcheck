@@ -11,8 +11,8 @@ metrics, so they go to their own folder and manifest: <out>/ref/. The other 54 p
 
 Inputs (either):
   WhatsApp "Export chat" with media, unzipped or as .zip (iOS `_chat.txt` or Android `WhatsApp Chat with *.txt`)
-  --folders: a directory with one sub-folder per tag (B-3-2/...), or those inside grouping folders
-             (B-3 dark broken/B-3-2/...); photos sorted by capture time then name
+  --folders: a directory with one folder per fabric and type ("B-3 dark broken stitch/", split into pairs of 4
+             by capture time) or per pair ("B-3-2/"); photos sorted by capture time then name
 
 python -m stitchcheck.phone.ingest <export.zip | export_dir> [--folders] [--out data/phone] [--pairs A-1-1 ...]
 
@@ -29,6 +29,7 @@ import re
 import sys
 import tempfile
 import zipfile
+from datetime import datetime
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -128,29 +129,59 @@ def _capture_time(path):
         return ""
 
 
-def _tag_dirs(root, warnings, depth=1):
-    """(tag, folder) for every pair folder under root. A folder named after a known tag is a pair; any other folder
-    (e.g. "A-1 white good") is a grouping folder, searched `depth` more levels down."""
-    found = []
-    for d in sorted(p for p in root.iterdir() if p.is_dir()):
-        m = TAG_LIKE.fullmatch(d.name.strip())
-        tag = normalise_tag(m) if m else None
-        if tag in EXPECTED_TAGS:
-            found.append((tag, d))
-        elif depth > 0:
-            found += _tag_dirs(d, warnings, depth - 1)
-        else:
-            warnings.append(f"folder name is not a known tag, skipped: {d.relative_to(root.parent)}")
-    return found
+# A fabric-and-type folder ("A-1 white good"): all pairs of that type, split into pairs of 4 by capture time.
+TYPE_FOLDER = re.compile(r"([A-Za-z])\s*-\s*(\d)(?!\s*-\s*\w)(?:\s.*)?")
+
+
+def _images(d):
+    return sorted((f for f in d.iterdir() if f.suffix.lower() in IMAGE_SUFFIXES), key=lambda f: (_capture_time(f), f.name))
+
+
+def _seconds(stamp):
+    try:
+        return datetime.strptime(stamp, "%Y:%m:%d %H:%M:%S").timestamp()
+    except ValueError:
+        return None
+
+
+def split_type_folder(files, fabric, type_no):
+    """Photos of one fabric and type in capture order -> [(tag, [4 files])...], warnings. The pairs were shot one
+    after another, so photos 1-4 are pair 1, 5-8 pair 2, and so on. A count that is not a multiple of 4, or more
+    photos than the spec has pairs, stops the folder: guessing would move a reference pair into the test set."""
+    name, most = f"{fabric}-{type_no}", PAIRS_PER_TYPE[type_no]
+    if len(files) % PHOTOS_PER_PAIR or len(files) > most * PHOTOS_PER_PAIR:
+        return [], [f"{name}: {len(files)} photos, expected {PHOTOS_PER_PAIR} per pair and at most "
+                    f"{most * PHOTOS_PER_PAIR}; folder not ingested (a photo is missing or extra)"]
+    groups = [files[i:i + PHOTOS_PER_PAIR] for i in range(0, len(files), PHOTOS_PER_PAIR)]
+    warnings = []
+    times = [_seconds(_capture_time(f)) for f in files]
+    if len(groups) > 1 and None not in times:
+        gaps = [b - a for a, b in zip(times, times[1:])]
+        inside = max(g for i, g in enumerate(gaps) if (i + 1) % PHOTOS_PER_PAIR)
+        between = min(g for i, g in enumerate(gaps) if not (i + 1) % PHOTOS_PER_PAIR)
+        if between <= inside:
+            warnings.append(f"{name}: pair boundaries are not clear from capture times (longest gap inside a pair "
+                            f"{inside:.0f} s, shortest between pairs {between:.0f} s); check pairs on the review page")
+    return [(f"{name}-{i}", g) for i, g in enumerate(groups, 1)], warnings
 
 
 def parse_folders(root):
-    """Pair folders (B-3-2/...) directly under root, or inside one level of grouping folders (B-3 dark broken/B-3-2/)."""
+    """One folder per fabric and type ("A-1 white good", photos split into pairs by capture time), or one folder per
+    pair ("A-1-1")."""
     photos, warnings = [], []
-    for i, (tag, d) in enumerate(_tag_dirs(root, warnings)):
-        files = sorted((f for f in d.iterdir() if f.suffix.lower() in IMAGE_SUFFIXES),
-                       key=lambda f: (_capture_time(f), f.name))
-        photos += [Photo(tag, i, f) for f in files]
+    for i, d in enumerate(sorted(p for p in root.iterdir() if p.is_dir())):
+        m = TAG_LIKE.fullmatch(d.name.strip())
+        tag = normalise_tag(m) if m else None
+        if tag in EXPECTED_TAGS:
+            photos += [Photo(tag, i, f) for f in _images(d)]
+            continue
+        g = TYPE_FOLDER.fullmatch(d.name.strip())
+        if g and g.group(1).upper() in FABRICS and int(g.group(2)) in TYPES:
+            pairs, w = split_type_folder(_images(d), g.group(1).upper(), int(g.group(2)))
+            warnings += w
+            photos += [Photo(t, i, f) for t, files in pairs for f in files]
+            continue
+        warnings.append(f"folder name is not a fabric-type or pair tag, skipped: {d.name}")
     return photos, warnings
 
 
