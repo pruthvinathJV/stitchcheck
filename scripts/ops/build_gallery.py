@@ -2,6 +2,9 @@
 
 Sources: our own shirt photos (data/smoke/shirt/*.jpeg) and up to 8 CC BY 4.0 StitchingNet-Seg test-fabric images,
 one per class and fabric, drawn with a fixed seed through load_split() (which asserts every row is CC BY).
+With --kadiri: our Kadiri phone photos instead, fabric A (white, the demo session's fabric, so its good reference
+matches): one photo per seam type, the first in pair and mark order where SAM found the seam in the scored run
+(results/phone/runs.csv). The rule never looks at any verdict.
 Titles use the label and part words of docs/ui_strings.json.
 
 Run from the repo root: PYTHONPATH=src python scripts/ops/build_gallery.py
@@ -37,6 +40,37 @@ def pick_stitchingnet(split, max_images=8, seed=0):
     return rows
 
 
+def pick_kadiri(runs="results/phone/runs.csv", fabric="A"):
+    """(photo_id, label) per seam type: the first photo of the fabric, in pair and mark order, with a seam found."""
+    import pandas as pd
+    r = pd.read_csv(runs)
+    r = r[(r["fabric"] == fabric) & (r["pred_C"] != "retake")].sort_values("photo_id")
+    return [(g.iloc[0]["photo_id"], label) for label, g in r.groupby("label", sort=False)]
+
+
+def build_kadiri(out_dir="data/gallery", strings="docs/ui_strings.json", images="data/phone/images"):
+    labels = json.loads(Path(strings).read_text())["labels"]
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    items = []
+    for k, (photo_id, label) in enumerate(pick_kadiri()):
+        name = f"kadiri-{photo_id}.jpg"
+        shutil.copyfile(Path(images) / f"{photo_id}.jpg", out / name)
+        items.append(dict(id=f"kadiri-{photo_id}", title_te=f"{labels[label]['te']}, తెల్ల కాటన్",
+                          title_en=f"{labels[label]['en']}, white cotton", part=SN_PARTS[k % len(SN_PARTS)],
+                          image=name, credit=OWN_CREDIT + ", Kadiri"))
+    return _finish(out, items)
+
+
+def _finish(out, items):
+    keep = {i["image"] for i in items}
+    for f in out.iterdir():  # drop images left over from an older build
+        if f.suffix.lower() in IMAGE_SUFFIXES and f.name not in keep:
+            f.unlink()
+    (out / "manifest.json").write_text(json.dumps(items, ensure_ascii=False, indent=1))
+    return items
+
+
 def build(out_dir="data/gallery", shirt_dir="data/smoke/shirt", strings="docs/ui_strings.json", split=None,
           image_path=None, max_sn=8, seed=0):
     """Copy the images into out_dir and write manifest.json. Returns the manifest entries."""
@@ -67,12 +101,7 @@ def build(out_dir="data/gallery", shirt_dir="data/smoke/shirt", strings="docs/ui
                           title_en=f"{labels[label]['en']}, {fabric.lower()} fabric", part=SN_PARTS[k % len(SN_PARTS)],
                           image=name, credit=SN_CREDIT))
 
-    keep = {i["image"] for i in items}
-    for f in out.iterdir():  # drop images left over from an older build
-        if f.suffix.lower() in IMAGE_SUFFIXES and f.name not in keep:
-            f.unlink()
-    (out / "manifest.json").write_text(json.dumps(items, ensure_ascii=False, indent=1))
-    return items
+    return _finish(out, items)
 
 
 def main():
@@ -81,8 +110,9 @@ def main():
     ap.add_argument("--shirt", default="data/smoke/shirt")
     ap.add_argument("--max-sn", type=int, default=8)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--kadiri", action="store_true", help="Kadiri phone photos (fabric A) instead")
     a = ap.parse_args()
-    items = build(a.out, a.shirt, max_sn=a.max_sn, seed=a.seed)
+    items = build_kadiri(a.out) if a.kadiri else build(a.out, a.shirt, max_sn=a.max_sn, seed=a.seed)
     print(f"{len(items)} gallery images in {a.out}")
 
 

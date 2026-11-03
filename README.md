@@ -4,6 +4,8 @@ StitchCheck is a phone app that turns any worker into a reliable stitch inspecto
 
 **Headline result** (held-out fabrics, `results/test/summary.csv`): with the classifier as its tool and the checker deciding the photos where the two disagree, StitchCheck catches **92.9%** of major defects [89.7, 95.9]. Muse Spark alone catches 53.2%; the classifier alone 92.1%. The specialist sees the stitches, Muse Spark decides, explains and runs the day, and the checker has the final word.
 
+**On real phone photos** (185 photos of shirting cotton sewn in Kadiri, `results/phone/summary.json`) it flags **85.8%** of major defects [76.0, 94.8] but also 93.8% of good seams: the classifier, trained on lab images, cannot yet tell a good seam from a bad one on a phone. So on a phone today StitchCheck is a suggestion tool: the AI proposes, the checker confirms every photo, and every confirmed photo becomes training data.
+
 - Demo video: TODO
 - Live app: https://jvpnath--stitchcheck-web-web.us-east.modal.run (seeded demo day, labelled "Demo data")
 
@@ -28,7 +30,7 @@ Small garment units in India have to prove their quality before a buyer will giv
 
 | Model | Where |
 |---|---|
-| Muse Spark (`muse-spark-1.3`, Meta Model API) | The inspector's brain: hybrid judgment with the classifier as a tool, Telugu voice correction mapping, the report agent, mechanic work orders; reading buyer tech packs (offline evaluation below, not yet in the app) |
+| Muse Spark (`muse-spark-1.3`, Meta Model API) | The inspector's brain: hybrid judgment with the classifier as a tool, Telugu voice correction mapping, the report agent, mechanic work orders |
 | Muse Spark Open (open weights, Modal shared endpoint) | The second, measured AI mode ("High sensitivity") and the automatic fallback when the Meta API fails; evaluated as arm E |
 | SAM 3.1 | Finds the seam in each phone photo (tiles and the green overlay the checker sees); suggests the garment part. Never used to name defects |
 | Muse Voice Transcribe | Telugu and English voice corrections, with a language hint and a keyword list |
@@ -93,22 +95,32 @@ Full tables: `results/test/summary.csv`, `per_class.csv`, `paired.csv` (`scripts
 
 ### Phone test set (Kadiri, real shirting cotton, phone photos)
 
-TODO: all arms on 48 test pairs (190 photos), pair-bootstrap intervals; the Day 5 decision rule result. The photos reached us as WhatsApp-compressed copies (1040 to 1600 px), so these numbers are a lower bound for full-resolution capture.
+Sewn by a tailor in Kadiri on three shirting cottons (white, dark, checks) with deliberate defects, photographed on a phone at four marks per seam: 185 photos in 48 pairs, never used for training or tuning. The scoring rules, stitch calibration, reference seams and label review were committed before the single scoring run (`docs/design.md`, tag `day5-gate`). Every system sees the seam crop the app shows the checker. 95% intervals resample whole pairs.
 
-### Tech-pack reader (offline evaluation, not yet in the app)
+| System | Major recall | Good seams flagged | Defect vs good accuracy |
+|---|---|---|---|
+| StitchCheck: Muse Spark + classifier, checker in the loop | 0.858 [0.760, 0.948] | 93.8% | 0.735 |
+| StitchCheck, label shown to the checker | 0.743 [0.618, 0.861] | 85.4% | 0.681 |
+| Classifier alone | 0.858 [0.760, 0.948] | 93.8% | 0.735 |
+| Muse Spark with a good seam from the same fabric | 0.416 [0.309, 0.535] | 41.7% | 0.568 |
+| Muse Spark zero-shot | 0.381 [0.267, 0.496] | 39.6% | 0.551 |
 
-Can Muse Spark read a buyer's tech pack into an inspection plan that code can check? The extraction module and its evaluation are built; the app screen is the next step.
+- **Day 5 decision.** The preregistered rule (suggestion mode if hybrid major recall is below 60%) passes, but the guard metric shows why: the classifier flags almost every photo. It called 111 of 185 photos a stain, including 25 of the 48 good seams, and its defect-vs-good accuracy (0.735) is no better than calling every photo a defect (0.741). We therefore run StitchCheck in suggestion mode on phone photos: the AI proposes and the checker confirms every photo. The app already logs nothing without the checker's tap, so this needs no code change.
+- **Retakes.** SAM found no seam on 20% of photos, including 17 of the 48 good seams (thin stitching, worst on dark cotton). Each counts as a miss in recall and as a checker tap in "good seams flagged".
+- **Where Muse Spark helps.** On the 31 good seams SAM found, Muse Spark with the reference flagged 10% and the classifier 90%. On white cotton, Muse Spark with the reference caught 60% of major defects and flagged 12% of good seams. Neither model is good enough alone on phone photos; the classifier needs phone training data, which the checker-confirmed log collects.
+- **Open seam (a defect no model was trained on).** Muse Spark never flagged "unknown defect"; it named an open seam on 2 of 23 photos. The hybrid passed 17% of open-seam photos as good.
+- **Lower bound.** The photos reached us as WhatsApp-compressed copies (1040 to 1600 px), so full-resolution capture should do better. Median latency: 2.4 s to the first screen, 4.1 s more for Muse Spark's verdict.
 
-TODO: field accuracy and hallucinations on the unseen sheets (headline) and the seen sheets, as preregistered in `docs/techpack_eval.md`.
+Files: `results/phone/summary.json`, `runs.csv`, `per_class_*.csv` (`scripts/test/run_phone.py`).
 
 ## Known limitations and next improvements
 
 - **Skipped stitches can leak through the label shown to the checker.** The classifier's skipped-stitch calls are protected from being relabelled good or crooked only when its probability is at least 0.60. Below that, the AI's "good" or "crooked seam" is pre-filled: skipped-stitch recall of the shown label is 0.667 against the classifier's 0.702. The 0.60 threshold and the rule were fixed on validation data and are not changed after seeing test results; a lower threshold is the next improvement to test on new validation data.
 - **Muse Spark does not name new defect types** on StitchingNet (above).
-- **Phone photos are the real test.** StitchingNet is lab swatches from a fixed camera; results on phone photos of real shirts are reported above when the phone set is scored.
-- **Tech packs are read offline only.** The tech-pack extraction is evaluated (above) but has no screen yet; the day plan is entered on the Start sheet.
+- **The classifier over-flags on phone photos.** Trained on lab swatches from a fixed camera, it calls most real phone photos a defect (above). Next: fine-tune it on the checker-confirmed phone photos the app logs.
+- **Thin seams on dark cotton.** SAM misses some (20% retakes on the phone set).
 - **Curved seams.** Tiles are rotated along the seam's overall direction, so on a curved or V-shaped seam each tile sits slightly off level.
-- **Stitch scale on matching thread.** When the stitch pitch cannot be measured (matching thread, little contrast), tile size comes from a hand calibration on a reference photo at the fixed capture distance.
+- **Fixed stitch scale.** On the Kadiri reference seams the measured stitch pitch locked onto the weave or the check pattern, so tile size comes from a hand count on a reference photo. The checker holds the phone at about the same distance (15 cm).
 
 ## Security and privacy
 
@@ -132,10 +144,10 @@ Before Oct 26: research and planning documents only (no code). Day 0 preparation
 - [x] Hybrid inspector (Muse Spark with the classifier as a tool), two measured AI modes with automatic fallback
 - [x] Telugu voice correction (number words, one-tap candidates when unclear)
 - [x] QC agent: defect log, DHU, ISO 2859-1 AQL audit, audit pass chance, trend alerts with mechanic work orders, verified end-of-day report
-- [x] Tech-pack extraction with a preregistered evaluation (offline; not yet a screen in the app)
+- [x] Tech-pack extraction module and a preregistered evaluation plan (offline; not scored and not in the app)
 - [x] Backend API, ONNX serving, Modal hosting, seeded demo day
 - [x] Phone app and dashboard (built with Muse Code)
-- [ ] Phone test set results and Day 5 decision
+- [x] Phone test set results and Day 5 decision
 
 ## Data and licences
 
