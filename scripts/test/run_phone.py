@@ -81,7 +81,7 @@ def labels():
 
 
 def score(workers):
-    if git("status", "--porcelain"):
+    if git("status", "--porcelain", "--untracked-files=no"):  # the untracked PWA files do not touch scoring
         raise SystemExit("working tree has changes: commit them first, so every row names the commit that produced it")
     commit = git("rev-parse", "HEAD")
     test = labels()
