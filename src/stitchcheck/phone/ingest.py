@@ -277,12 +277,13 @@ def ingest(src, out, folders=False, pairs=None):
         warnings += more
         if df.empty:
             return df, warnings
-        by_name = {p.source.name: p.source for p in photos}
+        # By content, not file name: every pair folder has its own 1.jpg to 4.jpg.
+        by_md5 = {hashlib.md5(p.source.read_bytes()).hexdigest(): p.source for p in photos}
         # Test and reference photos never share a folder or manifest.
         for part, folder in ((df[df["ref"] == 0], out), (df[df["ref"] == 1], out / "ref")):
             if part.empty:
                 continue
-            part = part.assign(size=export_images(part, [by_name[n] for n in part["source_file"]], folder / "images"))
+            part = part.assign(size=export_images(part, [by_md5[h] for h in part["md5"]], folder / "images"))
             part.to_csv(folder / "manifest.csv", index=False)
             warnings += size_warnings(part)
     return df, warnings

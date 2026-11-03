@@ -122,6 +122,16 @@ def test_folders_mode(tmp_path):
     assert sum("skipped: notes" in w for w in warnings) == 1
 
 
+def test_pair_folders_with_the_same_file_names_keep_their_own_photos(tmp_path):
+    src = tmp_path / "staged"
+    for k, tag in enumerate(["A-2-1", "B-2-1"]):
+        (src / tag).mkdir(parents=True)
+        for i in range(1, 5):
+            _img(src / tag / f"{i}.jpg", 40 * k + i)
+    ingest.ingest(src, tmp_path / "out", folders=True, pairs=["A-2-1", "B-2-1"])
+    imgs = sorted((tmp_path / "out" / "images").glob("*.jpg"))
+    assert len(imgs) == 8 and len({Image.open(f).getpixel((0, 0)) for f in imgs}) == 8
+
 def _img_at(path, seed, stamp):
     im = Image.new("RGB", (40, 20), (seed % 256, (seed * 7) % 256, (seed * 13) % 256))
     exif = Image.Exif()
