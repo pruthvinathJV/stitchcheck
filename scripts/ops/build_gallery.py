@@ -110,8 +110,12 @@ def main():
     ap.add_argument("--max-sn", type=int, default=8)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--kadiri", action="store_true", help="Kadiri phone photos (fabric A) instead")
+    ap.add_argument("--drop", nargs="*", default=[], help="ids to leave out, e.g. images where SAM finds no seam (a "
+                                                         "dead end for a visitor; warm_gallery.py reports them as retake)")
     a = ap.parse_args()
     items = build_kadiri(a.out, max_sn=a.max_sn, seed=a.seed) if a.kadiri else build(a.out, a.shirt, max_sn=a.max_sn, seed=a.seed)
+    if a.drop:
+        items = _finish(Path(a.out), [i for i in items if i["id"] not in a.drop])
     print(f"{len(items)} gallery images in {a.out}")
 
 
