@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="te">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>StitchCheck</title>
+  <link rel="manifest" href="./manifest.json?v=9">
+  <meta name="theme-color" content="#1F6F43">
+  <link rel="icon" href="./icons/192.png?v=9">
+  <link rel="stylesheet" href="./styles.css?v=9">
+</head>
+<body>
+<div class="app">
+  <header class="shead">
+    <h1 id="screen-title"></h1>
+    <div class="demo-pill" id="demo-pill" hidden></div>
+    <button class="langbtn" id="lang-btn" type="button" aria-label="Language / భాష">EN</button>
+  </header>
+  <div class="offlinebar" id="offline-bar" hidden></div>
+
+  <main id="main">
+    <section class="screen" id="screen-inspect"></section>
+    <section class="screen" id="screen-dashboard" hidden></section>
+    <section class="screen" id="screen-report" hidden></section>
+    <section class="screen" id="screen-more" hidden></section>
+    <section class="screen" id="screen-audit" hidden></section>
+  </main>
+
+  <div class="foot" id="foot" hidden>
+    <button class="primary" id="foot-btn" type="button"></button>
+  </div>
+
+  <nav class="tabbar">
+    <button type="button" id="tab-inspect">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg>
+      <span></span>
+    </button>
+    <button type="button" id="tab-dashboard">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-8M21 20H3"/></svg>
+      <span></span>
+    </button>
+    <button type="button" id="tab-report">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>
+      <span></span>
+    </button>
+    <button type="button" id="tab-more">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+      <span></span>
+    </button>
+  </nav>
+</div>
+
+<div class="sheet-back" id="sheet-back" hidden>
+  <div class="sheet" role="dialog">
+    <div class="grab"></div>
+    <h2 id="sheet-title"></h2>
+    <div id="sheet-body"></div>
+  </div>
+</div>
+
+<div class="viewer" id="viewer" hidden>
+  <img id="viewer-img" alt="">
+  <button class="secondary" id="btn-viewer-close" type="button"></button>
+</div>
+
+<input id="file-shot" type="file" accept="image/*" capture="environment" hidden>
+
+<script src="./config.js?v=9"></script>
+<script src="./strings.js?v=9"></script>
+<script src="./app.js?v=9"></script>
+</body>
+</html>
