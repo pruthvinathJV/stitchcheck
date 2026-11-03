@@ -1,0 +1,7 @@
+cls,precision,recall,f1,support
+good,0.3889,0.1458,0.2121,48
+skipped_stitch,1.0,0.1935,0.3243,31
+broken_stitch,0.625,0.2857,0.3922,35
+crooked_seam,0.0,0.0,0.0,24
+stain_damage,0.25,0.8333,0.3846,24
+macro,0.4528,0.2917,0.2626,162

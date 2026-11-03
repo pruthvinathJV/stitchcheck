@@ -1,0 +1,279 @@
+{
+  "n_photos": 185,
+  "n_pairs": 47,
+  "labels": {
+    "good": 48,
+    "broken_stitch": 35,
+    "skipped_stitch": 31,
+    "crooked_seam": 24,
+    "stain_damage": 24,
+    "open_seam": 23
+  },
+  "commit": "58b9fdd15a49ac7a8fedd279eab7df8f3293673d",
+  "latency": {
+    "step1_median_s": 2.36,
+    "step2_median_s": 4.095
+  },
+  "arms": {
+    "A zero-shot Muse Spark": {
+      "major_recall": {
+        "value": 0.3805,
+        "ci95": [
+          0.2667,
+          0.4961
+        ]
+      },
+      "auto_major_recall": {
+        "value": 0.3805,
+        "ci95": [
+          0.2667,
+          0.4961
+        ]
+      },
+      "workload": {
+        "value": 0.3958,
+        "ci95": [
+          0.1786,
+          0.6364
+        ]
+      },
+      "binary_acc": {
+        "value": 0.5514,
+        "ci95": [
+          0.4521,
+          0.6541
+        ]
+      },
+      "macro_f1": {
+        "value": 0.3302,
+        "ci95": [
+          0.2278,
+          0.4197
+        ]
+      },
+      "open_seam_called_good": {
+        "value": 0.6087,
+        "ci95": [
+          0.2188,
+          1.0
+        ]
+      },
+      "retake_rate": {
+        "value": 0.2,
+        "ci95": [
+          0.1176,
+          0.2888
+        ]
+      }
+    },
+    "B Muse Spark + good reference": {
+      "major_recall": {
+        "value": 0.4159,
+        "ci95": [
+          0.3089,
+          0.5354
+        ]
+      },
+      "auto_major_recall": {
+        "value": 0.4159,
+        "ci95": [
+          0.3089,
+          0.5354
+        ]
+      },
+      "workload": {
+        "value": 0.4167,
+        "ci95": [
+          0.2083,
+          0.6538
+        ]
+      },
+      "binary_acc": {
+        "value": 0.5676,
+        "ci95": [
+          0.4703,
+          0.6703
+        ]
+      },
+      "macro_f1": {
+        "value": 0.3595,
+        "ci95": [
+          0.2462,
+          0.4605
+        ]
+      },
+      "open_seam_called_good": {
+        "value": 0.5652,
+        "ci95": [
+          0.1875,
+          0.9333
+        ]
+      },
+      "retake_rate": {
+        "value": 0.2,
+        "ci95": [
+          0.1176,
+          0.2888
+        ]
+      }
+    },
+    "C classifier": {
+      "major_recall": {
+        "value": 0.8584,
+        "ci95": [
+          0.76,
+          0.9478
+        ]
+      },
+      "auto_major_recall": {
+        "value": 0.8584,
+        "ci95": [
+          0.76,
+          0.9478
+        ]
+      },
+      "workload": {
+        "value": 0.9375,
+        "ci95": [
+          0.8333,
+          1.0
+        ]
+      },
+      "binary_acc": {
+        "value": 0.7351,
+        "ci95": [
+          0.6304,
+          0.8297
+        ]
+      },
+      "macro_f1": {
+        "value": 0.1965,
+        "ci95": [
+          0.1084,
+          0.2786
+        ]
+      },
+      "open_seam_called_good": {
+        "value": 0.1739,
+        "ci95": [
+          0.0,
+          0.4594
+        ]
+      },
+      "retake_rate": {
+        "value": 0.2,
+        "ci95": [
+          0.1176,
+          0.2888
+        ]
+      }
+    },
+    "D StitchCheck, auto": {
+      "major_recall": {
+        "value": 0.8584,
+        "ci95": [
+          0.76,
+          0.9478
+        ]
+      },
+      "auto_major_recall": {
+        "value": 0.3186,
+        "ci95": [
+          0.2137,
+          0.4264
+        ]
+      },
+      "workload": {
+        "value": 0.9375,
+        "ci95": [
+          0.8333,
+          1.0
+        ]
+      },
+      "binary_acc": {
+        "value": 0.7351,
+        "ci95": [
+          0.6304,
+          0.8297
+        ]
+      },
+      "macro_f1": {
+        "value": 0.1616,
+        "ci95": [
+          0.0838,
+          0.2259
+        ]
+      },
+      "open_seam_called_good": {
+        "value": 0.1739,
+        "ci95": [
+          0.0,
+          0.4594
+        ]
+      },
+      "retake_rate": {
+        "value": 0.2,
+        "ci95": [
+          0.1176,
+          0.2888
+        ]
+      }
+    },
+    "D StitchCheck, shown to checker": {
+      "major_recall": {
+        "value": 0.7434,
+        "ci95": [
+          0.6179,
+          0.8611
+        ]
+      },
+      "auto_major_recall": {
+        "value": 0.7434,
+        "ci95": [
+          0.6179,
+          0.8611
+        ]
+      },
+      "workload": {
+        "value": 0.8542,
+        "ci95": [
+          0.7187,
+          0.9583
+        ]
+      },
+      "binary_acc": {
+        "value": 0.6811,
+        "ci95": [
+          0.5815,
+          0.7796
+        ]
+      },
+      "macro_f1": {
+        "value": 0.2626,
+        "ci95": [
+          0.1624,
+          0.3456
+        ]
+      },
+      "open_seam_called_good": {
+        "value": 0.3478,
+        "ci95": [
+          0.0,
+          0.8
+        ]
+      },
+      "retake_rate": {
+        "value": 0.2,
+        "ci95": [
+          0.1176,
+          0.2888
+        ]
+      }
+    }
+  },
+  "bootstrap": {
+    "n": 2000,
+    "seed": 0,
+    "unit": "pair"
+  }
+}
