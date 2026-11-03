@@ -2,7 +2,7 @@
 
 Sources: our own shirt photos (data/smoke/shirt/*.jpeg) and up to 8 CC BY 4.0 StitchingNet-Seg test-fabric images,
 one per class and fabric, drawn with a fixed seed through load_split() (which asserts every row is CC BY).
-With --kadiri: our Kadiri phone photos instead, fabric A (white, the demo session's fabric, so its good reference
+With --kadiri: our Kadiri phone photos in place of the shirt photos, after the StitchingNet-Seg images, fabric A (white, the demo session's fabric, so its good reference
 matches): one photo per seam type, the first in pair and mark order where SAM found the seam in the scored run
 (results/phone/runs.csv). The rule never looks at any verdict.
 Titles use the label and part words of docs/ui_strings.json.
@@ -48,11 +48,10 @@ def pick_kadiri(runs="results/phone/runs.csv", fabric="A"):
     return [(g.iloc[0]["photo_id"], label) for label, g in r.groupby("label", sort=False)]
 
 
-def build_kadiri(out_dir="data/gallery", strings="docs/ui_strings.json", images="data/phone/images"):
+def build_kadiri(out_dir="data/gallery", strings="docs/ui_strings.json", images="data/phone/images", max_sn=8, seed=0):
     labels = json.loads(Path(strings).read_text())["labels"]
     out = Path(out_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    items = []
+    items = build(out_dir, shirt_dir=None, strings=strings, max_sn=max_sn, seed=seed)
     for k, (photo_id, label) in enumerate(pick_kadiri()):
         name = f"kadiri-{photo_id}.jpg"
         shutil.copyfile(Path(images) / f"{photo_id}.jpg", out / name)
@@ -84,7 +83,7 @@ def build(out_dir="data/gallery", shirt_dir="data/smoke/shirt", strings="docs/ui
     out.mkdir(parents=True, exist_ok=True)
     items = []
 
-    for f in sorted(Path(shirt_dir).glob("*.jpeg")):
+    for f in sorted(Path(shirt_dir).glob("*.jpeg")) if shirt_dir else []:
         part = f.stem if f.stem in parts else "collar"
         title = {"te": f"షర్ట్ {parts[part]['te']}", "en": f"Shirt {parts[part]['en'].lower()}"} if f.stem in parts else WHOLE
         name = f"shirt-{f.stem}.jpg"
@@ -112,7 +111,7 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--kadiri", action="store_true", help="Kadiri phone photos (fabric A) instead")
     a = ap.parse_args()
-    items = build_kadiri(a.out) if a.kadiri else build(a.out, a.shirt, max_sn=a.max_sn, seed=a.seed)
+    items = build_kadiri(a.out, max_sn=a.max_sn, seed=a.seed) if a.kadiri else build(a.out, a.shirt, max_sn=a.max_sn, seed=a.seed)
     print(f"{len(items)} gallery images in {a.out}")
 
 
