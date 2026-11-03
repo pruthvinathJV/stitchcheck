@@ -29,35 +29,35 @@ def _ios_export(tmp_path, tags=None):
 
 
 def test_spec_counts():
-    assert len(ingest.TEST_TAGS) == 54 and len(ingest.REF_TAGS) == 6
+    assert len(ingest.TEST_TAGS) == 48 and len(ingest.REF_TAGS) == 3
     assert ingest.TEST_TAGS[:5] == ["A-1-1", "A-1-2", "A-1-3", "A-1-4", "A-2-1"]
-    assert ingest.REF_TAGS == ["A-1-5", "A-5-3", "B-1-5", "B-5-3", "C-1-5", "C-5-3"]
-    assert len(ingest.EXPECTED_TAGS) == 60
+    assert ingest.REF_TAGS == ["A-1-5", "B-1-5", "C-1-5"]
+    assert len(ingest.EXPECTED_TAGS) == 51 and not any(t.split("-")[1] == "5" for t in ingest.EXPECTED_TAGS)
 
 
 def test_full_ios_export(tmp_path, monkeypatch):
     monkeypatch.setattr(ingest, "MIN_LONG_SIDE", 10)  # fixture photos are tiny
     src, out = tmp_path / "src", tmp_path / "out"
     src.mkdir()
-    assert _ios_export(src) == 240
+    assert _ios_export(src) == 204
     df, warnings = ingest.ingest(src, out)
-    assert len(df) == 240 and warnings == []
+    assert len(df) == 204 and warnings == []
 
     test = pd.read_csv(out / "manifest.csv")
-    assert len(test) == 216 and test["pair_id"].nunique() == 54 and test["ref"].eq(0).all()
+    assert len(test) == 192 and test["pair_id"].nunique() == 48 and test["ref"].eq(0).all()
     assert test.groupby("label").size().to_dict() == {
         "good": 48, "skipped_stitch": 36, "broken_stitch": 36, "crooked_seam": 24,
-        "puckering": 24, "stain_damage": 24, "open_seam": 24}
+        "stain_damage": 24, "open_seam": 24}
     b32 = test[test["tag"] == "B-3-2"]
     assert list(b32["photo_id"]) == ["B3-p2-m1", "B3-p2-m2", "B3-p2-m3", "B3-p2-m4"]
     assert list(b32["chalk_cm"]) == [10, 25, 40, 55]
     assert set(test[test["type_id"] == 7]["unseen"]) == {1}
-    assert set(test[test["check_visible"] == 1]["label"]) == {"skipped_stitch", "puckering"}
+    assert set(test[test["check_visible"] == 1]["label"]) == {"skipped_stitch"}
 
     ref = pd.read_csv(out / "ref" / "manifest.csv")
-    assert len(ref) == 24 and ref["ref"].eq(1).all()
-    assert ref.groupby("label").size().to_dict() == {"good": 12, "puckering": 12}
-    assert sorted(ref["pair_id"].unique())[:2] == ["A1-p5", "A5-p3"]
+    assert len(ref) == 12 and ref["ref"].eq(1).all()
+    assert ref.groupby("label").size().to_dict() == {"good": 12}
+    assert sorted(ref["pair_id"].unique()) == ["A1-p5", "B1-p5", "C1-p5"]
     assert not set(ref["tag"]) & set(test["tag"])
     assert not set(ref["photo_id"]) & {p.stem for p in (out / "images").iterdir()}
 
@@ -74,10 +74,12 @@ def test_single_pair_pilot(tmp_path, monkeypatch):
     df, warnings = ingest.ingest(src, out, pairs=["a-1-1"])
     assert list(df["photo_id"]) == ["A1-p1-m1", "A1-p1-m2", "A1-p1-m3", "A1-p1-m4"] and warnings == []
     assert len(pd.read_csv(out / "manifest.csv")) == 4
-    _, warnings = ingest.ingest(src, tmp_path / "all")  # without --pairs, the other 59 tags are reported missing
-    assert any("59 expected tags with no photos" in w for w in warnings)
+    _, warnings = ingest.ingest(src, tmp_path / "all")  # without --pairs, the other 50 tags are reported missing
+    assert any("50 expected tags with no photos" in w for w in warnings)
     with pytest.raises(ValueError):
         ingest.ingest(src, out, pairs=["A-1-6"])   # good has only 5 pairs
+    with pytest.raises(ValueError):
+        ingest.ingest(src, out, pairs=["A-5-1"])   # puckering was dropped from the spec
 
 
 def test_android_warnings(tmp_path):
@@ -105,18 +107,18 @@ def test_android_warnings(tmp_path):
     text = "\n".join(warnings)
     for expected in ["duplicate file", "unknown tag 'A-2'", "unknown tag 'A-1-REF'", "photo without a valid tag",
                      "B-3-2: tag sent 2 times", "B-3-2: 3 photos, expected 4", "media missing",
-                     "58 expected tags with no photos"]:
+                     "49 expected tags with no photos"]:
         assert expected in text, expected
 
 
 def test_folders_mode(tmp_path):
-    d = tmp_path / "B-5-2"
+    d = tmp_path / "B-6-2"
     d.mkdir()
     for i in range(4):
         _img(d / f"{i}.jpg", i)
     (tmp_path / "notes" / "misc").mkdir(parents=True)
-    df, warnings = ingest.ingest(tmp_path, tmp_path / "out", folders=True, pairs=["B-5-2"])
-    assert list(df["pair_id"].unique()) == ["B5-p2"] and set(df["label"]) == {"puckering"}
+    df, warnings = ingest.ingest(tmp_path, tmp_path / "out", folders=True, pairs=["B-6-2"])
+    assert list(df["pair_id"].unique()) == ["B6-p2"] and set(df["label"]) == {"stain_damage"}
     assert sum("skipped: notes" in w for w in warnings) == 1
 
 

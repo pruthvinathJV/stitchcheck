@@ -93,7 +93,7 @@ Full tables: `results/test/summary.csv`, `per_class.csv`, `paired.csv` (`scripts
 
 ### Phone test set (Kadiri, real shirting cotton, phone photos)
 
-TODO: all arms on 54 test pairs (216 photos), pair-bootstrap intervals; the Day 5 decision rule result.
+TODO: all arms on 48 test pairs (190 photos), pair-bootstrap intervals; the Day 5 decision rule result. The photos reached us as WhatsApp-compressed copies (1040 to 1600 px), so these numbers are a lower bound for full-resolution capture.
 
 ### Tech-pack reader (offline evaluation, not yet in the app)
 
@@ -105,6 +105,7 @@ TODO: field accuracy and hallucinations on the unseen sheets (headline) and the 
 
 - **Skipped stitches can leak through the label shown to the checker.** The classifier's skipped-stitch calls are protected from being relabelled good or crooked only when its probability is at least 0.60. Below that, the AI's "good" or "crooked seam" is pre-filled: skipped-stitch recall of the shown label is 0.667 against the classifier's 0.702. The 0.60 threshold and the rule were fixed on validation data and are not changed after seeing test results; a lower threshold is the next improvement to test on new validation data.
 - **Muse Spark does not name new defect types** on StitchingNet (above).
+- **Puckering is untested.** Muse Spark may suggest it and the checker decides, but no test set has puckering (no CC BY data; the phone pairs were not sewn).
 - **Phone photos are the real test.** StitchingNet is lab swatches from a fixed camera; results on phone photos of real shirts are reported above when the phone set is scored.
 - **Tech packs are read offline only.** The tech-pack extraction is evaluated (above) but has no screen yet; the day plan is entered on the Start sheet.
 - **Curved seams.** Tiles are rotated along the seam's overall direction, so on a curved or V-shaped seam each tile sits slightly off level.
@@ -139,12 +140,12 @@ Before Oct 26: research and planning documents only (no code). Day 0 preparation
 
 ## Data and licences
 
-The StitchingNet authors declined use beyond the non-commercial license, so the classifier is trained only on CC BY data and covers four defects. Puckering is detected by Muse Spark using reference seams we sewed ourselves.
+The StitchingNet authors declined use beyond the non-commercial license, so the classifier is trained only on CC BY data and covers four defects. Muse Spark can still suggest puckering for the checker to decide, but puckering is untested: there is no CC BY puckering data, and the planned puckering pairs in the phone set were not sewn.
 
 | Dataset | Licence | Use |
 |---|---|---|
 | [StitchingNet-Seg](https://doi.org/10.6084/m9.figshare.31222708) (Park, Jung and Kim, 2026) | CC BY 4.0 | The only image source for training and evaluation: good seams, four defect classes (skipped, broken, crooked, stain) and three unseen defect classes |
-| Phone test set (ours) | Not redistributed | Real out-of-distribution test, and the only puckering test: shirting cottons sewn with deliberate defects, photographed on a phone |
+| Phone test set (ours) | Not redistributed | Real out-of-distribution test: three shirting cottons sewn with deliberate defects (good, skipped, broken, crooked, stain, open seam), photographed on a phone |
 | Tech-pack sheets (ours) | MIT, with the code | Seven fictional sample spec sheets for "Sample Buyer Co." (not a real company) |
 
 The CC BY-NC release of [StitchingNet](https://www.kaggle.com/datasets/hyungjung/stitchingnet-dataset) (Kim et al.) was used once, before training, to check licence coverage (`results/audit/`). No model is trained or evaluated on it, and every split row is checked to be CC BY when it is loaded.

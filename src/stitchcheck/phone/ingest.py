@@ -1,13 +1,14 @@
 """Ingest the tailor's phone photos into a labelled manifest.
 
-Capture protocol (final): 3 shirting cottons (A white, B dark, C checks) x 7 seam types. Per fabric: 5 good pairs,
-3 skipped, 3 broken, 3 puckering, 2 each of crooked, stain and open seam = 20 pairs; 60 pairs, 240 photos.
+Capture protocol (final): 3 shirting cottons (A white, B dark, C checks) x 6 seam types. Per fabric: 5 good pairs,
+3 skipped, 3 broken, 2 each of crooked, stain and open seam = 17 pairs; 51 pairs, 204 photos. Type numbers keep the
+original protocol's numbering: type 5 (puckering) was dropped on Nov 3 because those pairs were never sewn.
 Each pair is announced by one WhatsApp text tag "<fabric>-<type>-<pair>" (e.g. "B-3-2"), followed by exactly
 4 photos sent as Documents, in chalk-mark order (10, 25, 40, 55 cm along the seam).
 
-The last good pair and the last puckering pair of each fabric ("<fabric>-1-5", "<fabric>-5-3") are reference
-pairs: 6 pairs, 24 photos. They are used for few-shot references and seam-threshold calibration, never for test
-metrics, so they go to their own folder and manifest: <out>/ref/. The other 54 pairs (216 photos) are the test set.
+The last good pair of each fabric ("<fabric>-1-5") is a reference pair: 3 pairs, 12 photos. They are used for
+good-seam references and seam-threshold calibration, never for test metrics, so they go to their own folder and
+manifest: <out>/ref/. The other 48 pairs (192 photos) are the test set.
 
 Inputs (either):
   WhatsApp "Export chat" with media, unzipped or as .zip (iOS `_chat.txt` or Android `WhatsApp Chat with *.txt`)
@@ -38,12 +39,12 @@ from PIL import Image, ImageOps
 
 FABRICS = {"A": "white", "B": "dark", "C": "checks"}
 TYPES = {1: "good", 2: "skipped_stitch", 3: "broken_stitch", 4: "crooked_seam",
-         5: "puckering", 6: "stain_damage", 7: "open_seam"}  # 7 is the unseen-defect probe
-PAIRS_PER_TYPE = {1: 5, 2: 3, 3: 3, 4: 2, 5: 3, 6: 2, 7: 2}
-REF_PAIR = {1: 5, 5: 3}  # per fabric, these pairs of good and puckering are references, never test
-# Skipped stitch and puckering run along the whole seam, so a given chalk mark may not show them.
+         6: "stain_damage", 7: "open_seam"}  # 7 is the unseen-defect probe; 5 (puckering) was dropped
+PAIRS_PER_TYPE = {1: 5, 2: 3, 3: 3, 4: 2, 6: 2, 7: 2}
+REF_PAIR = {1: 5}  # per fabric, the last good pair is a reference, never test
+# Skipped stitch runs along the whole seam, so a given chalk mark may not show it.
 # The other defects are made at every chalk mark.
-WHOLE_SEAM_TYPES = {2, 5}
+WHOLE_SEAM_TYPES = {2}
 CHALK_MARKS_CM = (10, 25, 40, 55)
 PHOTOS_PER_PAIR = len(CHALK_MARKS_CM)
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".heic", ".webp"}
