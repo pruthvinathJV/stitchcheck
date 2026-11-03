@@ -1,0 +1,18 @@
+{
+  "photo": "A1-p5-m2.jpg",
+  "long_side": 1040,
+  "image_size": [
+    780,
+    1040
+  ],
+  "focal_35mm": null,
+  "focal_mm": null,
+  "span_px": [
+    615,
+    996
+  ],
+  "stitches": 12.0,
+  "px_per_stitch": 31.75,
+  "capture_distance_cm": 15,
+  "note": "counted by eye on reference pair A-1-5 (photo A1-p5-m2, vertical seam at x 390: span is along y in the upright photo) before any test pair is scored; WhatsApp-compressed copy, no EXIF focal length, so scaling is by the long side only"
+}
