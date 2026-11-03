@@ -37,6 +37,7 @@ FALLBACK_FRAC = 0.15  # provisional tile side when there is neither a pitch nor 
 # Hand calibration on reference pair A-1-5 at the 15 cm capture distance: stitches counted over a known pixel span
 # (scripts/val/hand_scale.py). Used when the pitch is not confident, scaled by resolution and focal length.
 HAND_CALIBRATION = Path("results/val/stitch_hand_calibration.json")
+CAL_MIN_SIDE = 640  # the calibration is for phone photos; smaller images (224 px lab swatches) are measured instead
 FOCAL_35MM_TAG, FOCAL_TAG = 41989, 37386  # EXIF FocalLengthIn35mmFilm, FocalLength
 TILE_MIN = 64
 GOOD = "good"
@@ -116,12 +117,12 @@ def seam_tiles(im, mask, side, n=N_TILES):
 def tile_side(im, mask, meta=None, calibration=None):
     """Side that holds STITCHES_PER_TILE stitches, and how it was found. Returns (side, pitch px, path):
     - "fixed": the hand calibration's pixels per stitch, scaled by the photo's long side and, when both photos have
-      it, the 35 mm-equivalent focal length (same 15 cm capture distance assumed). Used whenever a calibration
-      exists: on the Kadiri reference pairs the measured pitch locked onto the weave or the check pattern instead;
+      it, the 35 mm-equivalent focal length (same 15 cm capture distance assumed). Used for every phone-sized photo
+      (long side at least CAL_MIN_SIDE) when a calibration exists: on the Kadiri reference pairs the measured pitch locked onto the weave or the check pattern instead;
     - "pitch": measured on probe tiles along the seam (median of those where it is confident), without a calibration;
     - "provisional": neither is available."""
     cal = calibration if calibration is not None else hand_calibration()
-    if cal:
+    if cal and max(im.size) >= CAL_MIN_SIDE:
         pitch = cal["px_per_stitch"] * max(im.size) / cal["long_side"]
         f, f_ref = (meta or {}).get("focal_35mm"), cal.get("focal_35mm")
         if f and f_ref:

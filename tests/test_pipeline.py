@@ -110,10 +110,14 @@ def test_fixed_scale_when_no_pitch_scales_with_resolution_and_focal_length():
     assert path == "provisional" and pitch is None
 
 
-def test_a_hand_calibration_wins_over_a_measured_pitch():
+def test_a_hand_calibration_wins_over_a_measured_pitch_on_phone_sized_photos_only():
     im, seam = stitched(pitch=20, angle_deg=25)
+    assert max(im.size) >= 640
     side, pitch, path = tile_side(im, seam, calibration=dict(px_per_stitch=30.0, long_side=max(im.size)))
     assert path == "fixed" and pitch == 30.0
+    small = im.resize((im.width // 4, im.height // 4))
+    mask = np.array(Image.fromarray(seam.astype(np.uint8) * 255).resize(small.size)) > 0
+    assert tile_side(small, mask, calibration=dict(px_per_stitch=30.0, long_side=1040))[2] != "fixed"
 
 
 def test_tiles_are_square_and_follow_a_diagonal_seam():
