@@ -200,6 +200,7 @@ The benchmark and the app use the same setting. Before the few-shot and hybrid a
 - *No seam found:* recorded as "retake" in every arm. It counts as a miss in recall and as a checker tap in workload, and the retake rate is reported.
 - *Skipped-stitch photos* (`check_visible`): reviewed by eye, one by one, before scoring; a photo with no visible skip is relabelled good, and an unclear one is removed. The review is saved in `results/phone/review.csv` (labels only, no images) and its counts go in the README.
 - *Intervals:* a bootstrap over pairs (2,000 resamples, seed 0).
+- *Calibration outcome (Nov 3, reference photos only, before any test pair is scored):* SAM's best "seam" cleared 0.5 on 10 of the 12 reference photos (0.535 to 0.906); on B1-p5-m1 and B1-p5-m2 (dark thread on dark cotton) it returned no seam at any confidence, which no threshold can fix, so **SEAM_T stays 0.5** and such photos are retakes. The measured stitch pitch was wrong on every fabric: about 10 px on white (the weave), about 50 px on checks (the check pattern), against about 32 px counted by eye on the same probe tiles. So **the hand calibration now comes first** whenever one exists, and the measured pitch is used only without it (`tile_side` in `src/stitchcheck/backend/pipeline.py`). This is a change to the product path, decided on reference photos only.
 
 ## Process first
 

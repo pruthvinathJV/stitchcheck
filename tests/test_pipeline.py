@@ -93,7 +93,7 @@ def test_stitch_pitch_on_a_horizontal_seam():
 
 def test_tile_side_holds_the_training_number_of_stitches_on_a_diagonal_seam():
     im, seam = stitched(pitch=20, angle_deg=25)
-    side, pitch, path = tile_side(im, seam)
+    side, pitch, path = tile_side(im, seam, calibration={})  # no hand calibration: measure
     assert path == "pitch" and abs(pitch - 20) <= 1.5
     assert abs(side - 10.67 * pitch) <= 2
 
@@ -108,6 +108,12 @@ def test_fixed_scale_when_no_pitch_scales_with_resolution_and_focal_length():
     assert path == "fixed" and pitch == 15.0
     side, pitch, path = tile_side(im, mask, meta={}, calibration={})
     assert path == "provisional" and pitch is None
+
+
+def test_a_hand_calibration_wins_over_a_measured_pitch():
+    im, seam = stitched(pitch=20, angle_deg=25)
+    side, pitch, path = tile_side(im, seam, calibration=dict(px_per_stitch=30.0, long_side=max(im.size)))
+    assert path == "fixed" and pitch == 30.0
 
 
 def test_tiles_are_square_and_follow_a_diagonal_seam():

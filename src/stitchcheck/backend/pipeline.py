@@ -27,7 +27,7 @@ from stitchcheck.spark import inspect as hybrid
 SEAM_PROMPT = "seam"
 PART_PROMPTS = ("collar", "pocket", "hem")  # the parts tested on the shirt photos (docs/design.md)
 PART_T = 0.7
-SEAM_T = 0.5  # provisional: set on the Kadiri reference pairs plus the shirt photos before the phone set is scored
+SEAM_T = 0.5  # kept on the Kadiri reference pairs (results/val/phone_ref_calibration.json, docs/design.md)
 N_TILES = 3
 # Stitches in a 224 px StitchingNet training tile: 224 / median stitch pitch (21 px) over 135 good training seams
 # where a pitch was found (results/val/stitch_scale.json). Phone tiles are cut to hold the same number.
@@ -115,15 +115,11 @@ def seam_tiles(im, mask, side, n=N_TILES):
 
 def tile_side(im, mask, meta=None, calibration=None):
     """Side that holds STITCHES_PER_TILE stitches, and how it was found. Returns (side, pitch px, path):
-    - "pitch": measured on probe tiles along the seam (median of those where it is confident);
     - "fixed": the hand calibration's pixels per stitch, scaled by the photo's long side and, when both photos have
-      it, the 35 mm-equivalent focal length (same 15 cm capture distance assumed);
+      it, the 35 mm-equivalent focal length (same 15 cm capture distance assumed). Used whenever a calibration
+      exists: on the Kadiri reference pairs the measured pitch locked onto the weave or the check pattern instead;
+    - "pitch": measured on probe tiles along the seam (median of those where it is confident), without a calibration;
     - "provisional": neither is available."""
-    probes = seam_tiles(im, mask, side=PROBE_FRAC * min(im.size))
-    pitches = [r["pitch"] for r in (stitch_pitch(np.array(p)) for p in probes) if r["found"]]
-    if pitches:
-        pitch = float(np.median(pitches))
-        return int(round(STITCHES_PER_TILE * pitch)), pitch, "pitch"
     cal = calibration if calibration is not None else hand_calibration()
     if cal:
         pitch = cal["px_per_stitch"] * max(im.size) / cal["long_side"]
@@ -131,6 +127,11 @@ def tile_side(im, mask, meta=None, calibration=None):
         if f and f_ref:
             pitch *= f / f_ref
         return int(round(STITCHES_PER_TILE * pitch)), pitch, "fixed"
+    probes = seam_tiles(im, mask, side=PROBE_FRAC * min(im.size))
+    pitches = [r["pitch"] for r in (stitch_pitch(np.array(p)) for p in probes) if r["found"]]
+    if pitches:
+        pitch = float(np.median(pitches))
+        return int(round(STITCHES_PER_TILE * pitch)), pitch, "pitch"
     return int(FALLBACK_FRAC * min(im.size)), None, "provisional"
 
 

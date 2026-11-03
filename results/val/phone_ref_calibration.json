@@ -1,0 +1,133 @@
+[
+  {
+    "photo_id": "A1-p5-m1",
+    "size": "780x1040",
+    "focal_35mm": null,
+    "seam_confidences": [
+      0.86
+    ],
+    "pitches": []
+  },
+  {
+    "photo_id": "A1-p5-m2",
+    "size": "780x1040",
+    "focal_35mm": null,
+    "seam_confidences": [
+      0.844
+    ],
+    "pitches": [
+      36,
+      10
+    ]
+  },
+  {
+    "photo_id": "A1-p5-m3",
+    "size": "780x1040",
+    "focal_35mm": null,
+    "seam_confidences": [
+      0.906
+    ],
+    "pitches": [
+      10,
+      10
+    ]
+  },
+  {
+    "photo_id": "A1-p5-m4",
+    "size": "780x1040",
+    "focal_35mm": null,
+    "seam_confidences": [
+      0.836
+    ],
+    "pitches": [
+      10
+    ]
+  },
+  {
+    "photo_id": "B1-p5-m1",
+    "size": "780x1040",
+    "focal_35mm": null,
+    "seam_confidences": [],
+    "pitches": []
+  },
+  {
+    "photo_id": "B1-p5-m2",
+    "size": "780x1040",
+    "focal_35mm": null,
+    "seam_confidences": [],
+    "pitches": []
+  },
+  {
+    "photo_id": "B1-p5-m3",
+    "size": "780x1040",
+    "focal_35mm": null,
+    "seam_confidences": [
+      0.535
+    ],
+    "pitches": []
+  },
+  {
+    "photo_id": "B1-p5-m4",
+    "size": "1040x780",
+    "focal_35mm": null,
+    "seam_confidences": [
+      0.597
+    ],
+    "pitches": [
+      10,
+      10,
+      27
+    ]
+  },
+  {
+    "photo_id": "C1-p5-m1",
+    "size": "1040x780",
+    "focal_35mm": null,
+    "seam_confidences": [
+      0.621
+    ],
+    "pitches": [
+      48,
+      49,
+      50
+    ]
+  },
+  {
+    "photo_id": "C1-p5-m2",
+    "size": "1040x780",
+    "focal_35mm": null,
+    "seam_confidences": [
+      0.625
+    ],
+    "pitches": [
+      52,
+      49,
+      51
+    ]
+  },
+  {
+    "photo_id": "C1-p5-m3",
+    "size": "1040x780",
+    "focal_35mm": null,
+    "seam_confidences": [
+      0.636
+    ],
+    "pitches": [
+      51,
+      51
+    ]
+  },
+  {
+    "photo_id": "C1-p5-m4",
+    "size": "1040x780",
+    "focal_35mm": null,
+    "seam_confidences": [
+      0.578
+    ],
+    "pitches": [
+      45,
+      47,
+      47
+    ]
+  }
+]
