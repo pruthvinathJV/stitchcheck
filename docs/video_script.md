@@ -19,7 +19,8 @@ Optional Telugu lines are marked **[Telugu, optional]**. They are drafts: check 
 
 ## Recording notes
 
-- Gallery shots (Try demo, then the gallery): for the 0:20 Agree shot use "Skipped stitch, cotton fabric" (a lab image; Muse Spark answers skipped stitch). For the 0:50 correction use "Broken stitch, white cotton" (a Kadiri phone photo; the AI suggests stain, as it does on most phone photos), and correct it by voice. Both answers are cached, so they come back in about 2 s.
+- Gallery shots, as recorded: the Agree shot is "Stain or damage, white cotton" and the correction is "Crooked seam, white cotton" (both Kadiri phone photos; on the second the classifier says stain, Muse Spark sees the seam wander, so it goes to the checker). The lab images are 224 px and look blurry at phone width, so they were not used. The recorded correction uses the Change button, not voice: press-and-hold recording was cut short in the desktop browser used for recording.
+- As recorded, the narration differs from the table above in places, and the video was cut and sped up 1.34x to fit 2:57.
 - Keep the total at or under 3:00. Cut shots before cutting the 2:30 honest-results segment.
 - Show "Demo data" on every hosted-demo screen. Never show a ranking of workers or a per-operator view.
 - Captions on throughout. Numbers as digits on screen, matching the README.

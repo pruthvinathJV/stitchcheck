@@ -6,7 +6,7 @@ StitchCheck is a phone app that turns any worker into a reliable stitch inspecto
 
 **On real phone photos** (185 photos of shirting cotton sewn in Kadiri, `results/phone/summary.json`) it flags **85.8%** of major defects [76.0, 94.8] but also 93.8% of good seams: the classifier, trained on lab images, cannot yet tell a good seam from a bad one on a phone. So on a phone today StitchCheck is a suggestion tool: the AI proposes, the checker confirms every photo, and every confirmed photo becomes training data.
 
-- Demo video: TODO
+- Demo video (2:57): https://youtu.be/4u7sluz6i3E
 - Live app: https://jvpnath--stitchcheck-web-web.us-east.modal.run (seeded demo day, labelled "Demo data")
 
 ## What it does
